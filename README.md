@@ -23,6 +23,10 @@ Phase 0 bootstrap.
 - FIFO waiting queues.
 - Busy time tracking.
 - Minimal utilization snapshot.
+- Inbound minimal flow.
+- Dock queue.
+- Forklift queue.
+- Deterministic inbound run result.
 
 ## Technical Boundaries
 
