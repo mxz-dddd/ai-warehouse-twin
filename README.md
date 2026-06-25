@@ -14,6 +14,11 @@ Phase 0 bootstrap.
 - Inventory state machine.
 - Domain invariants.
 - xUnit tests.
+- DES kernel skeleton.
+- Deterministic RNG.
+- Stable event queue.
+- Minimal simulator.
+- `WorldState` snapshot.
 
 ## Technical Boundaries
 
