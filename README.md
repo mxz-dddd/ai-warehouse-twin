@@ -19,6 +19,10 @@ Phase 0 bootstrap.
 - Stable event queue.
 - Minimal simulator.
 - `WorldState` snapshot.
+- Resource pools.
+- FIFO waiting queues.
+- Busy time tracking.
+- Minimal utilization snapshot.
 
 ## Technical Boundaries
 
