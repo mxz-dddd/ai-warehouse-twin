@@ -8,9 +8,12 @@ Phase 0 bootstrap.
 
 ## Phase 0 Current Capabilities
 
-- Contract schemas under `packages/contracts`.
-- Generated C# / Python contract types.
+- Contract schemas and generated C# / Python contract types.
 - Contract drift check.
+- `Sim.Core` .NET project.
+- Inventory state machine.
+- Domain invariants.
+- xUnit tests.
 
 ## Technical Boundaries
 
