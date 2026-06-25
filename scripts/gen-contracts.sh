@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "TODO: contract code generation will be implemented in EPIC-CONTRACTS-001."
-exit 0
+python3 scripts/generate_contracts.py
+echo "Contracts generated successfully."

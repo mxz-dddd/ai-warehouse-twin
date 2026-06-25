@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/inventory_unit.schema.json",
+  "title": "InventoryUnit",
+  "type": "object",
+  "required": [
+    "inventory_unit_id",
+    "warehouse_id",
+    "sku_id",
+    "location_id",
+    "quantity",
+    "batch_id",
+    "status"
+  ],
+  "properties": {
+    "inventory_unit_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "sku_id": {
+      "type": "string"
+    },
+    "location_id": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "batch_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "EXPECTED",
+        "RECEIVED",
+        "QC_HOLD",
+        "AVAILABLE",
+        "ALLOCATED",
+        "PICKING",
+        "PICKED",
+        "CONSOLIDATING",
+        "STAGED",
+        "LOADED",
+        "SHIPPED"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

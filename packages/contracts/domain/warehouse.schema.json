@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/warehouse.schema.json",
+  "title": "Warehouse",
+  "type": "object",
+  "required": [
+    "warehouse_id",
+    "name",
+    "units",
+    "width_mm",
+    "height_mm",
+    "zones",
+    "created_at"
+  ],
+  "properties": {
+    "warehouse_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "units": {
+      "type": "object",
+      "required": [
+        "distance",
+        "time",
+        "quantity"
+      ],
+      "properties": {
+        "distance": {
+          "type": "string",
+          "const": "mm"
+        },
+        "time": {
+          "type": "string",
+          "const": "utc_ms"
+        },
+        "quantity": {
+          "type": "string",
+          "const": "integer_or_decimal"
+        }
+      },
+      "additionalProperties": false
+    },
+    "width_mm": {
+      "type": "integer"
+    },
+    "height_mm": {
+      "type": "integer"
+    },
+    "zones": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "zone_id",
+          "zone_type",
+          "name"
+        ],
+        "properties": {
+          "zone_id": {
+            "type": "string"
+          },
+          "zone_type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "created_at": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

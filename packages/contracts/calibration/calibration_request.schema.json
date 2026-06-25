@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/calibration/calibration_request.schema.json",
+  "title": "CalibrationRequest",
+  "type": "object",
+  "required": [
+    "request_id",
+    "warehouse_id",
+    "scenario_id",
+    "historical_data_hash",
+    "seed"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "historical_data_hash": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    }
+  },
+  "additionalProperties": false
+}

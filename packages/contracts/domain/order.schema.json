@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/order.schema.json",
+  "title": "Order",
+  "type": "object",
+  "required": [
+    "order_id",
+    "warehouse_id",
+    "priority",
+    "due_at",
+    "channel",
+    "lines"
+  ],
+  "properties": {
+    "order_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "priority": {
+      "type": "integer"
+    },
+    "due_at": {
+      "type": "string"
+    },
+    "channel": {
+      "type": "string"
+    },
+    "lines": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "line_id",
+          "sku_id",
+          "quantity",
+          "uom"
+        ],
+        "properties": {
+          "line_id": {
+            "type": "string"
+          },
+          "sku_id": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "uom": {
+            "type": "string",
+            "enum": [
+              "EA",
+              "CASE",
+              "PALLET"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

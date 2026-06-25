@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/location.schema.json",
+  "title": "Location",
+  "type": "object",
+  "required": [
+    "location_id",
+    "warehouse_id",
+    "zone_id",
+    "x_mm",
+    "y_mm",
+    "z_mm",
+    "width_mm",
+    "depth_mm",
+    "height_mm",
+    "max_weight_g",
+    "max_volume_mm3",
+    "velocity_class",
+    "is_pick_face"
+  ],
+  "properties": {
+    "location_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "zone_id": {
+      "type": "string"
+    },
+    "x_mm": {
+      "type": "integer"
+    },
+    "y_mm": {
+      "type": "integer"
+    },
+    "z_mm": {
+      "type": "integer"
+    },
+    "width_mm": {
+      "type": "integer"
+    },
+    "depth_mm": {
+      "type": "integer"
+    },
+    "height_mm": {
+      "type": "integer"
+    },
+    "max_weight_g": {
+      "type": "integer"
+    },
+    "max_volume_mm3": {
+      "type": "integer"
+    },
+    "velocity_class": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ]
+    },
+    "is_pick_face": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

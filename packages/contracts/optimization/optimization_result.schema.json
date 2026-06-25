@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/optimization/optimization_result.schema.json",
+  "title": "OptimizationResult",
+  "type": "object",
+  "required": [
+    "request_id",
+    "warehouse_id",
+    "status",
+    "objective_value",
+    "confidence_level",
+    "summary"
+  ],
+  "properties": {
+    "request_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "FEASIBLE",
+        "INFEASIBLE",
+        "FAILED"
+      ]
+    },
+    "objective_value": {
+      "type": "number"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

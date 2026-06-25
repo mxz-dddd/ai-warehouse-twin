@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/sku.schema.json",
+  "title": "Sku",
+  "type": "object",
+  "required": [
+    "sku_id",
+    "name",
+    "length_mm",
+    "width_mm",
+    "height_mm",
+    "weight_g",
+    "case_qty",
+    "pallet_qty",
+    "handling_type",
+    "velocity_class"
+  ],
+  "properties": {
+    "sku_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "length_mm": {
+      "type": "integer"
+    },
+    "width_mm": {
+      "type": "integer"
+    },
+    "height_mm": {
+      "type": "integer"
+    },
+    "weight_g": {
+      "type": "integer"
+    },
+    "case_qty": {
+      "type": "integer"
+    },
+    "pallet_qty": {
+      "type": "integer"
+    },
+    "handling_type": {
+      "type": "string",
+      "enum": [
+        "FULL_CASE",
+        "EACH_PICK",
+        "BOTH"
+      ]
+    },
+    "velocity_class": {
+      "type": "string",
+      "enum": [
+        "A",
+        "B",
+        "C"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

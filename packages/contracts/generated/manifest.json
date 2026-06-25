@@ -1,0 +1,50 @@
+{
+  "generated_at": "deterministic",
+  "generator_version": "0.1.0",
+  "schemas": [
+    {
+      "path": "packages/contracts/calibration/calibration_request.schema.json",
+      "sha256": "3152298714f0faa5dcf5d64db9366caa6c316119eefbafa43883551537056bfd"
+    },
+    {
+      "path": "packages/contracts/calibration/calibration_result.schema.json",
+      "sha256": "0cee9dbedf2f95c6e400884eef9f49829389943525a9c0b2972ef9823a6243ab"
+    },
+    {
+      "path": "packages/contracts/domain/inventory_unit.schema.json",
+      "sha256": "71fd4aa775a556039e2c2501c7b4ce4e52cca0cb80177ea0aed802581a4f1827"
+    },
+    {
+      "path": "packages/contracts/domain/location.schema.json",
+      "sha256": "25171906fa7dfc3cb07178dad9a176b808049d96edf9bd9ba72c77aa767aeec1"
+    },
+    {
+      "path": "packages/contracts/domain/order.schema.json",
+      "sha256": "372eec16fdaaa1ff71d77f095ea0a1f7ea2f4c906d22d98f69ad0cc4ab5d8452"
+    },
+    {
+      "path": "packages/contracts/domain/resource.schema.json",
+      "sha256": "4e80f8645253c28d3ea9ac036ae6ce109cee6aebb5070673ebbaf6098a58ee50"
+    },
+    {
+      "path": "packages/contracts/domain/sku.schema.json",
+      "sha256": "c5b919d1880a619e47aa6c772a507fc3de741914c1f5930238a38d0589f8b531"
+    },
+    {
+      "path": "packages/contracts/domain/warehouse.schema.json",
+      "sha256": "0002adf785ffbd3b34ba13686346781707f50e75514e6e26470b28c3bdcfe110"
+    },
+    {
+      "path": "packages/contracts/events/domain_event.schema.json",
+      "sha256": "83a30e97444eca802d91baf976e722af0b9de5945b80fbc0c862eaa19a572f75"
+    },
+    {
+      "path": "packages/contracts/optimization/optimization_request.schema.json",
+      "sha256": "e4c45ba6e29783fe21dbdf0d2904732a031dc58b2f92c73035eb084ab4fb7917"
+    },
+    {
+      "path": "packages/contracts/optimization/optimization_result.schema.json",
+      "sha256": "80308abdb81b587cef3dad5bb77b2a7175012b7d664d891d9b30e95c07cf463b"
+    }
+  ]
+}

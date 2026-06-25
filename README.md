@@ -6,6 +6,12 @@ Warehouse digital twin + discrete event simulation + optimization + customer pre
 
 Phase 0 bootstrap.
 
+## Phase 0 Current Capabilities
+
+- Contract schemas under `packages/contracts`.
+- Generated C# / Python contract types.
+- Contract drift check.
+
 ## Technical Boundaries
 
 - C# `Sim.Core`: deterministic DES simulation core.

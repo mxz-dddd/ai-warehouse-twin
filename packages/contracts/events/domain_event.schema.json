@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/events/domain_event.schema.json",
+  "title": "DomainEvent",
+  "type": "object",
+  "required": [
+    "event_id",
+    "warehouse_id",
+    "occurred_at",
+    "source",
+    "event_type",
+    "correlation_id",
+    "task_id",
+    "actor_id",
+    "asset_id",
+    "sku_id",
+    "quantity",
+    "from_location",
+    "to_location",
+    "position",
+    "confidence",
+    "idempotency_key"
+  ],
+  "properties": {
+    "event_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "occurred_at": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "SIM",
+        "LIVE_WMS",
+        "LIVE_CAMERA",
+        "LIVE_SCAN",
+        "LIVE_RFID",
+        "LIVE_PLC"
+      ]
+    },
+    "event_type": {
+      "type": "string"
+    },
+    "correlation_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "actor_id": {
+      "type": "string"
+    },
+    "asset_id": {
+      "type": "string"
+    },
+    "sku_id": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "number"
+    },
+    "from_location": {
+      "type": "string"
+    },
+    "to_location": {
+      "type": "string"
+    },
+    "position": {
+      "type": "object",
+      "required": [
+        "x_mm",
+        "y_mm",
+        "z_mm"
+      ],
+      "properties": {
+        "x_mm": {
+          "type": "integer"
+        },
+        "y_mm": {
+          "type": "integer"
+        },
+        "z_mm": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "idempotency_key": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}

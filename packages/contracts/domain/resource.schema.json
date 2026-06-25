@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/domain/resource.schema.json",
+  "title": "Resource",
+  "type": "object",
+  "required": [
+    "resource_id",
+    "warehouse_id",
+    "resource_type",
+    "name",
+    "capacity",
+    "home_zone_id"
+  ],
+  "properties": {
+    "resource_id": {
+      "type": "string"
+    },
+    "warehouse_id": {
+      "type": "string"
+    },
+    "resource_type": {
+      "type": "string",
+      "enum": [
+        "WORKER",
+        "FORKLIFT",
+        "DOCK",
+        "STATION",
+        "CONVEYOR"
+      ]
+    },
+    "name": {
+      "type": "string"
+    },
+    "capacity": {
+      "type": "integer"
+    },
+    "home_zone_id": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
