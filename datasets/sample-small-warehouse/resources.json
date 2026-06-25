@@ -1,0 +1,22 @@
+{
+  "workers": [
+    {
+      "id": "worker-1",
+      "role": "picker"
+    }
+  ],
+  "forklifts": [
+    {
+      "id": "forklift-1",
+      "capacity_kg": 1000
+    }
+  ],
+  "docks": [
+    {
+      "id": "dock-in-1"
+    },
+    {
+      "id": "dock-out-1"
+    }
+  ]
+}

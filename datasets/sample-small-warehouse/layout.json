@@ -1,0 +1,102 @@
+{
+  "warehouse_id": "sample-small-warehouse",
+  "units": {
+    "distance": "mm",
+    "time": "second"
+  },
+  "zones": [
+    {
+      "id": "zone-pick",
+      "name": "Picking Zone"
+    },
+    {
+      "id": "zone-receive",
+      "name": "Receiving Zone"
+    }
+  ],
+  "aisles": [
+    {
+      "id": "aisle-a",
+      "zone_id": "zone-pick"
+    }
+  ],
+  "racks": [
+    {
+      "id": "rack-a1",
+      "aisle_id": "aisle-a"
+    }
+  ],
+  "locations": [
+    {
+      "id": "loc-a1-01",
+      "rack_id": "rack-a1",
+      "x": 1000,
+      "y": 1000
+    },
+    {
+      "id": "loc-a1-02",
+      "rack_id": "rack-a1",
+      "x": 2000,
+      "y": 1000
+    },
+    {
+      "id": "loc-a1-03",
+      "rack_id": "rack-a1",
+      "x": 3000,
+      "y": 1000
+    }
+  ],
+  "docks": [
+    {
+      "id": "dock-in-1",
+      "type": "inbound",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "dock-out-1",
+      "type": "outbound",
+      "x": 5000,
+      "y": 0
+    }
+  ],
+  "path_nodes": [
+    {
+      "id": "node-dock-in-1",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "node-a1",
+      "x": 1000,
+      "y": 1000
+    },
+    {
+      "id": "node-a2",
+      "x": 3000,
+      "y": 1000
+    },
+    {
+      "id": "node-dock-out-1",
+      "x": 5000,
+      "y": 0
+    }
+  ],
+  "path_edges": [
+    {
+      "from": "node-dock-in-1",
+      "to": "node-a1",
+      "distance_mm": 1414
+    },
+    {
+      "from": "node-a1",
+      "to": "node-a2",
+      "distance_mm": 2000
+    },
+    {
+      "from": "node-a2",
+      "to": "node-dock-out-1",
+      "distance_mm": 2236
+    }
+  ]
+}

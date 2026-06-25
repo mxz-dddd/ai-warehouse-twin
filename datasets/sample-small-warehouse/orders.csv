@@ -1,0 +1,6 @@
+order_id,line_id,sku_id,quantity,destination
+ORD-001,1,SKU-001,2,dock-out-1
+ORD-002,1,SKU-002,5,dock-out-1
+ORD-003,1,SKU-003,3,dock-out-1
+ORD-004,1,SKU-001,1,dock-out-1
+ORD-005,1,SKU-002,10,dock-out-1

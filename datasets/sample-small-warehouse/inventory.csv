@@ -1,0 +1,4 @@
+sku_id,location_id,quantity
+SKU-001,loc-a1-01,20
+SKU-002,loc-a1-02,100
+SKU-003,loc-a1-03,60
