@@ -27,6 +27,10 @@ Phase 0 bootstrap.
 - Dock queue.
 - Forklift queue.
 - Deterministic inbound run result.
+- Outbound minimal full-case flow.
+- Worker queue.
+- Dock queue.
+- Deterministic outbound run result.
 
 ## Technical Boundaries
 

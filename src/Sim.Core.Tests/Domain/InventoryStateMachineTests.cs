@@ -14,6 +14,7 @@ public sealed class InventoryStateMachineTests
         { InventoryStatus.Available, InventoryStatus.Allocated },
         { InventoryStatus.Allocated, InventoryStatus.Picking },
         { InventoryStatus.Picking, InventoryStatus.Picked },
+        { InventoryStatus.Picked, InventoryStatus.Staged },
         { InventoryStatus.Picked, InventoryStatus.Consolidating },
         { InventoryStatus.Consolidating, InventoryStatus.Staged },
         { InventoryStatus.Staged, InventoryStatus.Loaded },
