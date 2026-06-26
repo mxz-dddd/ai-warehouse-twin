@@ -1,6 +1,11 @@
 # AI Warehouse Twin
 
+[![CI](https://github.com/mxz-dddd/ai-warehouse-twin/actions/workflows/ci.yml/badge.svg)](https://github.com/mxz-dddd/ai-warehouse-twin/actions/workflows/ci.yml)
+
 AI Warehouse Twin 是一个面向仓储数字孪生的离散事件仿真原型项目。
+
+- GitHub 仓库：https://github.com/mxz-dddd/ai-warehouse-twin
+- 当前 Release：https://github.com/mxz-dddd/ai-warehouse-twin/releases/tag/v0.1.0-sim-core-sample
 
 当前本地里程碑的重点是：先建立一个稳定、可重复、可验收的小型仓库仿真输出入口。
 
