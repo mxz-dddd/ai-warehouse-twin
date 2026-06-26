@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate simulation core
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Show .NET info
+        run: dotnet --info
+
+      - name: Check UnityEngine boundary
+        run: ./scripts/check-no-unityengine.sh
+
+      - name: Check contract drift
+        run: ./scripts/check-contract-drift.sh
+
+      - name: Build
+        run: dotnet build
+
+      - name: Test
+        run: dotnet test
+
+      - name: Smoke sample warehouse CLI
+        run: bash scripts/smoke-sample-warehouse.sh
