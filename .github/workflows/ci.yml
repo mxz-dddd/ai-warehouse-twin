@@ -39,3 +39,6 @@ jobs:
 
       - name: Smoke sample warehouse CLI
         run: bash scripts/smoke-sample-warehouse.sh
+
+      - name: Smoke sample warehouse run-file CLI
+        run: bash scripts/smoke-sample-warehouse-run-file.sh
