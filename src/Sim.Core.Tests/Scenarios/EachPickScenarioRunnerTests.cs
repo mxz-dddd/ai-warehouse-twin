@@ -31,6 +31,25 @@ public sealed class EachPickScenarioRunnerTests
         Assert.Contains("EachPickStaged", result.EventLogText);
     }
 
+
+    [Fact]
+    public void Run_RecordsExactSingleOrderEventLog()
+    {
+        var result = new EachPickScenarioRunner().Run(Scenario());
+
+        var expected = string.Join(
+            Environment.NewLine,
+            new[]
+            {
+                "0|0|each_pick.order_released.order-1|EachPickOrderReleased",
+                "1|30|each_pick.at_station.order-1|EachPickAtStation",
+                "2|60|each_pick.completed.order-1|EachPickCompleted",
+                "3|100|each_pick.staged.order-1|EachPickStaged"
+            });
+
+        Assert.Equal(expected, result.EventLogText);
+    }
+
     [Fact]
     public void Run_ProducesDeterministicEventLog()
     {
