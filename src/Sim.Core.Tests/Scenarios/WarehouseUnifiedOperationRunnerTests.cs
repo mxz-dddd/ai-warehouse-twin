@@ -181,6 +181,58 @@ public sealed class WarehouseUnifiedOperationRunnerTests
     }
 
     [Fact]
+    public void CombinedRunner_CustomerKpiSummaryByOperationType_ComputesSeparateGroups()
+    {
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            [
+                new WarehouseUnifiedOperation(
+                    "a-inbound",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 10,
+                    skuId: "SKU-A",
+                    inventoryDelta: 5m),
+                new WarehouseUnifiedOperation(
+                    "b-outbound",
+                    WarehouseUnifiedOperationType.Outbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 20,
+                    skuId: "SKU-A",
+                    inventoryDelta: -4m),
+                new WarehouseUnifiedOperation(
+                    "c-each-pick",
+                    WarehouseUnifiedOperationType.EachPick,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 30,
+                    skuId: "SKU-A",
+                    inventoryDelta: -3m)
+            ]);
+
+        var summaries = result.CustomerKpiSummaryByOperationType;
+
+        Assert.Equal(3, summaries.Count);
+
+        var inbound = summaries[WarehouseUnifiedOperationType.Inbound];
+        Assert.Equal(1, inbound.OperationCount);
+        Assert.Equal(0, inbound.TotalWaitingTimeMs);
+        Assert.Equal(10, inbound.TotalCycleTimeMs);
+
+        var outbound = summaries[WarehouseUnifiedOperationType.Outbound];
+        Assert.Equal(1, outbound.OperationCount);
+        Assert.Equal(10, outbound.TotalWaitingTimeMs);
+        Assert.Equal(30, outbound.TotalCycleTimeMs);
+
+        var eachPick = summaries[WarehouseUnifiedOperationType.EachPick];
+        Assert.Equal(1, eachPick.OperationCount);
+        Assert.Equal(30, eachPick.TotalWaitingTimeMs);
+        Assert.Equal(60, eachPick.TotalCycleTimeMs);
+    }
+
+    [Fact]
     public void CombinedRunner_EventLog_UsesLfOnly()
     {
         var result = RunConservationScenario();

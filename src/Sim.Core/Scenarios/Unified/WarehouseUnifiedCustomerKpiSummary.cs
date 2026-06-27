@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Sim.Core.Domain;
 
 namespace Sim.Core.Scenarios.Unified;
@@ -122,6 +123,24 @@ public sealed record WarehouseUnifiedCustomerKpiSummary
             PercentileNearestRank(cycleTimes, 0.90m),
             PercentileNearestRank(cycleTimes, 0.95m),
             telemetry.Sum(item => item.DurationMs));
+    }
+
+    public static IReadOnlyDictionary<WarehouseUnifiedOperationType, WarehouseUnifiedCustomerKpiSummary> ByOperationType(
+        IReadOnlyList<WarehouseUnifiedOperationTelemetry> telemetry)
+    {
+        ArgumentNullException.ThrowIfNull(telemetry);
+
+        var summaries = new SortedDictionary<WarehouseUnifiedOperationType, WarehouseUnifiedCustomerKpiSummary>();
+
+        foreach (var group in telemetry
+                     .GroupBy(item => item.OperationType)
+                     .OrderBy(group => group.Key))
+        {
+            summaries[group.Key] = FromTelemetry(group.ToArray());
+        }
+
+        return new ReadOnlyDictionary<WarehouseUnifiedOperationType, WarehouseUnifiedCustomerKpiSummary>(
+            summaries);
     }
 
     private static long PercentileNearestRank(

@@ -89,11 +89,14 @@ public sealed class WarehouseUnifiedOperationRunner
 
         var customerKpiSummary = WarehouseUnifiedCustomerKpiSummary.FromTelemetry(
             operationTelemetry);
+        var customerKpiSummaryByOperationType =
+            WarehouseUnifiedCustomerKpiSummary.ByOperationType(operationTelemetry);
 
         return new WarehouseUnifiedOperationResult(
             orderedIntervals,
             operationTelemetry,
             customerKpiSummary,
+            customerKpiSummaryByOperationType,
             ledger.Snapshot(),
             eventLogText);
     }
