@@ -33,15 +33,17 @@ var result = new WarehouseScenarioRunner().Run(scenario);
 
 if (artifactOutputPath is not null)
 {
+    var artifactJson = JsonSerializer.Serialize(
+        ToRunArtifact(result),
+        new JsonSerializerOptions
+        {
+            WriteIndented = true,
+            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+        });
+
     File.WriteAllText(
         artifactOutputPath,
-        JsonSerializer.Serialize(
-            ToRunArtifact(result),
-            new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            }) + "\n");
+        NormalizeLineEndings(artifactJson) + "\n");
 
     Console.WriteLine($"Exported run artifact: {artifactOutputPath}");
     return 0;
