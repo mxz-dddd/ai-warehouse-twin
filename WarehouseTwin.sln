@@ -12,6 +12,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Cli", "src\Sim.Cli\Sim.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Contracts", "src\Sim.Contracts\Sim.Contracts.csproj", "{40120084-98CE-4DE1-AB3A-515101846E7F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Report", "src\Sim.Report\Sim.Report.csproj", "{7C2001A3-3587-498C-952D-9CBB2D766B5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Report.Tests", "src\Sim.Report.Tests\Sim.Report.Tests.csproj", "{04EEBC46-672E-4E11-9544-6BCAE5E3BFED}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +38,14 @@ Global
 		{40120084-98CE-4DE1-AB3A-515101846E7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40120084-98CE-4DE1-AB3A-515101846E7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40120084-98CE-4DE1-AB3A-515101846E7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C2001A3-3587-498C-952D-9CBB2D766B5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C2001A3-3587-498C-952D-9CBB2D766B5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C2001A3-3587-498C-952D-9CBB2D766B5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C2001A3-3587-498C-952D-9CBB2D766B5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,5 +53,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{D15E1366-F84D-4BB0-9DE7-608004AB6745} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 		{40120084-98CE-4DE1-AB3A-515101846E7F} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
+		{7C2001A3-3587-498C-952D-9CBB2D766B5D} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
+		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 	EndGlobalSection
 EndGlobal
