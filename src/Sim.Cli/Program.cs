@@ -1,9 +1,11 @@
 using System.Text.Json;
+using Sim.Contracts.Artifacts;
 using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
 
 WarehouseScenario scenario;
+string? artifactOutputPath = null;
 
 if (args.Length == 1 && args[0] == "sample-small-warehouse")
 {
@@ -13,15 +15,37 @@ else if (args.Length == 2 && args[0] == "run-file")
 {
     scenario = WarehouseScenarioJsonLoader.Load(args[1]);
 }
+else if (args.Length == 4 && args[0] == "export-artifact" && args[2] == "-o")
+{
+    scenario = WarehouseScenarioJsonLoader.Load(args[1]);
+    artifactOutputPath = args[3];
+}
 else
 {
     Console.Error.WriteLine("Usage:");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- sample-small-warehouse");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     return 1;
 }
 
 var result = new WarehouseScenarioRunner().Run(scenario);
+
+if (artifactOutputPath is not null)
+{
+    File.WriteAllText(
+        artifactOutputPath,
+        JsonSerializer.Serialize(
+            ToRunArtifact(result),
+            new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+            }) + Environment.NewLine);
+
+    Console.WriteLine($"Exported run artifact: {artifactOutputPath}");
+    return 0;
+}
 
 Console.WriteLine(JsonSerializer.Serialize(
     ToPayload(result),
@@ -58,6 +82,37 @@ static object ToPayload(WarehouseRunResult result)
             each_pick_order_throughput_per_hour = RoundKpi(result.KpiSummary.EachPickOrderThroughputPerHour),
             total_work_item_throughput_per_hour = RoundKpi(result.KpiSummary.TotalWorkItemThroughputPerHour)
         }
+    };
+}
+
+static RunArtifact ToRunArtifact(WarehouseRunResult result)
+{
+    var kpi = result.KpiSummary;
+
+    return new RunArtifact
+    {
+        SchemaVersion = RunArtifact.CurrentSchemaVersion,
+        ArtifactKind = RunArtifact.CurrentArtifactKind,
+        ScenarioId = result.ScenarioId,
+        Seed = result.Seed,
+        StartedAtMs = result.StartedAtMs,
+        FinishedAtMs = result.FinishedAtMs,
+        FinalWorldTimeMs = result.FinalWorldState.TimeMs,
+        KpiSummary = new RunArtifactKpiSummary
+        {
+            TotalDurationMs = kpi.TotalDurationMs,
+            TotalCompletedWorkItems = kpi.TotalCompletedWorkItems,
+            EventLogLineCount = kpi.EventLogLineCount,
+            ReceiptThroughputPerHour = RoundKpi(kpi.ReceiptThroughputPerHour),
+            OutboundOrderThroughputPerHour = RoundKpi(kpi.OutboundOrderThroughputPerHour),
+            EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
+            TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
+        },
+        EventLog = result.EventLogText
+            .Split('\n')
+            .Select(line => line.TrimEnd('\r'))
+            .Where(line => line.Length > 0)
+            .ToArray()
     };
 }
 

@@ -42,3 +42,6 @@ jobs:
 
       - name: Smoke sample warehouse run-file CLI
         run: bash scripts/smoke-sample-warehouse-run-file.sh
+
+      - name: Smoke export artifact
+        run: bash scripts/smoke-export-artifact.sh

@@ -1,0 +1,30 @@
+{
+  "schema_version": "run-artifact.v1",
+  "artifact_kind": "warehouse-simulation-run",
+  "scenario_id": "sample-small-warehouse",
+  "seed": 20240627,
+  "started_at_ms": 10,
+  "finished_at_ms": 220,
+  "final_world_time_ms": 220,
+  "kpi_summary": {
+    "total_duration_ms": 210,
+    "total_completed_work_items": 3,
+    "event_log_line_count": 10,
+    "receipt_throughput_per_hour": 17142.857,
+    "outbound_order_throughput_per_hour": 17142.857,
+    "each_pick_order_throughput_per_hour": 17142.857,
+    "total_work_item_throughput_per_hour": 51428.571
+  },
+  "event_log": [
+    "inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived",
+    "inbound|1|110|inbound.unload_completed.receipt-1|InboundUnloadCompleted",
+    "inbound|2|210|inbound.putaway_completed.receipt-1|InboundPutawayCompleted",
+    "outbound|0|20|outbound.order_released.order-1|OutboundOrderReleased",
+    "outbound|1|120|outbound.pick_completed.order-1|OutboundPickCompleted",
+    "outbound|2|220|outbound.load_completed.order-1|OutboundLoadCompleted",
+    "each_pick|0|30|each_pick.order_released.each-order-1|EachPickOrderReleased",
+    "each_pick|1|60|each_pick.at_station.each-order-1|EachPickAtStation",
+    "each_pick|2|90|each_pick.completed.each-order-1|EachPickCompleted",
+    "each_pick|3|130|each_pick.staged.each-order-1|EachPickStaged"
+  ]
+}
