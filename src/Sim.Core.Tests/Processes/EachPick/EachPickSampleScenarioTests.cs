@@ -23,10 +23,26 @@ public sealed class EachPickSampleScenarioTests
         Assert.Equal(5m, result.TotalQuantityPicked);
         Assert.Equal(0, result.StartedAtMs);
         Assert.Equal(100, result.FinishedAtMs);
+        Assert.Equal(100, result.FinalWorldState.TimeMs);
+        Assert.Equal(100, result.KpiSummary.TotalDurationMs);
+        Assert.Equal(1, result.KpiSummary.TotalCompletedWorkItems);
         Assert.Equal(4, result.KpiSummary.EventLogLineCount);
+        Assert.InRange(
+            result.KpiSummary.EachPickOrderThroughputPerHour,
+            35999.999m,
+            36000.001m);
+        Assert.InRange(
+            result.KpiSummary.TotalWorkItemThroughputPerHour,
+            35999.999m,
+            36000.001m);
 
         var eventLines = result.EventLogText.Split('\n');
         Assert.Equal(4, eventLines.Length);
+        Assert.Single(
+            eventLines,
+            line => line.EndsWith(
+                "|EachPickOrderReleased",
+                StringComparison.Ordinal));
         Assert.Contains(
             "each_pick|0|0|each_pick.order_released.each-order-1|EachPickOrderReleased",
             eventLines);

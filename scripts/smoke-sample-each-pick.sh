@@ -55,13 +55,49 @@ if event_lines != required_events:
         f"got {event_lines!r}"
     )
 
+orders_released = sum(
+    "EachPickOrderReleased" in event for event in event_lines
+)
+orders_completed = payload.get("completed_each_pick_orders")
+units_picked = payload.get("total_quantity_picked")
+sim_completed = (
+    orders_completed == 1
+    and payload.get("finished_at_ms") == payload.get("final_world_time_ms")
+)
+
+if orders_released != 1:
+    raise SystemExit(
+        f"FAIL: expected one released each-pick order, got {orders_released}"
+    )
+if orders_completed != 1:
+    raise SystemExit(
+        f"FAIL: expected one completed each-pick order, got {orders_completed!r}"
+    )
+if units_picked != 5:
+    raise SystemExit(
+        f"FAIL: expected five picked units, got {units_picked!r}"
+    )
+if not sim_completed:
+    raise SystemExit("FAIL: each-pick simulation did not complete")
+
 kpi = payload.get("kpi_summary", {})
+if kpi.get("total_duration_ms") != 100:
+    raise SystemExit("FAIL: expected total duration of 100 ms")
 if kpi.get("total_completed_work_items") != 1:
     raise SystemExit("FAIL: expected one completed work item")
 if kpi.get("event_log_line_count") != 4:
     raise SystemExit("FAIL: expected four event log lines")
+throughput = float(kpi.get("each_pick_order_throughput_per_hour", 0))
+if abs(throughput - 36000.0) > 1e-6:
+    raise SystemExit(
+        f"FAIL: expected each-pick throughput near 36000 orders/hour, "
+        f"got {throughput!r}"
+    )
 
 print("PASS: sample each-pick scenario ran")
-print("orders completed: 1")
+print(f"orders released: {orders_released}")
+print(f"orders completed: {orders_completed}")
+print(f"units picked: {units_picked}")
 print(f"events: {len(event_lines)}")
+print(f"sim completed: {str(sim_completed).lower()}")
 PY
