@@ -31,6 +31,9 @@ jobs:
       - name: Check contract drift
         run: ./scripts/check-contract-drift.sh
 
+      - name: Check consumer dependency boundary
+        run: bash scripts/check-consumer-no-core.sh
+
       - name: Build
         run: dotnet build
 
