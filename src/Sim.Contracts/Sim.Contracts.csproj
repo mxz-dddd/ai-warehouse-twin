@@ -1,4 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -6,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Sim.Contracts/Sim.Contracts.csproj" />
+    <Compile Include="../../packages/contracts/generated/csharp/Contracts.Generated.cs" Link="Generated/Contracts.Generated.cs" />
   </ItemGroup>
+
 </Project>

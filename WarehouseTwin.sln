@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{92E33C9F-923
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Cli", "src\Sim.Cli\Sim.Cli.csproj", "{D15E1366-F84D-4BB0-9DE7-608004AB6745}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Contracts", "src\Sim.Contracts\Sim.Contracts.csproj", "{40120084-98CE-4DE1-AB3A-515101846E7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,11 +30,16 @@ Global
 		{D15E1366-F84D-4BB0-9DE7-608004AB6745}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D15E1366-F84D-4BB0-9DE7-608004AB6745}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D15E1366-F84D-4BB0-9DE7-608004AB6745}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40120084-98CE-4DE1-AB3A-515101846E7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40120084-98CE-4DE1-AB3A-515101846E7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40120084-98CE-4DE1-AB3A-515101846E7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40120084-98CE-4DE1-AB3A-515101846E7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D15E1366-F84D-4BB0-9DE7-608004AB6745} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
+		{40120084-98CE-4DE1-AB3A-515101846E7F} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 	EndGlobalSection
 EndGlobal
