@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Sim.Core.Domain;
 using Sim.Core.World;
 
@@ -14,7 +15,8 @@ public sealed record WarehouseRunResult
         long startedAtMs,
         long finishedAtMs,
         string eventLogText,
-        WorldState finalWorldState)
+        WorldState finalWorldState,
+        IReadOnlyDictionary<string, decimal>? finalInventorySnapshot = null)
     {
         if (string.IsNullOrWhiteSpace(scenarioId))
         {
@@ -50,6 +52,15 @@ public sealed record WarehouseRunResult
         FinishedAtMs = finishedAtMs;
         EventLogText = eventLogText ?? string.Empty;
         FinalWorldState = finalWorldState ?? throw new ArgumentNullException(nameof(finalWorldState));
+        FinalInventorySnapshot = new ReadOnlyDictionary<string, decimal>(
+            new SortedDictionary<string, decimal>(
+                (finalInventorySnapshot ??
+                 new Dictionary<string, decimal>())
+                    .ToDictionary(
+                        entry => entry.Key,
+                        entry => entry.Value,
+                        StringComparer.Ordinal),
+                StringComparer.Ordinal));
     }
 
     public string ScenarioId { get; }
@@ -83,4 +94,6 @@ public sealed record WarehouseRunResult
     public WarehouseKpiSummary KpiSummary => WarehouseKpiSummary.FromRunResult(this);
 
     public WorldState FinalWorldState { get; }
+
+    public IReadOnlyDictionary<string, decimal> FinalInventorySnapshot { get; }
 }

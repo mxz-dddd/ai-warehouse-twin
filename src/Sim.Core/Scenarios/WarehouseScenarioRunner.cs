@@ -1,9 +1,37 @@
+using Sim.Core.Scenarios.Unified;
 using Sim.Core.World;
 
 namespace Sim.Core.Scenarios;
 
 public sealed class WarehouseScenarioRunner
 {
+    public WarehouseRunResult RunUnified(WarehouseUnifiedScenario scenario)
+    {
+        ArgumentNullException.ThrowIfNull(scenario);
+
+        var unifiedResult = new WarehouseUnifiedOperationRunner().Run(
+            scenario.InitialInventory,
+            scenario.Operations);
+        var worldState = new WorldState(
+            unifiedResult.OperationIntervals.Max(interval => interval.FinishedAtMs));
+
+        var inboundResult = ToInboundResult(scenario, unifiedResult, worldState);
+        var outboundResult = ToOutboundResult(scenario, unifiedResult, worldState);
+        var eachPickResult = ToEachPickResult(scenario, unifiedResult, worldState);
+
+        return new WarehouseRunResult(
+            scenario.ScenarioId,
+            scenario.Seed,
+            inboundResult,
+            outboundResult,
+            eachPickResult,
+            scenario.Operations.Min(operation => operation.RequestedAtMs),
+            worldState.TimeMs,
+            unifiedResult.EventLogText,
+            worldState,
+            unifiedResult.FinalInventorySnapshot);
+    }
+
     public WarehouseRunResult Run(WarehouseScenario scenario)
     {
         ArgumentNullException.ThrowIfNull(scenario);
@@ -65,6 +93,103 @@ public sealed class WarehouseScenarioRunner
             finishedAtMs,
             ToWarehouseEventLog(childRuns),
             MergeWorldStates(finishedAtMs, childRuns));
+    }
+
+    private static InboundRunResult? ToInboundResult(
+        WarehouseUnifiedScenario scenario,
+        WarehouseUnifiedOperationResult unifiedResult,
+        WorldState worldState)
+    {
+        var operations = OperationsOfType(
+            scenario,
+            WarehouseUnifiedOperationType.Inbound);
+        if (operations.Length == 0)
+        {
+            return null;
+        }
+
+        var intervals = IntervalsFor(unifiedResult, operations);
+        return new InboundRunResult(
+            $"{scenario.ScenarioId}.inbound",
+            scenario.Seed,
+            operations.Length,
+            operations.Sum(operation => operation.InventoryDelta),
+            operations.Min(operation => operation.RequestedAtMs),
+            intervals.Max(interval => interval.FinishedAtMs),
+            string.Empty,
+            worldState);
+    }
+
+    private static OutboundRunResult? ToOutboundResult(
+        WarehouseUnifiedScenario scenario,
+        WarehouseUnifiedOperationResult unifiedResult,
+        WorldState worldState)
+    {
+        var operations = OperationsOfType(
+            scenario,
+            WarehouseUnifiedOperationType.Outbound);
+        if (operations.Length == 0)
+        {
+            return null;
+        }
+
+        var intervals = IntervalsFor(unifiedResult, operations);
+        return new OutboundRunResult(
+            $"{scenario.ScenarioId}.outbound",
+            scenario.Seed,
+            operations.Length,
+            operations.Sum(operation => Math.Abs(operation.InventoryDelta)),
+            operations.Min(operation => operation.RequestedAtMs),
+            intervals.Max(interval => interval.FinishedAtMs),
+            string.Empty,
+            worldState);
+    }
+
+    private static EachPickRunResult? ToEachPickResult(
+        WarehouseUnifiedScenario scenario,
+        WarehouseUnifiedOperationResult unifiedResult,
+        WorldState worldState)
+    {
+        var operations = OperationsOfType(
+            scenario,
+            WarehouseUnifiedOperationType.EachPick);
+        if (operations.Length == 0)
+        {
+            return null;
+        }
+
+        var intervals = IntervalsFor(unifiedResult, operations);
+        return new EachPickRunResult(
+            $"{scenario.ScenarioId}.each-pick",
+            scenario.Seed,
+            operations.Length,
+            operations.Sum(operation => Math.Abs(operation.InventoryDelta)),
+            operations.Min(operation => operation.RequestedAtMs),
+            intervals.Max(interval => interval.FinishedAtMs),
+            string.Empty,
+            worldState);
+    }
+
+    private static WarehouseUnifiedOperation[] OperationsOfType(
+        WarehouseUnifiedScenario scenario,
+        WarehouseUnifiedOperationType operationType)
+    {
+        return scenario.Operations
+            .Where(operation => operation.OperationType == operationType)
+            .ToArray();
+    }
+
+    private static WarehouseUnifiedOperationInterval[] IntervalsFor(
+        WarehouseUnifiedOperationResult result,
+        IEnumerable<WarehouseUnifiedOperation> operations)
+    {
+        var operationIds = operations
+            .Select(operation => operation.OperationId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return result.OperationIntervals
+            .Where(interval => operationIds.Contains(interval.OperationId))
+            .ToArray();
     }
 
     private static string ToWarehouseEventLog(IEnumerable<ChildRun> childRuns)
