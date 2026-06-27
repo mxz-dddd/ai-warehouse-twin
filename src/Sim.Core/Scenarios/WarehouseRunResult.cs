@@ -80,5 +80,7 @@ public sealed record WarehouseRunResult
 
     public string EventLogText { get; }
 
+    public WarehouseKpiSummary KpiSummary => WarehouseKpiSummary.FromRunResult(this);
+
     public WorldState FinalWorldState { get; }
 }
