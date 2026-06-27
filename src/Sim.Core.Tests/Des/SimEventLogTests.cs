@@ -25,7 +25,10 @@ public sealed class SimEventLogTests
         log.Append(10, "evt-1", "First");
         log.Append(20, "evt-2", "Second");
 
-        Assert.Equal("0|10|evt-1|First\n1|20|evt-2|Second", log.ToDeterministicText());
+        var text = log.ToDeterministicText();
+
+        Assert.Equal("0|10|evt-1|First\n1|20|evt-2|Second", text);
+        Assert.DoesNotContain('\r', text);
     }
 
     [Fact]

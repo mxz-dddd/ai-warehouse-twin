@@ -38,7 +38,7 @@ public sealed class EachPickScenarioRunnerTests
         var result = new EachPickScenarioRunner().Run(Scenario());
 
         var expected = string.Join(
-            Environment.NewLine,
+            "\n",
             new[]
             {
                 "0|0|each_pick.order_released.order-1|EachPickOrderReleased",
@@ -48,6 +48,7 @@ public sealed class EachPickScenarioRunnerTests
             });
 
         Assert.Equal(expected, result.EventLogText);
+        Assert.DoesNotContain('\r', result.EventLogText);
     }
 
     [Fact]

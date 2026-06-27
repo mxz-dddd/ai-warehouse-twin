@@ -75,6 +75,7 @@ public sealed class WarehouseScenarioRunnerTests
         Assert.Contains("inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived", result.EventLogText);
         Assert.Contains("outbound|0|20|outbound.order_released.order-1|OutboundOrderReleased", result.EventLogText);
         Assert.Contains("each_pick|0|30|each_pick.order_released.each-order-1|EachPickOrderReleased", result.EventLogText);
+        Assert.DoesNotContain('\r', result.EventLogText);
     }
 
     [Fact]

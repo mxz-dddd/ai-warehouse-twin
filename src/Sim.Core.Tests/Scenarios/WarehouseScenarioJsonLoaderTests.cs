@@ -52,9 +52,10 @@ public sealed class WarehouseScenarioJsonLoaderTests
         var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
 
         var result = new WarehouseScenarioRunner().Run(scenario);
-        var lines = result.EventLogText.Split(Environment.NewLine);
+        var lines = result.EventLogText.Split('\n');
 
         Assert.Equal(10, lines.Length);
+        Assert.DoesNotContain('\r', result.EventLogText);
         Assert.Contains("inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived", lines);
         Assert.Contains("outbound|0|20|outbound.order_released.order-1|OutboundOrderReleased", lines);
         Assert.Contains("each_pick|0|30|each_pick.order_released.each-order-1|EachPickOrderReleased", lines);

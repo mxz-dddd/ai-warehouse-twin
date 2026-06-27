@@ -34,7 +34,7 @@ public sealed class SimEventLog
             var entry = _entries[index];
             if (index > 0)
             {
-                builder.AppendLine();
+                builder.Append('\n');
             }
 
             builder.Append(entry.Sequence);

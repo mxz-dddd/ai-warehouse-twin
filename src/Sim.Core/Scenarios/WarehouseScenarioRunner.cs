@@ -90,7 +90,7 @@ public sealed class WarehouseScenarioRunner
             }
         }
 
-        return string.Join(Environment.NewLine, lines);
+        return string.Join("\n", lines);
     }
 
     private static WorldState MergeWorldStates(long finishedAtMs, IEnumerable<ChildRun> childRuns)

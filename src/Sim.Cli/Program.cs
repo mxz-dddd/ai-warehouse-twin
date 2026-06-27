@@ -41,7 +41,7 @@ if (artifactOutputPath is not null)
             {
                 WriteIndented = true,
                 PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-            }) + Environment.NewLine);
+            }) + "\n");
 
     Console.WriteLine($"Exported run artifact: {artifactOutputPath}");
     return 0;
@@ -108,12 +108,16 @@ static RunArtifact ToRunArtifact(WarehouseRunResult result)
             EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
             TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
         },
-        EventLog = result.EventLogText
+        EventLog = NormalizeLineEndings(result.EventLogText)
             .Split('\n')
-            .Select(line => line.TrimEnd('\r'))
             .Where(line => line.Length > 0)
             .ToArray()
     };
+}
+
+static string NormalizeLineEndings(string value)
+{
+    return value.Replace("\r\n", "\n").Replace('\r', '\n');
 }
 
 static decimal RoundKpi(decimal value)
