@@ -10,8 +10,17 @@ on:
 
 jobs:
   validate:
-    name: Validate simulation core
-    runs-on: ubuntu-latest
+    name: Validate simulation core (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout
@@ -20,7 +29,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          global-json-file: global.json
 
       - name: Show .NET info
         run: dotnet --info
