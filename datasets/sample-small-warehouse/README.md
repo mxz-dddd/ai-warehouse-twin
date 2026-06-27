@@ -120,3 +120,34 @@ CLI 输出中的 `event_log_text` 应包含 10 条事件：
 - 包装复核
 - Unity 展示
 - 优化算法
+
+## scenario.json 输入文件
+
+当前样例已经提供外部 JSON 场景输入文件：
+
+    datasets/sample-small-warehouse/scenario.json
+
+可以通过以下命令直接从该文件运行仿真：
+
+    dotnet run --project src/Sim.Cli -- run-file datasets/sample-small-warehouse/scenario.json
+
+该 JSON 文件描述了最小仓库场景的输入数据，包括：
+
+    1. scenario_id 与 seed
+    2. inbound receipt
+    3. outbound order 与 inventory
+    4. each-pick order 与 inventory
+    5. 各流程资源数量
+    6. 各流程处理时长
+    7. expected 验收摘要
+
+外部输入链路的 smoke 验收命令为：
+
+    bash scripts/smoke-sample-warehouse-run-file.sh
+
+该脚本会验证：
+
+    1. run-file 输出与内置 sample 输出完全一致
+    2. 样例关键指标符合预期
+    3. event_log_text 包含稳定的关键事件
+    4. 事件日志行数为 10

@@ -188,3 +188,25 @@ bash scripts/smoke-sample-warehouse.sh
 - AI 助手工作流
 
 这些内容属于后续阶段，不能在没有明确任务卡的情况下扩展。
+
+## 外部 JSON 场景输入
+
+除了内置样例：
+
+    dotnet run --project src/Sim.Cli -- sample-small-warehouse
+
+当前 CLI 也支持从外部 JSON 场景文件运行仿真：
+
+    dotnet run --project src/Sim.Cli -- run-file datasets/sample-small-warehouse/scenario.json
+
+这条链路用于把项目从“代码内置样例”推进到“用户/客户提供场景输入 -> 仿真运行 -> JSON 输出”的创业 MVP 形态。
+
+当前外部输入样例位于：
+
+    datasets/sample-small-warehouse/scenario.json
+
+对应验收脚本：
+
+    bash scripts/smoke-sample-warehouse-run-file.sh
+
+该脚本会比较内置 sample-small-warehouse 与 run-file scenario.json 的输出是否完全一致，并检查关键指标与事件日志。GitHub Actions CI 已包含该验收步骤。
