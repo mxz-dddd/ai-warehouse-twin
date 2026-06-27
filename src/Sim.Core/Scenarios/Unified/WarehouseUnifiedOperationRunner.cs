@@ -83,8 +83,13 @@ public sealed class WarehouseUnifiedOperationRunner
                 .ThenBy(entry => entry.Text, StringComparer.Ordinal)
                 .Select(entry => entry.Text));
 
+        var operationTelemetry = BuildOperationTelemetry(
+            orderedOperations,
+            orderedIntervals);
+
         return new WarehouseUnifiedOperationResult(
             orderedIntervals,
+            operationTelemetry,
             ledger.Snapshot(),
             eventLogText);
     }
@@ -137,6 +142,43 @@ public sealed class WarehouseUnifiedOperationRunner
                 ResourceEventPhase(eventType),
                 line));
         }
+    }
+
+    private static WarehouseUnifiedOperationTelemetry[] BuildOperationTelemetry(
+        IReadOnlyList<WarehouseUnifiedOperation> operations,
+        IReadOnlyList<WarehouseUnifiedOperationInterval> intervals)
+    {
+        var operationsById = operations.ToDictionary(
+            operation => operation.OperationId,
+            StringComparer.Ordinal);
+
+        return intervals
+            .OrderBy(interval => interval.StartedAtMs)
+            .ThenBy(interval => interval.OperationId, StringComparer.Ordinal)
+            .Select(interval =>
+            {
+                var operation = operationsById[interval.OperationId];
+                var waitingTimeMs = interval.StartedAtMs - operation.RequestedAtMs;
+
+                if (waitingTimeMs < 0)
+                {
+                    throw new InvalidOperationException(
+                        $"Warehouse unified operation cannot start before it was requested. OperationId: {operation.OperationId}, RequestedAtMs: {operation.RequestedAtMs}, StartedAtMs: {interval.StartedAtMs}.");
+                }
+
+                return new WarehouseUnifiedOperationTelemetry(
+                    operation.OperationId,
+                    operation.OperationType,
+                    operation.ResourceId,
+                    operation.RequestedAtMs,
+                    interval.StartedAtMs,
+                    interval.FinishedAtMs,
+                    waitingTimeMs,
+                    operation.DurationMs,
+                    operation.SkuId,
+                    operation.InventoryDelta);
+            })
+            .ToArray();
     }
 
     private static void ApplyInventoryMutations(

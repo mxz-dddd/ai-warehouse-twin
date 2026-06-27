@@ -7,7 +7,20 @@ public sealed record WarehouseUnifiedOperationInterval(
     long StartedAtMs,
     long FinishedAtMs);
 
+public sealed record WarehouseUnifiedOperationTelemetry(
+    string OperationId,
+    WarehouseUnifiedOperationType OperationType,
+    string ResourceId,
+    long RequestedAtMs,
+    long StartedAtMs,
+    long FinishedAtMs,
+    long WaitingTimeMs,
+    long DurationMs,
+    string SkuId,
+    decimal InventoryDelta);
+
 public sealed record WarehouseUnifiedOperationResult(
     IReadOnlyList<WarehouseUnifiedOperationInterval> OperationIntervals,
+    IReadOnlyList<WarehouseUnifiedOperationTelemetry> OperationTelemetry,
     IReadOnlyDictionary<string, decimal> FinalInventorySnapshot,
     string EventLogText);

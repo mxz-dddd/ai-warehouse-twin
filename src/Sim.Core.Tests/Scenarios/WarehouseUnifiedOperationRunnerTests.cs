@@ -75,7 +75,56 @@ public sealed class WarehouseUnifiedOperationRunnerTests
         Assert.Equal(
             first.FinalInventorySnapshot.ToArray(),
             second.FinalInventorySnapshot.ToArray());
+        Assert.Equal(
+            first.OperationTelemetry.ToArray(),
+            second.OperationTelemetry.ToArray());
         Assert.Equal(first.EventLogText, second.EventLogText);
+    }
+
+    [Fact]
+    public void CombinedRunner_OperationTelemetry_CapturesCustomerKpiInputs()
+    {
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(10m),
+            [
+                Operation(
+                    "inbound-a",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    durationMs: 100,
+                    inventoryDelta: 5m),
+                Operation(
+                    "outbound-b",
+                    WarehouseUnifiedOperationType.Outbound,
+                    requestedAtMs: 0,
+                    durationMs: 50,
+                    inventoryDelta: -4m)
+            ]);
+
+        var inbound = result.OperationTelemetry
+            .Single(telemetry => telemetry.OperationId == "inbound-a");
+        var outbound = result.OperationTelemetry
+            .Single(telemetry => telemetry.OperationId == "outbound-b");
+
+        Assert.Equal(WarehouseUnifiedOperationType.Inbound, inbound.OperationType);
+        Assert.Equal("dock-1", inbound.ResourceId);
+        Assert.Equal(0, inbound.RequestedAtMs);
+        Assert.Equal(0, inbound.StartedAtMs);
+        Assert.Equal(100, inbound.FinishedAtMs);
+        Assert.Equal(0, inbound.WaitingTimeMs);
+        Assert.Equal(100, inbound.DurationMs);
+        Assert.Equal("SKU-A", inbound.SkuId);
+        Assert.Equal(5m, inbound.InventoryDelta);
+
+        Assert.Equal(WarehouseUnifiedOperationType.Outbound, outbound.OperationType);
+        Assert.Equal("dock-1", outbound.ResourceId);
+        Assert.Equal(0, outbound.RequestedAtMs);
+        Assert.Equal(100, outbound.StartedAtMs);
+        Assert.Equal(150, outbound.FinishedAtMs);
+        Assert.Equal(100, outbound.WaitingTimeMs);
+        Assert.Equal(50, outbound.DurationMs);
+        Assert.Equal("SKU-A", outbound.SkuId);
+        Assert.Equal(-4m, outbound.InventoryDelta);
     }
 
     [Fact]
