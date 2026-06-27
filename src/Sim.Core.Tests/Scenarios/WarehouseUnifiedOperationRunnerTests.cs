@@ -128,6 +128,59 @@ public sealed class WarehouseUnifiedOperationRunnerTests
     }
 
     [Fact]
+    public void CombinedRunner_CustomerKpiSummary_ComputesWaitingAndCycleStats()
+    {
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            [
+                Operation(
+                    "outbound-a",
+                    WarehouseUnifiedOperationType.Outbound,
+                    requestedAtMs: 0,
+                    durationMs: 10,
+                    inventoryDelta: -1m),
+                Operation(
+                    "outbound-b",
+                    WarehouseUnifiedOperationType.Outbound,
+                    requestedAtMs: 0,
+                    durationMs: 20,
+                    inventoryDelta: -1m),
+                Operation(
+                    "each-pick-c",
+                    WarehouseUnifiedOperationType.EachPick,
+                    requestedAtMs: 0,
+                    durationMs: 30,
+                    inventoryDelta: -1m),
+                Operation(
+                    "outbound-d",
+                    WarehouseUnifiedOperationType.Outbound,
+                    requestedAtMs: 0,
+                    durationMs: 40,
+                    inventoryDelta: -1m)
+            ]);
+
+        var summary = result.CustomerKpiSummary;
+
+        Assert.Equal(4, summary.OperationCount);
+
+        Assert.Equal(130, summary.TotalWaitingTimeMs);
+        Assert.Equal(32.5m, summary.AverageWaitingTimeMs);
+        Assert.Equal(60, summary.MaxWaitingTimeMs);
+        Assert.Equal(30, summary.P50WaitingTimeMs);
+        Assert.Equal(60, summary.P90WaitingTimeMs);
+        Assert.Equal(60, summary.P95WaitingTimeMs);
+
+        Assert.Equal(230, summary.TotalCycleTimeMs);
+        Assert.Equal(57.5m, summary.AverageCycleTimeMs);
+        Assert.Equal(100, summary.MaxCycleTimeMs);
+        Assert.Equal(40, summary.P50CycleTimeMs);
+        Assert.Equal(100, summary.P90CycleTimeMs);
+        Assert.Equal(100, summary.P95CycleTimeMs);
+
+        Assert.Equal(100, summary.TotalServiceDurationMs);
+    }
+
+    [Fact]
     public void CombinedRunner_EventLog_UsesLfOnly()
     {
         var result = RunConservationScenario();

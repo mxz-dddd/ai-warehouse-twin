@@ -22,5 +22,6 @@ public sealed record WarehouseUnifiedOperationTelemetry(
 public sealed record WarehouseUnifiedOperationResult(
     IReadOnlyList<WarehouseUnifiedOperationInterval> OperationIntervals,
     IReadOnlyList<WarehouseUnifiedOperationTelemetry> OperationTelemetry,
+    WarehouseUnifiedCustomerKpiSummary CustomerKpiSummary,
     IReadOnlyDictionary<string, decimal> FinalInventorySnapshot,
     string EventLogText);

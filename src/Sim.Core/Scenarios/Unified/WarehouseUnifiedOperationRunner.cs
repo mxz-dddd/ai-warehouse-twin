@@ -87,9 +87,13 @@ public sealed class WarehouseUnifiedOperationRunner
             orderedOperations,
             orderedIntervals);
 
+        var customerKpiSummary = WarehouseUnifiedCustomerKpiSummary.FromTelemetry(
+            operationTelemetry);
+
         return new WarehouseUnifiedOperationResult(
             orderedIntervals,
             operationTelemetry,
+            customerKpiSummary,
             ledger.Snapshot(),
             eventLogText);
     }
