@@ -47,6 +47,21 @@ static object ToPayload(WarehouseRunResult result)
         total_quantity_shipped = result.TotalQuantityShipped,
         total_quantity_picked = result.TotalQuantityPicked,
         final_world_time_ms = result.FinalWorldState.TimeMs,
-        event_log_text = result.EventLogText
+        event_log_text = result.EventLogText,
+        kpi_summary = new
+        {
+            total_duration_ms = result.KpiSummary.TotalDurationMs,
+            total_completed_work_items = result.KpiSummary.TotalCompletedWorkItems,
+            event_log_line_count = result.KpiSummary.EventLogLineCount,
+            receipt_throughput_per_hour = RoundKpi(result.KpiSummary.ReceiptThroughputPerHour),
+            outbound_order_throughput_per_hour = RoundKpi(result.KpiSummary.OutboundOrderThroughputPerHour),
+            each_pick_order_throughput_per_hour = RoundKpi(result.KpiSummary.EachPickOrderThroughputPerHour),
+            total_work_item_throughput_per_hour = RoundKpi(result.KpiSummary.TotalWorkItemThroughputPerHour)
+        }
     };
+}
+
+static decimal RoundKpi(decimal value)
+{
+    return Math.Round(value, 3, MidpointRounding.AwayFromZero);
 }
