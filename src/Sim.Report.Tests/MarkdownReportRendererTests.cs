@@ -1,3 +1,4 @@
+using Sim.Contracts.Artifacts;
 using Sim.Report;
 using Xunit;
 
@@ -5,46 +6,13 @@ namespace Sim.Report.Tests;
 
 public class MarkdownReportRendererTests
 {
-    private static string RepoRoot()
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir is not null)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "WarehouseTwin.sln")))
-            {
-                return dir.FullName;
-            }
-
-            dir = dir.Parent;
-        }
-
-        throw new InvalidOperationException("Could not locate repo root (WarehouseTwin.sln).");
-    }
-
-    private static string ArtifactPath()
-    {
-        return Path.Combine(
-            RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "run-artifact.v1.json");
-    }
-
-    private static string GoldenReportPath()
-    {
-        return Path.Combine(
-            RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "run-artifact.v1.report.md");
-    }
-
-    private static string NormalizeNewlines(string value)
-    {
-        return value.Replace("\r\n", "\n").Replace("\r", "\n");
-    }
-
     [Fact]
     public void Render_SampleWarehouseGoldenArtifact_MatchesGoldenReport()
     {
-        var artifact = RunArtifactLoader.Load(ArtifactPath());
+        var artifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
 
-        var rendered = NormalizeNewlines(MarkdownReportRenderer.Render(artifact));
-        var golden = NormalizeNewlines(File.ReadAllText(GoldenReportPath()));
+        var rendered = TestPaths.NormalizeNewlines(MarkdownReportRenderer.Render(artifact));
+        var golden = TestPaths.NormalizeNewlines(File.ReadAllText(TestPaths.GoldenReportPath()));
 
         Assert.Equal(golden, rendered);
     }
@@ -52,23 +20,59 @@ public class MarkdownReportRendererTests
     [Fact]
     public void Render_AnnotatesThroughputAsSimulationDerived()
     {
-        var artifact = RunArtifactLoader.Load(ArtifactPath());
+        var artifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
 
-        var rendered = MarkdownReportRenderer.Render(artifact);
-
-        Assert.Contains("不代表真实", rendered);
+        Assert.Contains("不代表真实", MarkdownReportRenderer.Render(artifact));
     }
 
     [Fact]
-    public void Load_SampleWarehouseGoldenArtifact_PopulatesContract()
+    public void Render_UsesEventLogLineCountFromKpi_NotEventLogLength()
     {
-        var artifact = RunArtifactLoader.Load(ArtifactPath());
+        // KPI count (7) intentionally differs from the event_log array (empty):
+        // the report must report the contract KPI field, not the array length.
+        var artifact = NewArtifact(eventLogLineCount: 7, eventLog: Array.Empty<string>());
 
-        Assert.Equal("run-artifact.v1", artifact.SchemaVersion);
-        Assert.Equal("warehouse-simulation-run", artifact.ArtifactKind);
-        Assert.Equal("sample-small-warehouse", artifact.ScenarioId);
-        Assert.Equal(20240627, artifact.Seed);
-        Assert.Equal(3, artifact.KpiSummary.TotalCompletedWorkItems);
-        Assert.Equal(10, artifact.EventLog.Count);
+        Assert.Contains("(event_log_line_count): 7", MarkdownReportRenderer.Render(artifact));
+    }
+
+    [Fact]
+    public void Render_EmptyEventLog_DoesNotThrow()
+    {
+        var artifact = NewArtifact(eventLogLineCount: 0, eventLog: Array.Empty<string>());
+
+        Assert.Null(Record.Exception(() => MarkdownReportRenderer.Render(artifact)));
+    }
+
+    [Fact]
+    public void Render_UsesLfNewlinesOnly()
+    {
+        var artifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
+
+        Assert.DoesNotContain("\r", MarkdownReportRenderer.Render(artifact));
+    }
+
+    private static RunArtifact NewArtifact(int eventLogLineCount, IReadOnlyList<string> eventLog)
+    {
+        return new RunArtifact
+        {
+            SchemaVersion = RunArtifact.CurrentSchemaVersion,
+            ArtifactKind = RunArtifact.CurrentArtifactKind,
+            ScenarioId = "unit-test",
+            Seed = 1,
+            StartedAtMs = 0,
+            FinishedAtMs = 100,
+            FinalWorldTimeMs = 100,
+            KpiSummary = new RunArtifactKpiSummary
+            {
+                TotalDurationMs = 100,
+                TotalCompletedWorkItems = 0,
+                EventLogLineCount = eventLogLineCount,
+                ReceiptThroughputPerHour = 0m,
+                OutboundOrderThroughputPerHour = 0m,
+                EachPickOrderThroughputPerHour = 0m,
+                TotalWorkItemThroughputPerHour = 0m,
+            },
+            EventLog = eventLog,
+        };
     }
 }

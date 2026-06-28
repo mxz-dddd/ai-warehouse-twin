@@ -32,9 +32,6 @@
 ## 事件摘要
 
 - 事件日志总行数 (event_log_line_count): 10
-- inbound: 3 条
-- outbound: 3 条
-- each_pick: 4 条
 
 ## 当前限制
 

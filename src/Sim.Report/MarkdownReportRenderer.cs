@@ -54,10 +54,6 @@ public static class MarkdownReportRenderer
         Line("## 事件摘要");
         Line();
         Line($"- 事件日志总行数 (event_log_line_count): {kpi.EventLogLineCount}");
-        foreach (var (flow, count) in CountEventsByFlow(artifact.EventLog))
-        {
-            Line($"- {flow}: {count} 条");
-        }
         Line();
 
         Line("## 当前限制");
@@ -72,29 +68,5 @@ public static class MarkdownReportRenderer
     private static string FormatDecimal(decimal value)
     {
         return value.ToString(CultureInfo.InvariantCulture);
-    }
-
-    private static IEnumerable<(string Flow, int Count)> CountEventsByFlow(IReadOnlyList<string> eventLog)
-    {
-        var order = new List<string>();
-        var counts = new Dictionary<string, int>();
-
-        foreach (var line in eventLog)
-        {
-            var separator = line.IndexOf('|');
-            var flow = separator >= 0 ? line[..separator] : line;
-            if (!counts.ContainsKey(flow))
-            {
-                order.Add(flow);
-                counts[flow] = 0;
-            }
-
-            counts[flow]++;
-        }
-
-        foreach (var flow in order)
-        {
-            yield return (flow, counts[flow]);
-        }
     }
 }
