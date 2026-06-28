@@ -10,19 +10,28 @@ public sealed class OutboundScenarioRunner
 {
     public OutboundRunResult Run(OutboundScenario scenario)
     {
+        return Run(scenario, traceCollector: null);
+    }
+
+    internal OutboundRunResult Run(
+        OutboundScenario scenario,
+        ResourceLeaseTraceCollector? traceCollector)
+    {
         ArgumentNullException.ThrowIfNull(scenario);
 
         var workerPool = new ResourcePool(
             "outbound-workers",
             ResourceType.Worker,
             Enumerable.Range(1, scenario.WorkerCount)
-                .Select(index => new ResourceUnit($"worker-{index}", ResourceType.Worker, $"Worker {index}")));
+                .Select(index => new ResourceUnit($"worker-{index}", ResourceType.Worker, $"Worker {index}")),
+            TraceContext(traceCollector, "worker"));
 
         var dockPool = new ResourcePool(
             "outbound-docks",
             ResourceType.Dock,
             Enumerable.Range(1, scenario.DockCount)
-                .Select(index => new ResourceUnit($"dock-{index}", ResourceType.Dock, $"Dock {index}")));
+                .Select(index => new ResourceUnit($"dock-{index}", ResourceType.Dock, $"Dock {index}")),
+            TraceContext(traceCollector, "dock"));
 
         var outboundState = new OutboundSimulationState(
             scenario.Orders,
@@ -63,5 +72,14 @@ public sealed class OutboundScenarioRunner
             finishedAtMs,
             context.EventLog.ToDeterministicText(),
             context.WorldState);
+    }
+
+    private static ResourceLeaseTraceContext? TraceContext(
+        ResourceLeaseTraceCollector? collector,
+        string stageType)
+    {
+        return collector is null
+            ? null
+            : new ResourceLeaseTraceContext(collector, "outbound", stageType);
     }
 }
