@@ -78,5 +78,34 @@ public sealed class EachPickCompletedEvent : ISimEvent
             candidate.Quantity,
             candidate.LocationId,
             InventoryStatus.Picked));
+
+        var workerLease = _state.TakeWorkerLease(order.OrderId);
+        var nextWorkerLease = _state.WorkerPool.Release(
+            workerLease,
+            context.Clock.NowMs);
+        if (nextWorkerLease is not null)
+        {
+            EachPickResourceCoordinator.AcceptWorkerLease(
+                _state,
+                nextWorkerLease,
+                context);
+        }
+
+        var stationLease = _state.TakeStationLease(order.OrderId);
+        var nextStationLease = _state.StationPool.Release(
+            stationLease,
+            context.Clock.NowMs);
+        if (nextStationLease is not null)
+        {
+            EachPickResourceCoordinator.AcceptStationLease(
+                _state,
+                nextStationLease,
+                context);
+        }
+
+        context.EventQueue.Enqueue(new EachPickStagedEvent(
+            _state,
+            order.OrderId,
+            context.Clock.NowMs + _state.Parameters.MoveToStagingDurationMs));
     }
 }

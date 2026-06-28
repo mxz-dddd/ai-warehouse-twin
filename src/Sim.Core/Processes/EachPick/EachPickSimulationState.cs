@@ -8,6 +8,10 @@ public sealed class EachPickSimulationState
     private readonly Dictionary<string, EachPickOrder> _orders;
     private readonly Dictionary<string, EachPickInventoryItem> _inventory;
     private readonly Dictionary<string, Tote> _totes = [];
+    private readonly Dictionary<string, string> _requestIdToOrderId = [];
+    private readonly Dictionary<string, ResourceLease> _stationLeasesByOrderId = [];
+    private readonly Dictionary<string, ResourceLease> _workerLeasesByOrderId = [];
+    private readonly HashSet<string> _pickScheduledOrderIds = [];
     private readonly HashSet<string> _completedOrderIds = [];
     private readonly Dictionary<string, long> _startedAtMsByOrderId = [];
     private readonly Dictionary<string, long> _completedAtMsByOrderId = [];
@@ -74,6 +78,67 @@ public sealed class EachPickSimulationState
     public IReadOnlyDictionary<string, long> StartedAtMsByOrderId => _startedAtMsByOrderId;
 
     public IReadOnlyDictionary<string, long> CompletedAtMsByOrderId => _completedAtMsByOrderId;
+
+    public string StationRequestId(string orderId) => $"station.{orderId}";
+
+    public string WorkerRequestId(string orderId) => $"worker.{orderId}";
+
+    public void RegisterRequest(string requestId, string orderId)
+    {
+        GetOrder(orderId);
+        _requestIdToOrderId[requestId] = orderId;
+    }
+
+    public string OrderIdForRequest(string requestId)
+    {
+        if (_requestIdToOrderId.TryGetValue(requestId, out var orderId))
+        {
+            return orderId;
+        }
+
+        throw new DomainRuleViolationException(
+            $"Unknown each-pick resource request. RequestId: {requestId}.");
+    }
+
+    public void StoreStationLease(string orderId, ResourceLease lease)
+    {
+        GetOrder(orderId);
+        _stationLeasesByOrderId[orderId] =
+            lease ?? throw new ArgumentNullException(nameof(lease));
+    }
+
+    public ResourceLease TakeStationLease(string orderId)
+    {
+        return TakeLease(_stationLeasesByOrderId, orderId, "station");
+    }
+
+    public void StoreWorkerLease(string orderId, ResourceLease lease)
+    {
+        GetOrder(orderId);
+        _workerLeasesByOrderId[orderId] =
+            lease ?? throw new ArgumentNullException(nameof(lease));
+    }
+
+    public ResourceLease TakeWorkerLease(string orderId)
+    {
+        return TakeLease(_workerLeasesByOrderId, orderId, "worker");
+    }
+
+    public bool HasStationLease(string orderId)
+    {
+        return _stationLeasesByOrderId.ContainsKey(orderId);
+    }
+
+    public bool HasWorkerLease(string orderId)
+    {
+        return _workerLeasesByOrderId.ContainsKey(orderId);
+    }
+
+    public bool TryMarkPickScheduled(string orderId)
+    {
+        GetOrder(orderId);
+        return _pickScheduledOrderIds.Add(orderId);
+    }
 
     public EachPickOrder GetOrder(string orderId)
     {
@@ -153,5 +218,19 @@ public sealed class EachPickSimulationState
         {
             throw new DomainRuleViolationException($"{name} cannot be negative. Value: {timeMs}.");
         }
+    }
+
+    private static ResourceLease TakeLease(
+        Dictionary<string, ResourceLease> leasesByOrderId,
+        string orderId,
+        string resourceName)
+    {
+        if (leasesByOrderId.Remove(orderId, out var lease))
+        {
+            return lease;
+        }
+
+        throw new DomainRuleViolationException(
+            $"Each-pick order does not have an active {resourceName} lease. OrderId: {orderId}.");
     }
 }

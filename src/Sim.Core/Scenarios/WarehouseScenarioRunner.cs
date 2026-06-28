@@ -67,7 +67,9 @@ public sealed class WarehouseScenarioRunner
 
         var eachPickResult = scenario.EachPickScenario is null
             ? null
-            : new EachPickScenarioRunner().Run(scenario.EachPickScenario);
+            : new EachPickScenarioRunner().Run(
+                scenario.EachPickScenario,
+                traceCollector);
 
         var childRuns = new List<ChildRun>();
 

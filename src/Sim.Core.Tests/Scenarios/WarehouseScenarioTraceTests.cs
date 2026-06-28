@@ -75,7 +75,7 @@ public sealed class WarehouseScenarioTraceTests
     }
 
     [Fact]
-    public void RunWithTrace_DoesNotFabricateEachPickLeases()
+    public void RunWithTrace_CapturesEachPickResourceLeases()
     {
         var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
 
@@ -83,9 +83,55 @@ public sealed class WarehouseScenarioTraceTests
             .RunWithTrace(scenario)
             .ResourceLeaseTimeline;
 
-        Assert.DoesNotContain(
-            timeline,
-            entry => entry.OperationType == "each_pick");
+        var eachPickEntries = timeline
+            .Where(entry => entry.OperationType == "each_pick")
+            .ToArray();
+
+        Assert.NotEmpty(eachPickEntries);
+        Assert.Contains(eachPickEntries, entry => entry.StageType == "station");
+        Assert.Contains(eachPickEntries, entry => entry.StageType == "worker");
+        Assert.All(
+            eachPickEntries,
+            entry =>
+            {
+                Assert.False(string.IsNullOrWhiteSpace(entry.OperationId));
+                Assert.False(string.IsNullOrWhiteSpace(entry.ResourceId));
+                Assert.True(entry.StartedAtMs >= entry.RequestedAtMs);
+                Assert.True(entry.FinishedAtMs > entry.StartedAtMs);
+                Assert.Equal(
+                    entry.FinishedAtMs - entry.StartedAtMs,
+                    entry.DurationMs);
+            });
+    }
+
+    [Fact]
+    public void RunWithTrace_CapturesInboundOutboundAndEachPickLeases()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+
+        var timeline = new WarehouseScenarioRunner()
+            .RunWithTrace(scenario)
+            .ResourceLeaseTimeline;
+
+        AssertStages(timeline, "inbound", "dock", "forklift");
+        AssertStages(timeline, "outbound", "dock", "worker");
+        AssertStages(timeline, "each_pick", "station", "worker");
+    }
+
+    [Fact]
+    public void RunWithTrace_EachPickLeaseTimeline_IsDeterministic()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var runner = new WarehouseScenarioRunner();
+
+        var first = runner.RunWithTrace(scenario).ResourceLeaseTimeline
+            .Where(entry => entry.OperationType == "each_pick")
+            .ToArray();
+        var second = runner.RunWithTrace(scenario).ResourceLeaseTimeline
+            .Where(entry => entry.OperationType == "each_pick")
+            .ToArray();
+
+        Assert.Equal(first, second);
     }
 
     [Fact]
@@ -134,5 +180,19 @@ public sealed class WarehouseScenarioTraceTests
 
         throw new FileNotFoundException(
             "Cannot find datasets/sample-small-warehouse/scenario.json from test output directory.");
+    }
+
+    private static void AssertStages(
+        IEnumerable<Sim.Core.Resources.ResourceLeaseTimelineEntry> timeline,
+        string operationType,
+        params string[] expectedStages)
+    {
+        Assert.Equal(
+            expectedStages.Order(StringComparer.Ordinal),
+            timeline
+                .Where(entry => entry.OperationType == operationType)
+                .Select(entry => entry.StageType)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal));
     }
 }
