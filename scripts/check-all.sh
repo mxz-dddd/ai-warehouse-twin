@@ -12,6 +12,7 @@ echo "dotnet: $(dotnet --version)"
 
 ./scripts/check-no-unityengine.sh
 ./scripts/check-contract-drift.sh
+bash scripts/check-consumer-no-core.sh
 
 dotnet build
 dotnet test
