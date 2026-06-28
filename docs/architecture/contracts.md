@@ -40,6 +40,12 @@ RunArtifact v1 now includes:
   resource lease timeline. This is a deterministic handoff baseline, not a
   full warehouse map, path model, or Unity visualization implementation.
 
+`comparison_artifact.v1` is the handwritten C# handoff contract for A/B
+scenario comparison output. It contains baseline metrics, candidate metrics,
+and deterministic metric deltas. It is an objective numeric comparison only:
+it does not include recommendations, business interpretation, UI behavior, or
+Unity visualization behavior.
+
 ## Current Limits
 
 The generator is intentionally minimal for Phase 0. It supports basic JSON Schema type mapping only. Nested objects currently map to `object` in C# and `dict[str, Any]` in Python.
