@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/track-b/scenario.schema.json",
+  "title": "WarehouseScenario",
+  "description": "Track B consumer-side validation schema for warehouse scenario input (schema_version warehouse-scenario.v0). Derived from the golden sample scenarios; the run-file parser owned by member 1 remains the canonical source of truth. The Sim.Validation C# validator implements these same rules plus friendlier, locatable error messages.",
+  "type": "object",
+  "required": ["schema_version", "scenario_id", "seed"],
+  "anyOf": [
+    { "required": ["inbound"] },
+    { "required": ["outbound"] },
+    { "required": ["each_pick"] }
+  ],
+  "properties": {
+    "schema_version": { "const": "warehouse-scenario.v0" },
+    "scenario_id": { "$ref": "#/$defs/id" },
+    "seed": { "$ref": "#/$defs/nonNegativeInt" },
+    "description": { "type": "string" },
+    "inbound": { "$ref": "#/$defs/inbound" },
+    "outbound": { "$ref": "#/$defs/outbound" },
+    "each_pick": { "$ref": "#/$defs/eachPick" },
+    "expected": { "$ref": "#/$defs/expected" }
+  },
+  "$defs": {
+    "id": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "positiveInt": { "type": "integer", "minimum": 1, "maximum": 9223372036854775807 },
+    "nonNegativeInt": { "type": "integer", "minimum": 0, "maximum": 9223372036854775807 },
+    "status": {
+      "type": "string",
+      "enum": [
+        "expected", "received", "qc_hold", "available", "allocated",
+        "picking", "picked", "consolidating", "staged", "loaded", "shipped"
+      ]
+    },
+    "inventoryItem": {
+      "type": "object",
+      "required": ["inventory_id", "sku_id", "quantity", "location_id", "status"],
+      "properties": {
+        "inventory_id": { "$ref": "#/$defs/id" },
+        "sku_id": { "$ref": "#/$defs/id" },
+        "quantity": { "$ref": "#/$defs/positiveInt" },
+        "location_id": { "$ref": "#/$defs/id" },
+        "status": { "$ref": "#/$defs/status" }
+      }
+    },
+    "inbound": {
+      "type": "object",
+      "required": ["scenario_id", "dock_count", "forklift_count", "process", "receipts"],
+      "properties": {
+        "scenario_id": { "$ref": "#/$defs/id" },
+        "seed": { "$ref": "#/$defs/nonNegativeInt" },
+        "dock_count": { "$ref": "#/$defs/positiveInt" },
+        "forklift_count": { "$ref": "#/$defs/positiveInt" },
+        "process": {
+          "type": "object",
+          "required": ["unload_duration_ms", "qc_duration_ms", "putaway_duration_ms"],
+          "properties": {
+            "unload_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "qc_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "putaway_duration_ms": { "$ref": "#/$defs/nonNegativeInt" }
+          }
+        },
+        "receipts": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "receipt_id", "warehouse_id", "sku_id", "quantity",
+              "staging_location_id", "storage_location_id", "arrives_at_ms"
+            ],
+            "properties": {
+              "receipt_id": { "$ref": "#/$defs/id" },
+              "warehouse_id": { "$ref": "#/$defs/id" },
+              "sku_id": { "$ref": "#/$defs/id" },
+              "quantity": { "$ref": "#/$defs/positiveInt" },
+              "staging_location_id": { "$ref": "#/$defs/id" },
+              "storage_location_id": { "$ref": "#/$defs/id" },
+              "arrives_at_ms": { "$ref": "#/$defs/nonNegativeInt" }
+            }
+          }
+        }
+      }
+    },
+    "outbound": {
+      "type": "object",
+      "required": ["scenario_id", "worker_count", "dock_count", "process", "inventory", "orders"],
+      "properties": {
+        "scenario_id": { "$ref": "#/$defs/id" },
+        "seed": { "$ref": "#/$defs/nonNegativeInt" },
+        "worker_count": { "$ref": "#/$defs/positiveInt" },
+        "dock_count": { "$ref": "#/$defs/positiveInt" },
+        "process": {
+          "type": "object",
+          "required": ["pick_duration_ms", "stage_duration_ms", "dock_travel_duration_ms", "load_duration_ms"],
+          "properties": {
+            "pick_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "stage_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "dock_travel_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "load_duration_ms": { "$ref": "#/$defs/nonNegativeInt" }
+          }
+        },
+        "inventory": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/inventoryItem" }
+        },
+        "orders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "order_id", "warehouse_id", "sku_id", "quantity",
+              "pick_location_id", "staging_location_id", "dock_id", "released_at_ms"
+            ],
+            "properties": {
+              "order_id": { "$ref": "#/$defs/id" },
+              "warehouse_id": { "$ref": "#/$defs/id" },
+              "sku_id": { "$ref": "#/$defs/id" },
+              "quantity": { "$ref": "#/$defs/positiveInt" },
+              "pick_location_id": { "$ref": "#/$defs/id" },
+              "staging_location_id": { "$ref": "#/$defs/id" },
+              "dock_id": { "$ref": "#/$defs/id" },
+              "released_at_ms": { "$ref": "#/$defs/nonNegativeInt" }
+            }
+          }
+        }
+      }
+    },
+    "eachPick": {
+      "type": "object",
+      "required": ["scenario_id", "station_count", "worker_count", "process", "inventory", "orders"],
+      "properties": {
+        "scenario_id": { "$ref": "#/$defs/id" },
+        "seed": { "$ref": "#/$defs/nonNegativeInt" },
+        "station_count": { "$ref": "#/$defs/positiveInt" },
+        "worker_count": { "$ref": "#/$defs/positiveInt" },
+        "process": {
+          "type": "object",
+          "required": [
+            "tote_bind_duration_ms", "travel_to_station_duration_ms",
+            "pick_service_duration_ms", "move_to_staging_duration_ms"
+          ],
+          "properties": {
+            "tote_bind_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "travel_to_station_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "pick_service_duration_ms": { "$ref": "#/$defs/nonNegativeInt" },
+            "move_to_staging_duration_ms": { "$ref": "#/$defs/nonNegativeInt" }
+          }
+        },
+        "inventory": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/inventoryItem" }
+        },
+        "orders": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": [
+              "order_id", "warehouse_id", "sku_id", "quantity",
+              "pick_face_location_id", "pick_station_id", "staging_location_id", "released_at_ms"
+            ],
+            "properties": {
+              "order_id": { "$ref": "#/$defs/id" },
+              "warehouse_id": { "$ref": "#/$defs/id" },
+              "sku_id": { "$ref": "#/$defs/id" },
+              "quantity": { "$ref": "#/$defs/positiveInt" },
+              "pick_face_location_id": { "$ref": "#/$defs/id" },
+              "pick_station_id": { "$ref": "#/$defs/id" },
+              "staging_location_id": { "$ref": "#/$defs/id" },
+              "released_at_ms": { "$ref": "#/$defs/nonNegativeInt" }
+            }
+          }
+        }
+      }
+    },
+    "expected": {
+      "type": "object",
+      "properties": {
+        "started_at_ms": { "$ref": "#/$defs/nonNegativeInt" },
+        "finished_at_ms": { "$ref": "#/$defs/nonNegativeInt" },
+        "completed_receipts": { "$ref": "#/$defs/nonNegativeInt" },
+        "completed_outbound_orders": { "$ref": "#/$defs/nonNegativeInt" },
+        "completed_each_pick_orders": { "$ref": "#/$defs/nonNegativeInt" },
+        "total_quantity_available": { "$ref": "#/$defs/nonNegativeInt" },
+        "total_quantity_shipped": { "$ref": "#/$defs/nonNegativeInt" },
+        "total_quantity_picked": { "$ref": "#/$defs/nonNegativeInt" },
+        "final_world_time_ms": { "$ref": "#/$defs/nonNegativeInt" },
+        "event_log_line_count": { "$ref": "#/$defs/nonNegativeInt" }
+      }
+    }
+  }
+}

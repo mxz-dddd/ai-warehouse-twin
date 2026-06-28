@@ -1,0 +1,48 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "valid-outbound-only",
+  "seed": 8,
+  "description": "仅出库流程,含两条订单。",
+  "outbound": {
+    "scenario_id": "valid-outbound-only.outbound",
+    "worker_count": 2,
+    "dock_count": 1,
+    "process": {
+      "pick_duration_ms": 50,
+      "stage_duration_ms": 50,
+      "dock_travel_duration_ms": 25,
+      "load_duration_ms": 75
+    },
+    "inventory": [
+      {
+        "inventory_id": "inv-1",
+        "sku_id": "sku-1",
+        "quantity": 100,
+        "location_id": "pick-1",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "order-1",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-1",
+        "quantity": 5,
+        "pick_location_id": "pick-1",
+        "staging_location_id": "outbound-stage-1",
+        "dock_id": "dock-1",
+        "released_at_ms": 0
+      },
+      {
+        "order_id": "order-2",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-1",
+        "quantity": 7,
+        "pick_location_id": "pick-1",
+        "staging_location_id": "outbound-stage-1",
+        "dock_id": "dock-1",
+        "released_at_ms": 60
+      }
+    ]
+  }
+}

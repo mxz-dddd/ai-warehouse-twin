@@ -1,0 +1,21 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "wrong-types",
+  "seed": "abc",
+  "each_pick": {
+    "station_count": 1,
+    "worker_count": 1,
+    "process": {
+      "tote_bind_duration_ms": 10,
+      "travel_to_station_duration_ms": 20,
+      "pick_service_duration_ms": 30,
+      "move_to_staging_duration_ms": 40
+    },
+    "inventory": [
+      { "inventory_id": "inv-1", "sku_id": "sku-1", "quantity": 5, "location_id": "pick-face-1", "status": "available" }
+    ],
+    "orders": [
+      { "order_id": "o-1", "warehouse_id": "wh-1", "sku_id": "sku-1", "quantity": "5", "pick_face_location_id": "pick-face-1", "pick_station_id": "station-1", "staging_location_id": "stage-1", "released_at_ms": 0 }
+    ]
+  }
+}

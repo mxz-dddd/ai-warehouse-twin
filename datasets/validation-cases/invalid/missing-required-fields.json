@@ -1,0 +1,33 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "missing-required-fields",
+  "seed": 1,
+  "inbound": {
+    "dock_count": 1,
+    "forklift_count": 1,
+    "process": {
+      "unload_duration_ms": 100,
+      "qc_duration_ms": 50,
+      "putaway_duration_ms": 50
+    },
+    "receipts": [
+      { "receipt_id": "receipt-1", "warehouse_id": "warehouse-1", "staging_location_id": "inbound-stage-1", "storage_location_id": "reserve-1", "arrives_at_ms": 0 }
+    ]
+  },
+  "outbound": {
+    "worker_count": 1,
+    "dock_count": 1,
+    "process": {
+      "pick_duration_ms": 50,
+      "stage_duration_ms": 50,
+      "dock_travel_duration_ms": 25,
+      "load_duration_ms": 75
+    },
+    "inventory": [
+      { "inventory_id": "inv-1", "sku_id": "sku-1", "quantity": 10, "location_id": "pick-1", "status": "available" }
+    ],
+    "orders": [
+      { "order_id": "order-1", "warehouse_id": "warehouse-1", "quantity": 5, "staging_location_id": "outbound-stage-1", "released_at_ms": 0 }
+    ]
+  }
+}

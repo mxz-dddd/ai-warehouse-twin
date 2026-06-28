@@ -1,0 +1,9 @@
+输入校验未通过,发现 2 处问题:
+
+  1. 缺少必填字段:场景 ID(scenario_id)。
+     位置:outbound.scenario_id
+
+  2. 释放时间(released_at_ms,毫秒) 不能为负数(当前值:-10)。
+     位置:outbound.orders[0].released_at_ms
+
+请按上面每条的“位置”修改后重新校验。

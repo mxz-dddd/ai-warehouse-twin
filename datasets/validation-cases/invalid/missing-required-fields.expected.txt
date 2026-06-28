@@ -1,0 +1,24 @@
+输入校验未通过,发现 7 处问题:
+
+  1. 缺少必填字段:场景 ID(scenario_id)。
+     位置:inbound.scenario_id
+
+  2. 缺少必填字段:SKU 编号(sku_id)。
+     位置:inbound.receipts[0].sku_id
+
+  3. 缺少必填字段:数量(quantity)。
+     位置:inbound.receipts[0].quantity
+
+  4. 缺少必填字段:场景 ID(scenario_id)。
+     位置:outbound.scenario_id
+
+  5. 缺少必填字段:SKU 编号(sku_id)。
+     位置:outbound.orders[0].sku_id
+
+  6. 缺少必填字段:拣货库位(pick_location_id)。
+     位置:outbound.orders[0].pick_location_id
+
+  7. 缺少必填字段:月台编号(dock_id)。
+     位置:outbound.orders[0].dock_id
+
+请按上面每条的“位置”修改后重新校验。

@@ -1,0 +1,9 @@
+输入校验未通过,发现 2 处问题:
+
+  1. 缺少必填字段:场景 ID(scenario_id)。
+     位置:outbound.scenario_id
+
+  2. 库存状态(status)的取值 "in_stock" 无效;允许的取值:expected、received、qc_hold、available、allocated、picking、picked、consolidating、staged、loaded、shipped。
+     位置:outbound.inventory[0].status
+
+请按上面每条的“位置”修改后重新校验。

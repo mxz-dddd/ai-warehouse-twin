@@ -1,0 +1,91 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "my-scenario-001",
+  "seed": 12345,
+  "description": "在此填写场景说明。这是一个可直接通过校验的最小模板:按需增删 receipts / orders / inventory 记录,或整段删除用不到的 inbound / outbound / each_pick 流程(至少保留一个)。",
+  "inbound": {
+    "scenario_id": "my-scenario-001.inbound",
+    "dock_count": 1,
+    "forklift_count": 1,
+    "process": {
+      "unload_duration_ms": 100,
+      "qc_duration_ms": 50,
+      "putaway_duration_ms": 50
+    },
+    "receipts": [
+      {
+        "receipt_id": "receipt-1",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-1",
+        "quantity": 10,
+        "staging_location_id": "inbound-stage-1",
+        "storage_location_id": "reserve-1",
+        "arrives_at_ms": 0
+      }
+    ]
+  },
+  "outbound": {
+    "scenario_id": "my-scenario-001.outbound",
+    "worker_count": 1,
+    "dock_count": 1,
+    "process": {
+      "pick_duration_ms": 50,
+      "stage_duration_ms": 50,
+      "dock_travel_duration_ms": 25,
+      "load_duration_ms": 75
+    },
+    "inventory": [
+      {
+        "inventory_id": "inv-1",
+        "sku_id": "sku-1",
+        "quantity": 100,
+        "location_id": "pick-1",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "order-1",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-1",
+        "quantity": 5,
+        "pick_location_id": "pick-1",
+        "staging_location_id": "outbound-stage-1",
+        "dock_id": "dock-1",
+        "released_at_ms": 0
+      }
+    ]
+  },
+  "each_pick": {
+    "scenario_id": "my-scenario-001.each-pick",
+    "station_count": 1,
+    "worker_count": 1,
+    "process": {
+      "tote_bind_duration_ms": 10,
+      "travel_to_station_duration_ms": 20,
+      "pick_service_duration_ms": 30,
+      "move_to_staging_duration_ms": 40
+    },
+    "inventory": [
+      {
+        "inventory_id": "inv-each-1",
+        "sku_id": "sku-2",
+        "quantity": 50,
+        "location_id": "pick-face-1",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "each-order-1",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-2",
+        "quantity": 3,
+        "pick_face_location_id": "pick-face-1",
+        "pick_station_id": "station-1",
+        "staging_location_id": "each-pick-stage-1",
+        "released_at_ms": 0
+      }
+    ]
+  }
+}

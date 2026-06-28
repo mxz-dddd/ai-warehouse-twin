@@ -1,0 +1,12 @@
+输入校验未通过,发现 3 处问题:
+
+  1. 随机种子(seed) 应为整数,当前为文本。
+     位置:seed
+
+  2. 缺少必填字段:场景 ID(scenario_id)。
+     位置:each_pick.scenario_id
+
+  3. 数量(quantity) 应为整数,当前为文本。
+     位置:each_pick.orders[0].quantity
+
+请按上面每条的“位置”修改后重新校验。
