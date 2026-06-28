@@ -78,6 +78,9 @@ public sealed class WarehouseUnifiedOperationRunnerTests
         Assert.Equal(
             first.OperationTelemetry.ToArray(),
             second.OperationTelemetry.ToArray());
+        Assert.Equal(
+            first.ResourceKpiSummaryByResourceId.ToArray(),
+            second.ResourceKpiSummaryByResourceId.ToArray());
         Assert.Equal(first.EventLogText, second.EventLogText);
     }
 
@@ -230,6 +233,60 @@ public sealed class WarehouseUnifiedOperationRunnerTests
         Assert.Equal(1, eachPick.OperationCount);
         Assert.Equal(30, eachPick.TotalWaitingTimeMs);
         Assert.Equal(60, eachPick.TotalCycleTimeMs);
+    }
+
+    [Fact]
+    public void CombinedRunner_ResourceKpiSummaryByResourceId_ComputesUtilization()
+    {
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            [
+                new WarehouseUnifiedOperation(
+                    "a-dock",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 10,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m),
+                new WarehouseUnifiedOperation(
+                    "b-dock",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 20,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m),
+                new WarehouseUnifiedOperation(
+                    "c-station",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "station-1",
+                    durationMs: 50,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m)
+            ]);
+
+        var summaries = result.ResourceKpiSummaryByResourceId;
+
+        Assert.Equal(2, summaries.Count);
+        Assert.Equal(["dock-1", "station-1"], summaries.Keys);
+
+        var dock = summaries["dock-1"];
+        Assert.Equal("dock-1", dock.ResourceId);
+        Assert.Equal(2, dock.OperationCount);
+        Assert.Equal(30, dock.TotalBusyDurationMs);
+        Assert.Equal(0.6m, dock.Utilization);
+        Assert.Equal(0, dock.FirstStartedAtMs);
+        Assert.Equal(30, dock.LastFinishedAtMs);
+
+        var station = summaries["station-1"];
+        Assert.Equal("station-1", station.ResourceId);
+        Assert.Equal(1, station.OperationCount);
+        Assert.Equal(50, station.TotalBusyDurationMs);
+        Assert.Equal(1m, station.Utilization);
+        Assert.Equal(0, station.FirstStartedAtMs);
+        Assert.Equal(50, station.LastFinishedAtMs);
     }
 
     [Fact]
