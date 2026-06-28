@@ -31,6 +31,24 @@ public sealed class CustomerMarkdownReportRendererTests
     }
 
     [Fact]
+    public void CustomerMarkdownReportRenderer_RendersExpectedSampleReportSections()
+    {
+        var runArtifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
+        var comparisonArtifact = ComparisonArtifactLoader.Load(TestPaths.ComparisonArtifactPath());
+
+        var report = CustomerMarkdownReportRenderer.Render(
+            runArtifact,
+            comparisonArtifact);
+
+        Assert.Contains("# AI Warehouse Twin Report", report);
+        Assert.Contains("## Run Summary", report);
+        Assert.Contains("## Artifact Handoff", report);
+        Assert.Contains("## A/B Comparison Summary", report);
+        Assert.Contains("finished_at_ms", report);
+        Assert.Contains("total_work_item_throughput_per_hour", report);
+    }
+
+    [Fact]
     public void CustomerMarkdownReportRenderer_RendersArtifactHandoffSummary()
     {
         var runArtifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
@@ -92,6 +110,20 @@ public sealed class CustomerMarkdownReportRendererTests
         Assert.Contains("## Run Summary", report);
         Assert.Contains("## Artifact Handoff", report);
         Assert.Contains("## A/B Comparison Summary", report);
+    }
+
+    [Fact]
+    public void CustomerReport_Golden_MatchesRendererOutput()
+    {
+        var runArtifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());
+        var comparisonArtifact = ComparisonArtifactLoader.Load(TestPaths.ComparisonArtifactPath());
+
+        var rendered = TestPaths.NormalizeNewlines(CustomerMarkdownReportRenderer.Render(
+            runArtifact,
+            comparisonArtifact));
+        var golden = TestPaths.NormalizeNewlines(File.ReadAllText(TestPaths.CustomerReportPath()));
+
+        Assert.Equal(golden, rendered);
     }
 
     [Fact]

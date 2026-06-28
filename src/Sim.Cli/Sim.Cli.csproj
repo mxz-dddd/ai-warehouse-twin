@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Sim.Contracts\Sim.Contracts.csproj" />
     <ProjectReference Include="..\Sim.Core\Sim.Core.csproj" />
+    <ProjectReference Include="..\Sim.Report\Sim.Report.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
