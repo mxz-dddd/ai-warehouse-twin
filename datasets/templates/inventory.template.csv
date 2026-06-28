@@ -1,0 +1,3 @@
+inventory_id,sku_id,quantity,location_id,status
+inv-1,sku-1,100,pick-1,available
+inv-2,sku-2,50,pick-2,available

@@ -1,0 +1,6 @@
+输入校验未通过,发现 1 处问题:
+
+  1. 拣选作业时长(pick_service_duration_ms,毫秒) 不能为负数(当前值:-5)。
+     位置:each_pick.process.pick_service_duration_ms
+
+请按上面每条的“位置”修改后重新校验。

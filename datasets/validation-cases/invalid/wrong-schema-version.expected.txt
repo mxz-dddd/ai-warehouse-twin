@@ -1,0 +1,6 @@
+输入校验未通过,发现 1 处问题:
+
+  1. 契约版本(schema_version) 应为 "warehouse-scenario.v0",当前为 "warehouse-scenario.v1"。
+     位置:schema_version
+
+请按上面每条的“位置”修改后重新校验。

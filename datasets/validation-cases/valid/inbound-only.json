@@ -1,0 +1,25 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "valid-inbound-only",
+  "seed": 7,
+  "inbound": {
+    "dock_count": 2,
+    "forklift_count": 3,
+    "process": {
+      "unload_duration_ms": 100,
+      "qc_duration_ms": 0,
+      "putaway_duration_ms": 50
+    },
+    "receipts": [
+      {
+        "receipt_id": "receipt-1",
+        "warehouse_id": "warehouse-1",
+        "sku_id": "sku-1",
+        "quantity": 12,
+        "staging_location_id": "inbound-stage-1",
+        "storage_location_id": "reserve-1",
+        "arrives_at_ms": 0
+      }
+    ]
+  }
+}

@@ -1,0 +1,3 @@
+order_id,warehouse_id,sku_id,quantity,pick_face_location_id,pick_station_id,staging_location_id,released_at_ms
+each-order-1,warehouse-1,sku-2,3,pick-face-1,station-1,each-pick-stage-1,0
+each-order-2,warehouse-1,sku-3,6,pick-face-2,station-1,each-pick-stage-1,30

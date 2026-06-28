@@ -1,0 +1,6 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "no-flow",
+  "seed": 1,
+  "description": "缺少 inbound / outbound / each_pick 任何一个流程。"
+}
