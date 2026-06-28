@@ -29,12 +29,13 @@ else
     return 1;
 }
 
-var result = new WarehouseScenarioRunner().Run(scenario);
+var runner = new WarehouseScenarioRunner();
 
 if (artifactOutputPath is not null)
 {
+    var traceResult = runner.RunWithTrace(scenario);
     var artifactJson = JsonSerializer.Serialize(
-        ToRunArtifact(result),
+        ToRunArtifact(traceResult),
         new JsonSerializerOptions
         {
             WriteIndented = true,
@@ -48,6 +49,8 @@ if (artifactOutputPath is not null)
     Console.WriteLine($"Exported run artifact: {artifactOutputPath}");
     return 0;
 }
+
+var result = runner.Run(scenario);
 
 Console.WriteLine(JsonSerializer.Serialize(
     ToPayload(result),
@@ -87,8 +90,9 @@ static object ToPayload(WarehouseRunResult result)
     };
 }
 
-static RunArtifact ToRunArtifact(WarehouseRunResult result)
+static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
 {
+    var result = traceResult.RunResult;
     var kpi = result.KpiSummary;
 
     return new RunArtifact
@@ -110,6 +114,28 @@ static RunArtifact ToRunArtifact(WarehouseRunResult result)
             EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
             TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
         },
+        Layout = new RunArtifactLayout
+        {
+            Resources = traceResult.Layout.Resources
+                .Select(resource => new RunArtifactLayoutResource(
+                    resource.ResourceId,
+                    resource.Position.NodeId,
+                    resource.Position.X,
+                    resource.Position.Y))
+                .ToArray()
+        },
+        PositionTimeline = traceResult.PositionTimeline
+            .Select(entry => new RunArtifactPositionTimelineEntry(
+                entry.OperationId,
+                entry.OperationType,
+                entry.StageType,
+                entry.ResourceId,
+                entry.AtMs,
+                entry.EventType,
+                entry.Position.NodeId,
+                entry.Position.X,
+                entry.Position.Y))
+            .ToArray(),
         EventLog = NormalizeLineEndings(result.EventLogText)
             .Split('\n')
             .Where(line => line.Length > 0)

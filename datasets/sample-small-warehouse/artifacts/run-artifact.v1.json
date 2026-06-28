@@ -15,6 +15,168 @@
     "each_pick_order_throughput_per_hour": 17142.857,
     "total_work_item_throughput_per_hour": 51428.571
   },
+  "layout": {
+    "resources": [
+      {
+        "resource_id": "dock-1",
+        "node_id": "dock-1",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "resource_id": "forklift-1",
+        "node_id": "forklift-1",
+        "x": 1,
+        "y": 0
+      },
+      {
+        "resource_id": "station-1",
+        "node_id": "station-1",
+        "x": 2,
+        "y": 0
+      },
+      {
+        "resource_id": "worker-1",
+        "node_id": "worker-1",
+        "x": 3,
+        "y": 0
+      }
+    ]
+  },
+  "position_timeline": [
+    {
+      "operation_id": "receipt-1",
+      "operation_type": "inbound",
+      "stage_type": "dock",
+      "resource_id": "dock-1",
+      "at_ms": 10,
+      "event_type": "start",
+      "node_id": "dock-1",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "operation_id": "order-1",
+      "operation_type": "outbound",
+      "stage_type": "worker",
+      "resource_id": "worker-1",
+      "at_ms": 20,
+      "event_type": "start",
+      "node_id": "worker-1",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "operation_id": "each-order-1",
+      "operation_type": "each_pick",
+      "stage_type": "station",
+      "resource_id": "station-1",
+      "at_ms": 60,
+      "event_type": "start",
+      "node_id": "station-1",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "operation_id": "each-order-1",
+      "operation_type": "each_pick",
+      "stage_type": "worker",
+      "resource_id": "worker-1",
+      "at_ms": 60,
+      "event_type": "start",
+      "node_id": "worker-1",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "operation_id": "each-order-1",
+      "operation_type": "each_pick",
+      "stage_type": "station",
+      "resource_id": "station-1",
+      "at_ms": 90,
+      "event_type": "finish",
+      "node_id": "station-1",
+      "x": 2,
+      "y": 0
+    },
+    {
+      "operation_id": "each-order-1",
+      "operation_type": "each_pick",
+      "stage_type": "worker",
+      "resource_id": "worker-1",
+      "at_ms": 90,
+      "event_type": "finish",
+      "node_id": "worker-1",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "operation_id": "receipt-1",
+      "operation_type": "inbound",
+      "stage_type": "dock",
+      "resource_id": "dock-1",
+      "at_ms": 110,
+      "event_type": "finish",
+      "node_id": "dock-1",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "operation_id": "receipt-1",
+      "operation_type": "inbound",
+      "stage_type": "forklift",
+      "resource_id": "forklift-1",
+      "at_ms": 110,
+      "event_type": "start",
+      "node_id": "forklift-1",
+      "x": 1,
+      "y": 0
+    },
+    {
+      "operation_id": "order-1",
+      "operation_type": "outbound",
+      "stage_type": "dock",
+      "resource_id": "dock-1",
+      "at_ms": 120,
+      "event_type": "start",
+      "node_id": "dock-1",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "operation_id": "order-1",
+      "operation_type": "outbound",
+      "stage_type": "worker",
+      "resource_id": "worker-1",
+      "at_ms": 120,
+      "event_type": "finish",
+      "node_id": "worker-1",
+      "x": 3,
+      "y": 0
+    },
+    {
+      "operation_id": "receipt-1",
+      "operation_type": "inbound",
+      "stage_type": "forklift",
+      "resource_id": "forklift-1",
+      "at_ms": 210,
+      "event_type": "finish",
+      "node_id": "forklift-1",
+      "x": 1,
+      "y": 0
+    },
+    {
+      "operation_id": "order-1",
+      "operation_type": "outbound",
+      "stage_type": "dock",
+      "resource_id": "dock-1",
+      "at_ms": 220,
+      "event_type": "finish",
+      "node_id": "dock-1",
+      "x": 0,
+      "y": 0
+    }
+  ],
   "event_log": [
     "inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived",
     "inbound|1|110|inbound.unload_completed.receipt-1|InboundUnloadCompleted",
