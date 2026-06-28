@@ -13,6 +13,23 @@ public sealed class WarehouseUnifiedOperationRunner
         ArgumentNullException.ThrowIfNull(initialInventory);
         ArgumentNullException.ThrowIfNull(operations);
 
+        var operationList = operations.ToArray();
+
+        return Run(
+            initialInventory,
+            operationList,
+            CreateDefaultLayout(operationList));
+    }
+
+    public WarehouseUnifiedOperationResult Run(
+        IReadOnlyDictionary<string, decimal> initialInventory,
+        IReadOnlyList<WarehouseUnifiedOperation> operations,
+        WarehouseUnifiedLayout layout)
+    {
+        ArgumentNullException.ThrowIfNull(initialInventory);
+        ArgumentNullException.ThrowIfNull(operations);
+        ArgumentNullException.ThrowIfNull(layout);
+
         var ledger = CreateLedger(initialInventory);
         var orderedOperations = operations
             .OrderBy(operation => operation.RequestedAtMs)
@@ -99,6 +116,7 @@ public sealed class WarehouseUnifiedOperationRunner
                 runFinishedAtMs - runStartedAtMs);
         var bottleneckSummary = WarehouseUnifiedBottleneckSummary.FromResourceKpis(
             resourceKpiSummaryByResourceId);
+        var positionTimeline = BuildPositionTimeline(orderedIntervals, layout);
 
         return new WarehouseUnifiedOperationResult(
             orderedIntervals,
@@ -107,8 +125,55 @@ public sealed class WarehouseUnifiedOperationRunner
             customerKpiSummaryByOperationType,
             resourceKpiSummaryByResourceId,
             bottleneckSummary,
+            positionTimeline,
             ledger.Snapshot(),
             eventLogText);
+    }
+
+    private static WarehouseUnifiedLayout CreateDefaultLayout(
+        IEnumerable<WarehouseUnifiedOperation> operations)
+    {
+        var positions = operations
+            .Select(operation => operation.ResourceId)
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(resourceId => resourceId, StringComparer.Ordinal)
+            .Select((resourceId, index) => new KeyValuePair<string, WarehouseUnifiedPositionPoint>(
+                resourceId,
+                new WarehouseUnifiedPositionPoint(resourceId, index, 0m)))
+            .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal);
+
+        return new WarehouseUnifiedLayout(positions);
+    }
+
+    private static WarehouseUnifiedPositionTimelineEntry[] BuildPositionTimeline(
+        IEnumerable<WarehouseUnifiedOperationInterval> intervals,
+        WarehouseUnifiedLayout layout)
+    {
+        return intervals
+            .SelectMany(interval =>
+            {
+                var position = layout.GetResourcePosition(interval.ResourceId);
+
+                return new[]
+                {
+                    new WarehouseUnifiedPositionTimelineEntry(
+                        interval.OperationId,
+                        interval.ResourceId,
+                        interval.StartedAtMs,
+                        position,
+                        "start"),
+                    new WarehouseUnifiedPositionTimelineEntry(
+                        interval.OperationId,
+                        interval.ResourceId,
+                        interval.FinishedAtMs,
+                        position,
+                        "finish")
+                };
+            })
+            .OrderBy(entry => entry.AtMs)
+            .ThenBy(entry => entry.OperationId, StringComparer.Ordinal)
+            .ThenBy(entry => entry.EventType, StringComparer.Ordinal)
+            .ToArray();
     }
 
     private static WarehouseInventoryLedger CreateLedger(

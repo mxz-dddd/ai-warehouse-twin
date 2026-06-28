@@ -303,6 +303,80 @@ public sealed class WarehouseUnifiedOperationRunnerTests
     }
 
     [Fact]
+    public void CombinedRunner_PositionTimeline_UsesProvidedLayout()
+    {
+        var layout = PositionTimelineLayout();
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            PositionTimelineOperations(),
+            layout);
+
+        Assert.Equal(4, result.PositionTimeline.Count);
+
+        var dockEntries = result.PositionTimeline
+            .Where(entry => entry.ResourceId == "dock-1")
+            .ToArray();
+        Assert.Equal(["start", "finish"], dockEntries.Select(entry => entry.EventType));
+        Assert.All(
+            dockEntries,
+            entry => Assert.Equal(
+                new WarehouseUnifiedPositionPoint("dock-node", 10m, 20m),
+                entry.Position));
+
+        var stationEntries = result.PositionTimeline
+            .Where(entry => entry.ResourceId == "station-1")
+            .ToArray();
+        Assert.Equal(["start", "finish"], stationEntries.Select(entry => entry.EventType));
+        Assert.All(
+            stationEntries,
+            entry => Assert.Equal(
+                new WarehouseUnifiedPositionPoint("station-node", 30m, 40m),
+                entry.Position));
+    }
+
+    [Fact]
+    public void CombinedRunner_PositionTimeline_IsDeterministicAcrossRuns()
+    {
+        var layout = PositionTimelineLayout();
+        var runner = new WarehouseUnifiedOperationRunner();
+
+        var first = runner.Run(
+            InitialInventory(100m),
+            PositionTimelineOperations(),
+            layout);
+        var second = runner.Run(
+            InitialInventory(100m),
+            PositionTimelineOperations(),
+            layout);
+
+        Assert.Equal(
+            first.PositionTimeline.ToArray(),
+            second.PositionTimeline.ToArray());
+    }
+
+    [Fact]
+    public void CombinedRunner_PositionTimeline_DefaultLayoutIsStable()
+    {
+        var result = new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            PositionTimelineOperations());
+
+        var dockPosition = result.PositionTimeline
+            .First(entry => entry.ResourceId == "dock-1")
+            .Position;
+        Assert.Equal("dock-1", dockPosition.NodeId);
+        Assert.Equal(0m, dockPosition.X);
+        Assert.Equal(0m, dockPosition.Y);
+
+        var stationPosition = result.PositionTimeline
+            .First(entry => entry.ResourceId == "station-1")
+            .Position;
+        Assert.Equal("station-1", stationPosition.NodeId);
+        Assert.Equal(1m, stationPosition.X);
+        Assert.Equal(0m, stationPosition.Y);
+    }
+
+    [Fact]
     public void CombinedRunner_EventLog_UsesLfOnly()
     {
         var result = RunConservationScenario();
@@ -367,6 +441,45 @@ public sealed class WarehouseUnifiedOperationRunnerTests
                     skuId: "SKU-A",
                     inventoryDelta: 1m)
             ]);
+    }
+
+    private static WarehouseUnifiedLayout PositionTimelineLayout()
+    {
+        return new WarehouseUnifiedLayout(
+            new Dictionary<string, WarehouseUnifiedPositionPoint>
+            {
+                ["dock-1"] = new WarehouseUnifiedPositionPoint(
+                    "dock-node",
+                    10m,
+                    20m),
+                ["station-1"] = new WarehouseUnifiedPositionPoint(
+                    "station-node",
+                    30m,
+                    40m)
+            });
+    }
+
+    private static WarehouseUnifiedOperation[] PositionTimelineOperations()
+    {
+        return
+        [
+            new WarehouseUnifiedOperation(
+                "dock-operation",
+                WarehouseUnifiedOperationType.Inbound,
+                requestedAtMs: 0,
+                resourceId: "dock-1",
+                durationMs: 10,
+                skuId: "SKU-A",
+                inventoryDelta: 1m),
+            new WarehouseUnifiedOperation(
+                "station-operation",
+                WarehouseUnifiedOperationType.Inbound,
+                requestedAtMs: 0,
+                resourceId: "station-1",
+                durationMs: 20,
+                skuId: "SKU-A",
+                inventoryDelta: 1m)
+        ];
     }
 
     private static IReadOnlyDictionary<string, decimal> InitialInventory(
