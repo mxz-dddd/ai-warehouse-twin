@@ -21,5 +21,10 @@ public sealed record RunArtifact
 
     public required RunArtifactKpiSummary KpiSummary { get; init; }
 
+    public RunArtifactLayout Layout { get; init; } = RunArtifactLayout.Empty;
+
+    public IReadOnlyList<RunArtifactPositionTimelineEntry> PositionTimeline { get; init; } =
+        Array.Empty<RunArtifactPositionTimelineEntry>();
+
     public required IReadOnlyList<string> EventLog { get; init; }
 }
