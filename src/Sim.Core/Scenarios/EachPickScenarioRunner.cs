@@ -11,19 +11,28 @@ public sealed class EachPickScenarioRunner
 {
     public EachPickRunResult Run(EachPickScenario scenario)
     {
+        return Run(scenario, traceCollector: null);
+    }
+
+    internal EachPickRunResult Run(
+        EachPickScenario scenario,
+        ResourceLeaseTraceCollector? traceCollector)
+    {
         ArgumentNullException.ThrowIfNull(scenario);
 
         var stationPool = new ResourcePool(
             "each-pick-stations",
             ResourceType.Station,
             Enumerable.Range(1, scenario.StationCount)
-                .Select(index => new ResourceUnit($"station-{index}", ResourceType.Station, $"Station {index}")));
+                .Select(index => new ResourceUnit($"station-{index}", ResourceType.Station, $"Station {index}")),
+            TraceContext(traceCollector, "station"));
 
         var workerPool = new ResourcePool(
             "each-pick-workers",
             ResourceType.Worker,
             Enumerable.Range(1, scenario.WorkerCount)
-                .Select(index => new ResourceUnit($"worker-{index}", ResourceType.Worker, $"Worker {index}")));
+                .Select(index => new ResourceUnit($"worker-{index}", ResourceType.Worker, $"Worker {index}")),
+            TraceContext(traceCollector, "worker"));
 
         var eachPickState = new EachPickSimulationState(
             scenario.Orders,
@@ -45,9 +54,6 @@ public sealed class EachPickScenarioRunner
             var atStationAtMs = releasedAtMs
                 + scenario.Parameters.ToteBindDurationMs
                 + scenario.Parameters.TravelToStationDurationMs;
-            var completedAtMs = atStationAtMs + scenario.Parameters.PickServiceDurationMs;
-            var stagedAtMs = completedAtMs + scenario.Parameters.MoveToStagingDurationMs;
-
             context.EventQueue.Enqueue(new EachPickOrderReleasedEvent(
                 eachPickState,
                 order.OrderId,
@@ -57,16 +63,6 @@ public sealed class EachPickScenarioRunner
                 eachPickState,
                 order.OrderId,
                 atStationAtMs));
-
-            context.EventQueue.Enqueue(new EachPickCompletedEvent(
-                eachPickState,
-                order.OrderId,
-                completedAtMs));
-
-            context.EventQueue.Enqueue(new EachPickStagedEvent(
-                eachPickState,
-                order.OrderId,
-                stagedAtMs));
         }
 
         var maxEvents = Math.Max(100, scenario.Orders.Count * 20);
@@ -90,5 +86,14 @@ public sealed class EachPickScenarioRunner
             finishedAtMs,
             context.EventLog.ToDeterministicText(),
             context.WorldState);
+    }
+
+    private static ResourceLeaseTraceContext? TraceContext(
+        ResourceLeaseTraceCollector? collector,
+        string stageType)
+    {
+        return collector is null
+            ? null
+            : new ResourceLeaseTraceContext(collector, "each_pick", stageType);
     }
 }

@@ -78,5 +78,10 @@ public sealed class EachPickAtStationEvent : ISimEvent
             candidate.Quantity,
             order.PickStationId,
             InventoryStatus.Picking));
+
+        EachPickResourceCoordinator.RequestStation(
+            _state,
+            order.OrderId,
+            context);
     }
 }

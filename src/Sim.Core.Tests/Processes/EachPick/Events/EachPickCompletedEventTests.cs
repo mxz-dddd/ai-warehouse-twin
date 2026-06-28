@@ -31,8 +31,13 @@ public sealed class EachPickCompletedEventTests
     [Fact]
     public void Execute_MovesPickingInventoryToPicked()
     {
-        var state = State();
-        var context = Context(nowMs: 100);
+        var state = State(
+            inventoryLocationId: "pick-face-1",
+            inventoryStatus: InventoryStatus.Allocated);
+        new EachPickAtStationEvent(state, "order-1", 100)
+            .Execute(Context(nowMs: 100));
+
+        var context = Context(nowMs: 130);
         var simEvent = new EachPickCompletedEvent(state, "order-1", 0);
 
         simEvent.Execute(context);
@@ -40,6 +45,8 @@ public sealed class EachPickCompletedEventTests
         var item = state.GetInventory("inv-1");
         Assert.Equal(InventoryStatus.Picked, item.Status);
         Assert.Equal("station-1", item.LocationId);
+        Assert.Equal(1, state.StationPool.AvailableCount);
+        Assert.Equal(1, state.WorkerPool.AvailableCount);
     }
 
     [Fact]
