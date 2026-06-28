@@ -1,5 +1,6 @@
 using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Json;
+using Sim.Core.Resources;
 using Xunit;
 
 namespace Sim.Core.Tests.Scenarios;
@@ -135,6 +136,117 @@ public sealed class WarehouseScenarioTraceTests
     }
 
     [Fact]
+    public void RunWithTrace_PositionTimeline_ContainsStartAndFinishForEveryLease()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+
+        var result = new WarehouseScenarioRunner().RunWithTrace(scenario);
+
+        Assert.NotEmpty(result.ResourceLeaseTimeline);
+        Assert.Equal(
+            result.ResourceLeaseTimeline.Count * 2,
+            result.PositionTimeline.Count);
+
+        foreach (var lease in result.ResourceLeaseTimeline)
+        {
+            var start = Assert.Single(
+                result.PositionTimeline,
+                entry =>
+                    MatchesLease(entry, lease) &&
+                    entry.EventType == "start");
+            var finish = Assert.Single(
+                result.PositionTimeline,
+                entry =>
+                    MatchesLease(entry, lease) &&
+                    entry.EventType == "finish");
+
+            Assert.Equal(lease.StartedAtMs, start.AtMs);
+            Assert.Equal(lease.FinishedAtMs, finish.AtMs);
+            Assert.False(string.IsNullOrWhiteSpace(start.Position.NodeId));
+            Assert.False(string.IsNullOrWhiteSpace(finish.Position.NodeId));
+        }
+    }
+
+    [Fact]
+    public void RunWithTrace_PositionTimeline_IncludesInboundOutboundAndEachPick()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+
+        var timeline = new WarehouseScenarioRunner()
+            .RunWithTrace(scenario)
+            .PositionTimeline;
+
+        AssertStages(timeline, "inbound", "dock", "forklift");
+        AssertStages(timeline, "outbound", "dock", "worker");
+        AssertStages(timeline, "each_pick", "station", "worker");
+    }
+
+    [Fact]
+    public void RunWithTrace_PositionTimeline_IsDeterministic()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var runner = new WarehouseScenarioRunner();
+
+        var first = runner.RunWithTrace(scenario);
+        var second = runner.RunWithTrace(scenario);
+
+        Assert.Equal(
+            first.PositionTimeline.ToArray(),
+            second.PositionTimeline.ToArray());
+        Assert.Equal(
+            first.Layout.Resources.ToArray(),
+            second.Layout.Resources.ToArray());
+    }
+
+    [Fact]
+    public void RunWithTrace_DefaultLayout_IsResourceIdSorted()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+
+        var resources = new WarehouseScenarioRunner()
+            .RunWithTrace(scenario)
+            .Layout
+            .Resources
+            .ToArray();
+
+        Assert.Equal(
+            resources.Select(resource => resource.ResourceId)
+                .Order(StringComparer.Ordinal),
+            resources.Select(resource => resource.ResourceId));
+
+        for (var index = 0; index < resources.Length; index++)
+        {
+            Assert.Equal(resources[index].ResourceId, resources[index].Position.NodeId);
+            Assert.Equal(index, resources[index].Position.X);
+            Assert.Equal(0m, resources[index].Position.Y);
+        }
+    }
+
+    [Fact]
+    public void Run_DoesNotChangeTraditionalBehavior_WithPositionTimeline()
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var runner = new WarehouseScenarioRunner();
+
+        var traditional = runner.Run(scenario);
+        var traced = runner.RunWithTrace(scenario).RunResult;
+
+        Assert.Equal(traditional.ScenarioId, traced.ScenarioId);
+        Assert.Equal(traditional.Seed, traced.Seed);
+        Assert.Equal(traditional.StartedAtMs, traced.StartedAtMs);
+        Assert.Equal(traditional.FinishedAtMs, traced.FinishedAtMs);
+        Assert.Equal(traditional.CompletedReceipts, traced.CompletedReceipts);
+        Assert.Equal(
+            traditional.CompletedOutboundOrders,
+            traced.CompletedOutboundOrders);
+        Assert.Equal(
+            traditional.CompletedEachPickOrders,
+            traced.CompletedEachPickOrders);
+        Assert.Equal(traditional.EventLogText, traced.EventLogText);
+        Assert.Equal(traditional.KpiSummary, traced.KpiSummary);
+    }
+
+    [Fact]
     public void Run_DoesNotChangeTraditionalBehavior()
     {
         var scenario = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
@@ -194,5 +306,29 @@ public sealed class WarehouseScenarioTraceTests
                 .Select(entry => entry.StageType)
                 .Distinct(StringComparer.Ordinal)
                 .Order(StringComparer.Ordinal));
+    }
+
+    private static void AssertStages(
+        IEnumerable<WarehouseScenarioPositionTimelineEntry> timeline,
+        string operationType,
+        params string[] expectedStages)
+    {
+        Assert.Equal(
+            expectedStages.Order(StringComparer.Ordinal),
+            timeline
+                .Where(entry => entry.OperationType == operationType)
+                .Select(entry => entry.StageType)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal));
+    }
+
+    private static bool MatchesLease(
+        WarehouseScenarioPositionTimelineEntry entry,
+        ResourceLeaseTimelineEntry lease)
+    {
+        return entry.OperationId == lease.OperationId &&
+               entry.OperationType == lease.OperationType &&
+               entry.StageType == lease.StageType &&
+               entry.ResourceId == lease.ResourceId;
     }
 }
