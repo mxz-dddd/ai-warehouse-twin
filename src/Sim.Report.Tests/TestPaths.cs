@@ -30,6 +30,12 @@ internal static class TestPaths
             RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "run-artifact.v1.report.md");
     }
 
+    public static string ComparisonArtifactPath()
+    {
+        return Path.Combine(
+            RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "comparison-artifact.v1.json");
+    }
+
     public static string NormalizeNewlines(string value)
     {
         return value.Replace("\r\n", "\n").Replace("\r", "\n");
