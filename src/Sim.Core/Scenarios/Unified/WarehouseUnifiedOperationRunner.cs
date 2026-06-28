@@ -91,12 +91,19 @@ public sealed class WarehouseUnifiedOperationRunner
             operationTelemetry);
         var customerKpiSummaryByOperationType =
             WarehouseUnifiedCustomerKpiSummary.ByOperationType(operationTelemetry);
+        var runStartedAtMs = orderedOperations.Min(operation => operation.RequestedAtMs);
+        var runFinishedAtMs = orderedIntervals.Max(interval => interval.FinishedAtMs);
+        var resourceKpiSummaryByResourceId =
+            WarehouseUnifiedResourceKpiSummary.ByResourceId(
+                operationTelemetry,
+                runFinishedAtMs - runStartedAtMs);
 
         return new WarehouseUnifiedOperationResult(
             orderedIntervals,
             operationTelemetry,
             customerKpiSummary,
             customerKpiSummaryByOperationType,
+            resourceKpiSummaryByResourceId,
             ledger.Snapshot(),
             eventLogText);
     }
