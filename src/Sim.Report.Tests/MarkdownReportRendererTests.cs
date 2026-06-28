@@ -26,6 +26,21 @@ public class MarkdownReportRendererTests
     }
 
     [Fact]
+    public void Render_RoundsLongTailThroughputToThreeDecimals()
+    {
+        // A decimal with a long fractional tail must not leak into the customer report.
+        var artifact = NewArtifact(
+            eventLogLineCount: 0,
+            eventLog: Array.Empty<string>(),
+            receiptThroughput: 35999.9999999999999999999712m);
+
+        var report = MarkdownReportRenderer.Render(artifact);
+
+        Assert.Contains("36000", report);
+        Assert.DoesNotContain("35999", report);
+    }
+
+    [Fact]
     public void Render_UsesEventLogLineCountFromKpi_NotEventLogLength()
     {
         // KPI count (7) intentionally differs from the event_log array (empty):
@@ -51,7 +66,10 @@ public class MarkdownReportRendererTests
         Assert.DoesNotContain("\r", MarkdownReportRenderer.Render(artifact));
     }
 
-    private static RunArtifact NewArtifact(int eventLogLineCount, IReadOnlyList<string> eventLog)
+    private static RunArtifact NewArtifact(
+        int eventLogLineCount,
+        IReadOnlyList<string> eventLog,
+        decimal receiptThroughput = 0m)
     {
         return new RunArtifact
         {
@@ -67,7 +85,7 @@ public class MarkdownReportRendererTests
                 TotalDurationMs = 100,
                 TotalCompletedWorkItems = 0,
                 EventLogLineCount = eventLogLineCount,
-                ReceiptThroughputPerHour = 0m,
+                ReceiptThroughputPerHour = receiptThroughput,
                 OutboundOrderThroughputPerHour = 0m,
                 EachPickOrderThroughputPerHour = 0m,
                 TotalWorkItemThroughputPerHour = 0m,

@@ -67,6 +67,7 @@ public static class MarkdownReportRenderer
 
     private static string FormatDecimal(decimal value)
     {
-        return value.ToString(CultureInfo.InvariantCulture);
+        return decimal.Round(value, 3, MidpointRounding.AwayFromZero)
+            .ToString("0.###", CultureInfo.InvariantCulture);
     }
 }

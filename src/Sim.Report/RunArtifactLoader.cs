@@ -36,6 +36,21 @@ public static class RunArtifactLoader
                 $"Unsupported artifact_kind '{artifact.ArtifactKind}', expected '{RunArtifact.CurrentArtifactKind}'.");
         }
 
+        if (string.IsNullOrWhiteSpace(artifact.ScenarioId))
+        {
+            throw new InvalidDataException("run-artifact scenario_id must not be empty.");
+        }
+
+        if (artifact.KpiSummary is null)
+        {
+            throw new InvalidDataException("run-artifact kpi_summary must not be null.");
+        }
+
+        if (artifact.EventLog is null)
+        {
+            throw new InvalidDataException("run-artifact event_log must not be null.");
+        }
+
         return artifact;
     }
 }
