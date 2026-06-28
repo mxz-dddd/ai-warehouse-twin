@@ -9,9 +9,15 @@ public sealed class ResourcePool
     private readonly HashSet<string> _waitingRequestIds = [];
     private readonly Dictionary<string, ResourceLease> _busyLeasesByResourceId = [];
     private readonly Dictionary<string, long> _completedBusyTimeByResourceId = [];
-    private readonly Queue<ResourceUnit> _availableResources = new();
+    private readonly SortedSet<string> _availableResourceIds =
+        new(StringComparer.Ordinal);
+    private readonly ResourceLeaseTraceContext? _traceContext;
 
-    public ResourcePool(string poolId, ResourceType resourceType, IEnumerable<ResourceUnit> resources)
+    public ResourcePool(
+        string poolId,
+        ResourceType resourceType,
+        IEnumerable<ResourceUnit> resources,
+        ResourceLeaseTraceContext? traceContext = null)
     {
         if (string.IsNullOrWhiteSpace(poolId))
         {
@@ -28,6 +34,7 @@ public sealed class ResourcePool
 
         PoolId = poolId;
         ResourceType = resourceType;
+        _traceContext = traceContext;
         _resourcesById = new Dictionary<string, ResourceUnit>();
 
         foreach (var resource in resourceList)
@@ -47,7 +54,7 @@ public sealed class ResourcePool
             }
 
             _completedBusyTimeByResourceId[resource.ResourceId] = 0;
-            _availableResources.Enqueue(resource);
+            _availableResourceIds.Add(resource.ResourceId);
         }
     }
 
@@ -57,7 +64,7 @@ public sealed class ResourcePool
 
     public int Capacity => _resourcesById.Count;
 
-    public int AvailableCount => _availableResources.Count;
+    public int AvailableCount => _availableResourceIds.Count;
 
     public int BusyCount => _busyLeasesByResourceId.Count;
 
@@ -67,10 +74,14 @@ public sealed class ResourcePool
     {
         ValidateRequestAndTime(request, nowMs);
 
-        if (!_availableResources.TryDequeue(out var resource))
+        if (_availableResourceIds.Count == 0)
         {
             return null;
         }
+
+        var resourceId = _availableResourceIds.Min!;
+        _availableResourceIds.Remove(resourceId);
+        var resource = _resourcesById[resourceId];
 
         return Acquire(resource, request, nowMs);
     }
@@ -126,6 +137,11 @@ public sealed class ResourcePool
 
         _busyLeasesByResourceId.Remove(lease.Resource.ResourceId);
         _completedBusyTimeByResourceId[lease.Resource.ResourceId] += nowMs - lease.AcquiredAtMs;
+        _traceContext?.Collector.Record(
+            lease,
+            nowMs,
+            _traceContext.OperationType,
+            _traceContext.StageType);
 
         if (_waitingQueue.TryDequeue(out var nextRequest))
         {
@@ -133,7 +149,7 @@ public sealed class ResourcePool
             return Acquire(lease.Resource, nextRequest, nowMs);
         }
 
-        _availableResources.Enqueue(lease.Resource);
+        _availableResourceIds.Add(lease.Resource.ResourceId);
         return null;
     }
 
@@ -168,7 +184,12 @@ public sealed class ResourcePool
 
     private ResourceLease Acquire(ResourceUnit resource, ResourceRequest request, long nowMs)
     {
-        var lease = new ResourceLease(resource, request.RequestId, request.TaskId, nowMs);
+        var lease = new ResourceLease(
+            resource,
+            request.RequestId,
+            request.TaskId,
+            nowMs,
+            request.RequestedAtMs);
         _busyLeasesByResourceId.Add(resource.ResourceId, lease);
         return lease;
     }

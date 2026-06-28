@@ -10,19 +10,28 @@ public sealed class InboundScenarioRunner
 {
     public InboundRunResult Run(InboundScenario scenario)
     {
+        return Run(scenario, traceCollector: null);
+    }
+
+    internal InboundRunResult Run(
+        InboundScenario scenario,
+        ResourceLeaseTraceCollector? traceCollector)
+    {
         ArgumentNullException.ThrowIfNull(scenario);
 
         var dockPool = new ResourcePool(
             "inbound-docks",
             ResourceType.Dock,
             Enumerable.Range(1, scenario.DockCount)
-                .Select(index => new ResourceUnit($"dock-{index}", ResourceType.Dock, $"Dock {index}")));
+                .Select(index => new ResourceUnit($"dock-{index}", ResourceType.Dock, $"Dock {index}")),
+            TraceContext(traceCollector, "dock"));
 
         var forkliftPool = new ResourcePool(
             "inbound-forklifts",
             ResourceType.Forklift,
             Enumerable.Range(1, scenario.ForkliftCount)
-                .Select(index => new ResourceUnit($"forklift-{index}", ResourceType.Forklift, $"Forklift {index}")));
+                .Select(index => new ResourceUnit($"forklift-{index}", ResourceType.Forklift, $"Forklift {index}")),
+            TraceContext(traceCollector, "forklift"));
 
         var inboundState = new InboundSimulationState(
             scenario.Receipts,
@@ -62,5 +71,14 @@ public sealed class InboundScenarioRunner
             finishedAtMs,
             context.EventLog.ToDeterministicText(),
             context.WorldState);
+    }
+
+    private static ResourceLeaseTraceContext? TraceContext(
+        ResourceLeaseTraceCollector? collector,
+        string stageType)
+    {
+        return collector is null
+            ? null
+            : new ResourceLeaseTraceContext(collector, "inbound", stageType);
     }
 }
