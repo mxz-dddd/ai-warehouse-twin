@@ -81,6 +81,7 @@ public sealed class WarehouseUnifiedOperationRunnerTests
         Assert.Equal(
             first.ResourceKpiSummaryByResourceId.ToArray(),
             second.ResourceKpiSummaryByResourceId.ToArray());
+        Assert.Equal(first.BottleneckSummary, second.BottleneckSummary);
         Assert.Equal(first.EventLogText, second.EventLogText);
     }
 
@@ -238,34 +239,7 @@ public sealed class WarehouseUnifiedOperationRunnerTests
     [Fact]
     public void CombinedRunner_ResourceKpiSummaryByResourceId_ComputesUtilization()
     {
-        var result = new WarehouseUnifiedOperationRunner().Run(
-            InitialInventory(100m),
-            [
-                new WarehouseUnifiedOperation(
-                    "a-dock",
-                    WarehouseUnifiedOperationType.Inbound,
-                    requestedAtMs: 0,
-                    resourceId: "dock-1",
-                    durationMs: 10,
-                    skuId: "SKU-A",
-                    inventoryDelta: 1m),
-                new WarehouseUnifiedOperation(
-                    "b-dock",
-                    WarehouseUnifiedOperationType.Inbound,
-                    requestedAtMs: 0,
-                    resourceId: "dock-1",
-                    durationMs: 20,
-                    skuId: "SKU-A",
-                    inventoryDelta: 1m),
-                new WarehouseUnifiedOperation(
-                    "c-station",
-                    WarehouseUnifiedOperationType.Inbound,
-                    requestedAtMs: 0,
-                    resourceId: "station-1",
-                    durationMs: 50,
-                    skuId: "SKU-A",
-                    inventoryDelta: 1m)
-            ]);
+        var result = RunResourceKpiScenario();
 
         var summaries = result.ResourceKpiSummaryByResourceId;
 
@@ -287,6 +261,45 @@ public sealed class WarehouseUnifiedOperationRunnerTests
         Assert.Equal(1m, station.Utilization);
         Assert.Equal(0, station.FirstStartedAtMs);
         Assert.Equal(50, station.LastFinishedAtMs);
+    }
+
+    [Fact]
+    public void CombinedRunner_BottleneckSummary_SelectsHighestUtilizationResource()
+    {
+        var summary = RunResourceKpiScenario().BottleneckSummary;
+
+        Assert.Equal("station-1", summary.ResourceId);
+        Assert.Equal(1m, summary.Utilization);
+        Assert.Equal(50, summary.TotalBusyDurationMs);
+        Assert.Equal(1, summary.OperationCount);
+    }
+
+    [Fact]
+    public void BottleneckSummary_BreaksTiesDeterministically()
+    {
+        var resourceKpis =
+            new Dictionary<string, WarehouseUnifiedResourceKpiSummary>
+            {
+                ["station-1"] = new WarehouseUnifiedResourceKpiSummary(
+                    "station-1",
+                    operationCount: 2,
+                    totalBusyDurationMs: 50,
+                    utilization: 1m,
+                    firstStartedAtMs: 0,
+                    lastFinishedAtMs: 50),
+                ["dock-1"] = new WarehouseUnifiedResourceKpiSummary(
+                    "dock-1",
+                    operationCount: 2,
+                    totalBusyDurationMs: 50,
+                    utilization: 1m,
+                    firstStartedAtMs: 0,
+                    lastFinishedAtMs: 50)
+            };
+
+        var summary = WarehouseUnifiedBottleneckSummary.FromResourceKpis(
+            resourceKpis);
+
+        Assert.Equal("dock-1", summary.ResourceId);
     }
 
     [Fact]
@@ -321,6 +334,38 @@ public sealed class WarehouseUnifiedOperationRunnerTests
                     requestedAtMs: 20,
                     durationMs: 10,
                     inventoryDelta: -4m)
+            ]);
+    }
+
+    private static WarehouseUnifiedOperationResult RunResourceKpiScenario()
+    {
+        return new WarehouseUnifiedOperationRunner().Run(
+            InitialInventory(100m),
+            [
+                new WarehouseUnifiedOperation(
+                    "a-dock",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 10,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m),
+                new WarehouseUnifiedOperation(
+                    "b-dock",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "dock-1",
+                    durationMs: 20,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m),
+                new WarehouseUnifiedOperation(
+                    "c-station",
+                    WarehouseUnifiedOperationType.Inbound,
+                    requestedAtMs: 0,
+                    resourceId: "station-1",
+                    durationMs: 50,
+                    skuId: "SKU-A",
+                    inventoryDelta: 1m)
             ]);
     }
 
