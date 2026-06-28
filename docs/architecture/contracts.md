@@ -25,6 +25,27 @@ The drift check regenerates contract outputs and fails if tracked generated file
 - `optimization`
 - `calibration`
 
+## RunArtifact Handoff
+
+`src/Sim.Contracts/Artifacts/RunArtifact.cs` is the handwritten C#
+handoff contract for exported simulation runs. It is intentionally separate
+from the generated `packages/contracts` schemas in the current phase.
+
+RunArtifact v1 now includes:
+
+- `layout.resources`: a deterministic default layout for resources observed
+  in the real resource lease trace. Resources are sorted by `resource_id`;
+  the baseline position is `x = N`, `y = 0`.
+- `position_timeline`: start/finish position entries derived from the real
+  resource lease timeline. This is a deterministic handoff baseline, not a
+  full warehouse map, path model, or Unity visualization implementation.
+
+`comparison_artifact.v1` is the handwritten C# handoff contract for A/B
+scenario comparison output. It contains baseline metrics, candidate metrics,
+and deterministic metric deltas. It is an objective numeric comparison only:
+it does not include recommendations, business interpretation, UI behavior, or
+Unity visualization behavior.
+
 ## Current Limits
 
 The generator is intentionally minimal for Phase 0. It supports basic JSON Schema type mapping only. Nested objects currently map to `object` in C# and `dict[str, Any]` in Python.

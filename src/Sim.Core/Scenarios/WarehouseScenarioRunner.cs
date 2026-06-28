@@ -1,4 +1,5 @@
 using Sim.Core.Scenarios.Unified;
+using Sim.Core.Resources;
 using Sim.Core.World;
 
 namespace Sim.Core.Scenarios;
@@ -34,19 +35,50 @@ public sealed class WarehouseScenarioRunner
 
     public WarehouseRunResult Run(WarehouseScenario scenario)
     {
+        return RunInternal(scenario, traceCollector: null);
+    }
+
+    public WarehouseScenarioTraceResult RunWithTrace(WarehouseScenario scenario)
+    {
+        var traceCollector = new ResourceLeaseTraceCollector();
+        var runResult = RunInternal(scenario, traceCollector);
+        var resourceLeaseTimeline = traceCollector.Timeline;
+        var layout = WarehouseScenarioLayout.FromResourceLeases(
+            resourceLeaseTimeline);
+        var positionTimeline = WarehouseScenarioPositionTimelineBuilder.Build(
+            resourceLeaseTimeline,
+            layout);
+
+        return new WarehouseScenarioTraceResult(
+            runResult,
+            resourceLeaseTimeline,
+            layout,
+            positionTimeline);
+    }
+
+    private static WarehouseRunResult RunInternal(
+        WarehouseScenario scenario,
+        ResourceLeaseTraceCollector? traceCollector)
+    {
         ArgumentNullException.ThrowIfNull(scenario);
 
         var inboundResult = scenario.InboundScenario is null
             ? null
-            : new InboundScenarioRunner().Run(scenario.InboundScenario);
+            : new InboundScenarioRunner().Run(
+                scenario.InboundScenario,
+                traceCollector);
 
         var outboundResult = scenario.OutboundScenario is null
             ? null
-            : new OutboundScenarioRunner().Run(scenario.OutboundScenario);
+            : new OutboundScenarioRunner().Run(
+                scenario.OutboundScenario,
+                traceCollector);
 
         var eachPickResult = scenario.EachPickScenario is null
             ? null
-            : new EachPickScenarioRunner().Run(scenario.EachPickScenario);
+            : new EachPickScenarioRunner().Run(
+                scenario.EachPickScenario,
+                traceCollector);
 
         var childRuns = new List<ChildRun>();
 

@@ -67,18 +67,7 @@ public sealed class EachPickScenarioRunnerTests
     [Fact]
     public void Run_CompletesMultipleOrders()
     {
-        var scenario = new EachPickScenario(
-            "each-pick-scenario-multi",
-            456,
-            [
-                Order("order-2", "sku-2", 3m, "pick-face-2", "station-1", "stage-1", 10),
-                Order("order-1", "sku-1", 5m, "pick-face-1", "station-1", "stage-1", 0)
-            ],
-            [
-                Inventory("inv-2", "sku-2", 3m, "pick-face-2", InventoryStatus.Available),
-                Inventory("inv-1", "sku-1", 5m, "pick-face-1", InventoryStatus.Available)
-            ],
-            Parameters(),
+        var scenario = MultipleOrdersScenario(
             stationCount: 1,
             workerCount: 1);
 
@@ -87,10 +76,23 @@ public sealed class EachPickScenarioRunnerTests
         Assert.Equal(2, result.CompletedEachPickOrders);
         Assert.Equal(8m, result.TotalQuantityPicked);
         Assert.Equal(0, result.StartedAtMs);
-        Assert.Equal(110, result.FinishedAtMs);
+        Assert.Equal(130, result.FinishedAtMs);
 
         Assert.Contains("each_pick.staged.order-1", result.EventLogText);
         Assert.Contains("each_pick.staged.order-2", result.EventLogText);
+    }
+
+    [Fact]
+    public void Run_ResourceCapacityControlsContentionDelay()
+    {
+        var constrained = new EachPickScenarioRunner().Run(
+            MultipleOrdersScenario(stationCount: 1, workerCount: 1));
+        var unconstrained = new EachPickScenarioRunner().Run(
+            MultipleOrdersScenario(stationCount: 2, workerCount: 2));
+
+        Assert.Equal(130, constrained.FinishedAtMs);
+        Assert.Equal(110, unconstrained.FinishedAtMs);
+        Assert.True(constrained.FinishedAtMs > unconstrained.FinishedAtMs);
     }
 
     [Fact]
@@ -119,6 +121,26 @@ public sealed class EachPickScenarioRunnerTests
             Parameters(),
             stationCount: 1,
             workerCount: 1);
+    }
+
+    private static EachPickScenario MultipleOrdersScenario(
+        int stationCount,
+        int workerCount)
+    {
+        return new EachPickScenario(
+            "each-pick-scenario-multi",
+            456,
+            [
+                Order("order-2", "sku-2", 3m, "pick-face-2", "station-1", "stage-1", 10),
+                Order("order-1", "sku-1", 5m, "pick-face-1", "station-1", "stage-1", 0)
+            ],
+            [
+                Inventory("inv-2", "sku-2", 3m, "pick-face-2", InventoryStatus.Available),
+                Inventory("inv-1", "sku-1", 5m, "pick-face-1", InventoryStatus.Available)
+            ],
+            Parameters(),
+            stationCount,
+            workerCount);
     }
 
     private static EachPickOrder Order(

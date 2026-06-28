@@ -4,6 +4,27 @@ using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
 
+if (args.Length == 5 &&
+    args[0] == "compare-files" &&
+    args[3] == "-o")
+{
+    var baseline = WarehouseScenarioJsonLoader.Load(args[1]);
+    var candidate = WarehouseScenarioJsonLoader.Load(args[2]);
+    var comparison = new WarehouseScenarioComparisonRunner().Compare(
+        baseline,
+        candidate);
+    var comparisonJson = JsonSerializer.Serialize(
+        ToComparisonArtifact(comparison),
+        ArtifactJsonOptions());
+
+    File.WriteAllText(
+        args[4],
+        NormalizeLineEndings(comparisonJson) + "\n");
+
+    Console.WriteLine($"Exported comparison artifact: {args[4]}");
+    return 0;
+}
+
 WarehouseScenario scenario;
 string? artifactOutputPath = null;
 
@@ -26,20 +47,18 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- sample-small-warehouse");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     return 1;
 }
 
-var result = new WarehouseScenarioRunner().Run(scenario);
+var runner = new WarehouseScenarioRunner();
 
 if (artifactOutputPath is not null)
 {
+    var traceResult = runner.RunWithTrace(scenario);
     var artifactJson = JsonSerializer.Serialize(
-        ToRunArtifact(result),
-        new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
-        });
+        ToRunArtifact(traceResult),
+        ArtifactJsonOptions());
 
     File.WriteAllText(
         artifactOutputPath,
@@ -48,6 +67,8 @@ if (artifactOutputPath is not null)
     Console.WriteLine($"Exported run artifact: {artifactOutputPath}");
     return 0;
 }
+
+var result = runner.Run(scenario);
 
 Console.WriteLine(JsonSerializer.Serialize(
     ToPayload(result),
@@ -87,8 +108,9 @@ static object ToPayload(WarehouseRunResult result)
     };
 }
 
-static RunArtifact ToRunArtifact(WarehouseRunResult result)
+static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
 {
+    var result = traceResult.RunResult;
     var kpi = result.KpiSummary;
 
     return new RunArtifact
@@ -110,10 +132,85 @@ static RunArtifact ToRunArtifact(WarehouseRunResult result)
             EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
             TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
         },
+        Layout = new RunArtifactLayout
+        {
+            Resources = traceResult.Layout.Resources
+                .Select(resource => new RunArtifactLayoutResource(
+                    resource.ResourceId,
+                    resource.Position.NodeId,
+                    resource.Position.X,
+                    resource.Position.Y))
+                .ToArray()
+        },
+        PositionTimeline = traceResult.PositionTimeline
+            .Select(entry => new RunArtifactPositionTimelineEntry(
+                entry.OperationId,
+                entry.OperationType,
+                entry.StageType,
+                entry.ResourceId,
+                entry.AtMs,
+                entry.EventType,
+                entry.Position.NodeId,
+                entry.Position.X,
+                entry.Position.Y))
+            .ToArray(),
         EventLog = NormalizeLineEndings(result.EventLogText)
             .Split('\n')
             .Where(line => line.Length > 0)
             .ToArray()
+    };
+}
+
+static ComparisonArtifact ToComparisonArtifact(
+    WarehouseScenarioComparisonResult result)
+{
+    return new ComparisonArtifact(
+        ComparisonArtifact.CurrentSchemaVersion,
+        ToComparisonScenarioSummary(
+            result.BaselineScenarioId,
+            result.BaselineMetrics),
+        ToComparisonScenarioSummary(
+            result.CandidateScenarioId,
+            result.CandidateMetrics),
+        result.Deltas
+            .Select(delta => new ComparisonArtifactDelta(
+                delta.MetricName,
+                RoundKpi(delta.BaselineValue),
+                RoundKpi(delta.CandidateValue),
+                RoundKpi(delta.Delta),
+                delta.DeltaPercent is null
+                    ? null
+                    : RoundKpi(delta.DeltaPercent.Value),
+                delta.Direction))
+            .ToArray());
+}
+
+static ComparisonArtifactScenarioSummary ToComparisonScenarioSummary(
+    string scenarioId,
+    WarehouseScenarioComparisonMetrics metrics)
+{
+    return new ComparisonArtifactScenarioSummary(
+        scenarioId,
+        new ComparisonArtifactMetrics(
+            metrics.FinishedAtMs,
+            metrics.CompletedReceipts,
+            metrics.CompletedOutboundOrders,
+            metrics.CompletedEachPickOrders,
+            metrics.TotalQuantityReceived,
+            metrics.TotalQuantityShipped,
+            metrics.TotalQuantityPicked,
+            RoundKpi(metrics.InboundReceiptThroughputPerHour),
+            RoundKpi(metrics.OutboundOrderThroughputPerHour),
+            RoundKpi(metrics.EachPickOrderThroughputPerHour),
+            RoundKpi(metrics.TotalWorkItemThroughputPerHour)));
+}
+
+static JsonSerializerOptions ArtifactJsonOptions()
+{
+    return new JsonSerializerOptions
+    {
+        WriteIndented = true,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     };
 }
 

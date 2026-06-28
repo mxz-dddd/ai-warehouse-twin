@@ -67,7 +67,15 @@ bash scripts/smoke-each-pick-export-artifact.sh
 bash scripts/check-all.sh
 ```
 
-该脚本覆盖 UnityEngine 引用检查、contract drift、consumer dependency boundary（消费侧项目不得引用 `Sim.Core`）、build/test、each-pick sample smoke、each-pick artifact smoke、warehouse smoke、export artifact smoke，以及 warehouse 和 each-pick artifact 的字节级确定性检查。该入口既用于本地开发，也由 Linux CI 的 full validation 步骤调用。
+该脚本覆盖 UnityEngine 引用检查、contract drift、consumer dependency boundary（消费侧项目不得引用 `Sim.Core`）、build/test、each-pick sample smoke、each-pick artifact smoke、warehouse smoke、export artifact smoke、H2 comparison artifact smoke，以及 warehouse、each-pick 和 comparison artifact 的字节级确定性检查。该入口既用于本地开发，也由 Linux CI 的 full validation 步骤调用。
+
+H2 comparison artifact smoke 可单独运行：
+
+```bash
+bash scripts/smoke-comparison-artifact.sh
+```
+
+该脚本验证 `compare-files` 输出的 comparison JSON 可重复生成、与 golden artifact 字节一致，并包含 `comparison_artifact.v1`、baseline、candidate、deltas 和关键指标字段。
 
 也可以在仓库根目录逐项执行：
 
@@ -81,6 +89,7 @@ bash scripts/smoke-each-pick-export-artifact.sh
 bash scripts/smoke-sample-warehouse.sh
 bash scripts/smoke-sample-warehouse-run-file.sh
 bash scripts/smoke-export-artifact.sh
+bash scripts/smoke-comparison-artifact.sh
 ```
 
 ## 已知限制

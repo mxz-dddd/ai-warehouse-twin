@@ -209,6 +209,40 @@ public sealed class ResourcePoolTests
         Assert.Equal(20, pool.Snapshot(nowMs: 30).TotalBusyTimeMs);
     }
 
+    [Fact]
+    public void ResourcePool_AssignsDeterministicUnitIds_WhenTracing()
+    {
+        var collector = new ResourceLeaseTraceCollector();
+        var pool = new ResourcePool(
+            "docks",
+            ResourceType.Dock,
+            [
+                new ResourceUnit("dock-2", ResourceType.Dock, "Dock 2"),
+                new ResourceUnit("dock-1", ResourceType.Dock, "Dock 1")
+            ],
+            new ResourceLeaseTraceContext(collector, "inbound", "dock"));
+
+        var first = pool.AcquireOrQueue(
+            new ResourceRequest("request-1", "receipt-1", 0),
+            nowMs: 0)!;
+        var second = pool.AcquireOrQueue(
+            new ResourceRequest("request-2", "receipt-2", 0),
+            nowMs: 0)!;
+
+        Assert.Equal("dock-1", first.Resource.ResourceId);
+        Assert.Equal("dock-2", second.Resource.ResourceId);
+
+        pool.Release(second, nowMs: 10);
+        pool.Release(first, nowMs: 10);
+
+        var third = pool.AcquireOrQueue(
+            new ResourceRequest("request-3", "receipt-3", 10),
+            nowMs: 10)!;
+
+        Assert.Equal("dock-1", third.Resource.ResourceId);
+        Assert.Equal(2, collector.Timeline.Count);
+    }
+
     private static ResourcePool CreatePool(int capacity)
     {
         return new ResourcePool(
