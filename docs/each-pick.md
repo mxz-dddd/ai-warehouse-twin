@@ -67,7 +67,7 @@ bash scripts/smoke-each-pick-export-artifact.sh
 bash scripts/check-all.sh
 ```
 
-该脚本覆盖 UnityEngine 引用检查、contract drift、build/test、each-pick sample smoke、each-pick artifact smoke、warehouse smoke、export artifact smoke，以及 warehouse 和 each-pick artifact 的字节级确定性检查。它是本地开发工具，不表示 CI 已调用该脚本。
+该脚本覆盖 UnityEngine 引用检查、contract drift、consumer dependency boundary（消费侧项目不得引用 `Sim.Core`）、build/test、each-pick sample smoke、each-pick artifact smoke、warehouse smoke、export artifact smoke，以及 warehouse 和 each-pick artifact 的字节级确定性检查。该入口既用于本地开发，也由 Linux CI 的 full validation 步骤调用。
 
 也可以在仓库根目录逐项执行：
 
