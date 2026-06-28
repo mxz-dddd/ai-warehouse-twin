@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Text;
 using Sim.Contracts.Artifacts;
 
@@ -30,7 +29,7 @@ public static class ComparisonMarkdownReportRenderer
 
         Line("## Key Metrics");
         Line();
-        RenderDeltaTable(
+        ComparisonMarkdownTableRenderer.RenderDeltaTable(
             Line,
             artifact.Deltas.Where(delta =>
                 KeyMetricNames.Contains(delta.MetricName, StringComparer.Ordinal)));
@@ -38,35 +37,8 @@ public static class ComparisonMarkdownReportRenderer
 
         Line("## All Deltas");
         Line();
-        RenderDeltaTable(Line, artifact.Deltas);
+        ComparisonMarkdownTableRenderer.RenderDeltaTable(Line, artifact.Deltas);
 
         return sb.ToString();
-    }
-
-    private static void RenderDeltaTable(
-        Action<string> line,
-        IEnumerable<ComparisonArtifactDelta> deltas)
-    {
-        line("| Metric | Baseline | Candidate | Delta | Delta % | Direction |");
-        line("|---|---:|---:|---:|---:|---|");
-
-        foreach (var delta in deltas)
-        {
-            line(
-                $"| {delta.MetricName} | {FormatDecimal(delta.BaselineValue)} | {FormatDecimal(delta.CandidateValue)} | {FormatDecimal(delta.Delta)} | {FormatDeltaPercent(delta.DeltaPercent)} | {delta.Direction} |");
-        }
-    }
-
-    private static string FormatDeltaPercent(decimal? value)
-    {
-        return value is null
-            ? "n/a"
-            : FormatDecimal(value.Value);
-    }
-
-    private static string FormatDecimal(decimal value)
-    {
-        return decimal.Round(value, 3, MidpointRounding.AwayFromZero)
-            .ToString("0.###", CultureInfo.InvariantCulture);
     }
 }
