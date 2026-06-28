@@ -22,6 +22,7 @@ bash scripts/smoke-each-pick-export-artifact.sh
 bash scripts/smoke-sample-warehouse.sh
 bash scripts/smoke-sample-warehouse-run-file.sh
 bash scripts/smoke-export-artifact.sh
+bash scripts/smoke-comparison-artifact.sh
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
@@ -30,6 +31,8 @@ warehouse_a="$tmp_dir/warehouse-a.json"
 warehouse_b="$tmp_dir/warehouse-b.json"
 each_pick_a="$tmp_dir/each-pick-a.json"
 each_pick_b="$tmp_dir/each-pick-b.json"
+comparison_a="$tmp_dir/comparison-a.json"
+comparison_b="$tmp_dir/comparison-b.json"
 
 dotnet run --project src/Sim.Cli -- \
   export-artifact datasets/sample-small-warehouse/scenario.json \
@@ -48,5 +51,17 @@ dotnet run --project src/Sim.Cli -- \
   export-artifact datasets/sample-each-pick/scenario.json \
   -o "$each_pick_b" >/dev/null
 cmp "$each_pick_a" "$each_pick_b"
+
+dotnet run --project src/Sim.Cli -- \
+  compare-files datasets/sample-small-warehouse/scenario.json \
+  datasets/sample-small-warehouse/scenario-candidate.json \
+  -o "$comparison_a" >/dev/null
+dotnet run --project src/Sim.Cli -- \
+  compare-files datasets/sample-small-warehouse/scenario.json \
+  datasets/sample-small-warehouse/scenario-candidate.json \
+  -o "$comparison_b" >/dev/null
+cmp "$comparison_a" "$comparison_b"
+cmp "$comparison_a" \
+  datasets/sample-small-warehouse/artifacts/comparison-artifact.v1.json
 
 echo "PASS: full local validation"

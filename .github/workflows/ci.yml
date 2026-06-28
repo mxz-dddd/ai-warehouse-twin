@@ -61,3 +61,6 @@ jobs:
 
       - name: Smoke export artifact
         run: bash scripts/smoke-export-artifact.sh
+
+      - name: Smoke comparison artifact
+        run: bash scripts/smoke-comparison-artifact.sh
