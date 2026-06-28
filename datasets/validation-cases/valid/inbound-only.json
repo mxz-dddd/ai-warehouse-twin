@@ -3,6 +3,7 @@
   "scenario_id": "valid-inbound-only",
   "seed": 7,
   "inbound": {
+    "scenario_id": "valid-inbound-only.inbound",
     "dock_count": 2,
     "forklift_count": 3,
     "process": {

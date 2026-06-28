@@ -4,6 +4,7 @@
   "seed": 8,
   "description": "仅出库流程,含两条订单。",
   "outbound": {
+    "scenario_id": "valid-outbound-only.outbound",
     "worker_count": 2,
     "dock_count": 1,
     "process": {

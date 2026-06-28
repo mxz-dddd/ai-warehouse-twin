@@ -4,6 +4,7 @@
   "seed": 12345,
   "description": "在此填写场景说明。这是一个可直接通过校验的最小模板:按需增删 receipts / orders / inventory 记录,或整段删除用不到的 inbound / outbound / each_pick 流程(至少保留一个)。",
   "inbound": {
+    "scenario_id": "my-scenario-001.inbound",
     "dock_count": 1,
     "forklift_count": 1,
     "process": {
@@ -24,6 +25,7 @@
     ]
   },
   "outbound": {
+    "scenario_id": "my-scenario-001.outbound",
     "worker_count": 1,
     "dock_count": 1,
     "process": {
@@ -55,6 +57,7 @@
     ]
   },
   "each_pick": {
+    "scenario_id": "my-scenario-001.each-pick",
     "station_count": 1,
     "worker_count": 1,
     "process": {

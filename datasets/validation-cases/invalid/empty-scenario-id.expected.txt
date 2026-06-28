@@ -1,6 +1,9 @@
-输入校验未通过,发现 1 处问题:
+输入校验未通过,发现 2 处问题:
 
   1. 场景 ID(scenario_id) 不能为空。
      位置:scenario_id
+
+  2. 缺少必填字段:场景 ID(scenario_id)。
+     位置:each_pick.scenario_id
 
 请按上面每条的“位置”修改后重新校验。

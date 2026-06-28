@@ -1,6 +1,9 @@
-输入校验未通过,发现 1 处问题:
+输入校验未通过,发现 2 处问题:
 
-  1. 完成的拣选订单数(completed_each_pick_orders) 不能为负数(当前值:-1)。
+  1. 缺少必填字段:场景 ID(scenario_id)。
+     位置:each_pick.scenario_id
+
+  2. 完成的拣选订单数(completed_each_pick_orders) 不能为负数(当前值:-1)。
      位置:expected.completed_each_pick_orders
 
 请按上面每条的“位置”修改后重新校验。

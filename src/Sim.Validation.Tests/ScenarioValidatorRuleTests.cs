@@ -11,6 +11,7 @@ public class ScenarioValidatorRuleTests
       "scenario_id": "rule-test",
       "seed": 1,
       "each_pick": {
+        "scenario_id": "rule-test.each-pick",
         "station_count": 1,
         "worker_count": 1,
         "process": {
@@ -245,5 +246,47 @@ public class ScenarioValidatorRuleTests
 
         Assert.Contains(result.Errors, e => e.Code == "field.type" && e.Path == "$.each_pick");
         Assert.DoesNotContain(result.Errors, e => e.Code == "scenario.no_flow");
+    }
+
+    [Fact]
+    public void FlowMissingScenarioId_ReportedAsMissing()
+    {
+        // A present flow must carry its own scenario_id; the run-file parser requires it.
+        var json = """
+        {
+          "schema_version": "warehouse-scenario.v0", "scenario_id": "x", "seed": 1,
+          "each_pick": {
+            "station_count": 1, "worker_count": 1,
+            "process": { "tote_bind_duration_ms": 10, "travel_to_station_duration_ms": 20, "pick_service_duration_ms": 30, "move_to_staging_duration_ms": 40 },
+            "inventory": [ { "inventory_id": "i", "sku_id": "s", "quantity": 5, "location_id": "l", "status": "available" } ],
+            "orders": [ { "order_id": "o", "warehouse_id": "w", "sku_id": "s", "quantity": 5, "pick_face_location_id": "pf", "pick_station_id": "ps", "staging_location_id": "st", "released_at_ms": 0 } ]
+          }
+        }
+        """;
+
+        var result = ScenarioValidator.Validate(json);
+
+        Assert.Contains(result.Errors, e => e.Code == "field.missing" && e.Path == "$.each_pick.scenario_id");
+    }
+
+    [Fact]
+    public void FlowBlankScenarioId_ReportedAsEmpty()
+    {
+        // Present-but-blank flow scenario_id is rejected (parser treats whitespace as missing).
+        var json = """
+        {
+          "schema_version": "warehouse-scenario.v0", "scenario_id": "x", "seed": 1,
+          "inbound": {
+            "scenario_id": "   ",
+            "dock_count": 1, "forklift_count": 1,
+            "process": { "unload_duration_ms": 100, "qc_duration_ms": 50, "putaway_duration_ms": 50 },
+            "receipts": [ { "receipt_id": "r", "warehouse_id": "w", "sku_id": "s", "quantity": 1, "staging_location_id": "sl", "storage_location_id": "stl", "arrives_at_ms": 0 } ]
+          }
+        }
+        """;
+
+        var result = ScenarioValidator.Validate(json);
+
+        Assert.Contains(result.Errors, e => e.Code == "string.empty" && e.Path == "$.inbound.scenario_id");
     }
 }

@@ -1,6 +1,9 @@
-输入校验未通过,发现 1 处问题:
+输入校验未通过,发现 2 处问题:
 
-  1. 订单列表(orders) 至少需要一条记录。
+  1. 缺少必填字段:场景 ID(scenario_id)。
+     位置:each_pick.scenario_id
+
+  2. 订单列表(orders) 至少需要一条记录。
      位置:each_pick.orders
 
 请按上面每条的“位置”修改后重新校验。

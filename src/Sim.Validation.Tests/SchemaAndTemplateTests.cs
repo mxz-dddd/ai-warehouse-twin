@@ -64,6 +64,7 @@ public class SchemaAndTemplateTests
       "scenario_id": "x",
       "seed": 1,
       "each_pick": {
+        "scenario_id": "x.each-pick",
         "station_count": 1, "worker_count": 1,
         "process": { "tote_bind_duration_ms": 10, "travel_to_station_duration_ms": 20, "pick_service_duration_ms": 30, "move_to_staging_duration_ms": 40 },
         "inventory": [ { "inventory_id": "i", "sku_id": "s", "quantity": 5, "location_id": "l", "status": "{{status}}" } ],

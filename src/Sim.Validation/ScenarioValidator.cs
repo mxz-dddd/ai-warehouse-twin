@@ -13,11 +13,12 @@ public static class ScenarioValidator
 {
     public const string ExpectedSchemaVersion = "warehouse-scenario.v0";
 
-    // Lowercase projection of the InventoryUnit.status enum from the shared domain
-    // contract (packages/contracts/domain/inventory_unit.schema.json). Scenario
-    // inventory uses the lowercase form (e.g. "available"); kept aligned with the
-    // contract so a domain-legal status is never wrongly rejected. The exact subset
-    // the run-file parser accepts is owned by member 1 and confirmed in review.
+    // Inventory status values Sim.Validation accepts: the lowercase projection of the
+    // InventoryUnit.status enum (packages/contracts/domain/inventory_unit.schema.json).
+    // This is Sim.Validation's deliberate customer-input spec — only the canonical
+    // lowercase form is accepted. The run-file parser normalizes case and separators
+    // and therefore accepts a wider range; Sim.Validation is intentionally stricter so
+    // customer inputs stay canonical.
     private static readonly string[] AllowedInventoryStatusList =
     {
         "expected", "received", "qc_hold", "available", "allocated",
@@ -129,7 +130,7 @@ public static class ScenarioValidator
             return;
         }
 
-        OptionalString(ctx, e, p, "scenario_id");
+        RequireString(ctx, e, p, "scenario_id");
         OptionalInteger(ctx, e, p, "seed", min: 0);
         RequireInteger(ctx, e, p, "dock_count", min: 1);
         RequireInteger(ctx, e, p, "forklift_count", min: 1);
@@ -177,7 +178,7 @@ public static class ScenarioValidator
             return;
         }
 
-        OptionalString(ctx, e, p, "scenario_id");
+        RequireString(ctx, e, p, "scenario_id");
         OptionalInteger(ctx, e, p, "seed", min: 0);
         RequireInteger(ctx, e, p, "worker_count", min: 1);
         RequireInteger(ctx, e, p, "dock_count", min: 1);
@@ -232,7 +233,7 @@ public static class ScenarioValidator
             return;
         }
 
-        OptionalString(ctx, e, p, "scenario_id");
+        RequireString(ctx, e, p, "scenario_id");
         OptionalInteger(ctx, e, p, "seed", min: 0);
         RequireInteger(ctx, e, p, "station_count", min: 1);
         RequireInteger(ctx, e, p, "worker_count", min: 1);

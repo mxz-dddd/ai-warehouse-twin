@@ -44,9 +44,9 @@
     },
     "inbound": {
       "type": "object",
-      "required": ["dock_count", "forklift_count", "process", "receipts"],
+      "required": ["scenario_id", "dock_count", "forklift_count", "process", "receipts"],
       "properties": {
-        "scenario_id": { "type": "string" },
+        "scenario_id": { "$ref": "#/$defs/id" },
         "seed": { "$ref": "#/$defs/nonNegativeInt" },
         "dock_count": { "$ref": "#/$defs/positiveInt" },
         "forklift_count": { "$ref": "#/$defs/positiveInt" },
@@ -83,9 +83,9 @@
     },
     "outbound": {
       "type": "object",
-      "required": ["worker_count", "dock_count", "process", "inventory", "orders"],
+      "required": ["scenario_id", "worker_count", "dock_count", "process", "inventory", "orders"],
       "properties": {
-        "scenario_id": { "type": "string" },
+        "scenario_id": { "$ref": "#/$defs/id" },
         "seed": { "$ref": "#/$defs/nonNegativeInt" },
         "worker_count": { "$ref": "#/$defs/positiveInt" },
         "dock_count": { "$ref": "#/$defs/positiveInt" },
@@ -129,9 +129,9 @@
     },
     "eachPick": {
       "type": "object",
-      "required": ["station_count", "worker_count", "process", "inventory", "orders"],
+      "required": ["scenario_id", "station_count", "worker_count", "process", "inventory", "orders"],
       "properties": {
-        "scenario_id": { "type": "string" },
+        "scenario_id": { "$ref": "#/$defs/id" },
         "seed": { "$ref": "#/$defs/nonNegativeInt" },
         "station_count": { "$ref": "#/$defs/positiveInt" },
         "worker_count": { "$ref": "#/$defs/positiveInt" },
