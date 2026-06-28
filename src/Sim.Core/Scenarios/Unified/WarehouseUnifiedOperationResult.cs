@@ -25,5 +25,6 @@ public sealed record WarehouseUnifiedOperationResult(
     WarehouseUnifiedCustomerKpiSummary CustomerKpiSummary,
     IReadOnlyDictionary<WarehouseUnifiedOperationType, WarehouseUnifiedCustomerKpiSummary> CustomerKpiSummaryByOperationType,
     IReadOnlyDictionary<string, WarehouseUnifiedResourceKpiSummary> ResourceKpiSummaryByResourceId,
+    WarehouseUnifiedBottleneckSummary BottleneckSummary,
     IReadOnlyDictionary<string, decimal> FinalInventorySnapshot,
     string EventLogText);
