@@ -41,10 +41,19 @@ public sealed class WarehouseScenarioRunner
     public WarehouseScenarioTraceResult RunWithTrace(WarehouseScenario scenario)
     {
         var traceCollector = new ResourceLeaseTraceCollector();
+        var runResult = RunInternal(scenario, traceCollector);
+        var resourceLeaseTimeline = traceCollector.Timeline;
+        var layout = WarehouseScenarioLayout.FromResourceLeases(
+            resourceLeaseTimeline);
+        var positionTimeline = WarehouseScenarioPositionTimelineBuilder.Build(
+            resourceLeaseTimeline,
+            layout);
 
         return new WarehouseScenarioTraceResult(
-            RunInternal(scenario, traceCollector),
-            traceCollector.Timeline);
+            runResult,
+            resourceLeaseTimeline,
+            layout,
+            positionTimeline);
     }
 
     private static WarehouseRunResult RunInternal(
