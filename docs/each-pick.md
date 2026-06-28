@@ -61,7 +61,15 @@ bash scripts/smoke-each-pick-export-artifact.sh
 
 ## 完整本地验证
 
-推荐在仓库根目录执行：
+运行统一的本地验收入口：
+
+```bash
+bash scripts/check-all.sh
+```
+
+该脚本覆盖 UnityEngine 引用检查、contract drift、build/test、each-pick sample smoke、each-pick artifact smoke、warehouse smoke、export artifact smoke，以及 warehouse 和 each-pick artifact 的字节级确定性检查。它是本地开发工具，不表示 CI 已调用该脚本。
+
+也可以在仓库根目录逐项执行：
 
 ```bash
 ./scripts/check-no-unityengine.sh
