@@ -1,0 +1,54 @@
+name: Ingestion CI
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "services/ingestion/**"
+      - "datasets/ingestion-cases/**"
+      - "scripts/smoke-ingestion.sh"
+      - "scripts/check-ingestion-no-src.sh"
+      - ".github/workflows/ingestion-ci.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "services/ingestion/**"
+      - "datasets/ingestion-cases/**"
+      - "scripts/smoke-ingestion.sh"
+      - "scripts/check-ingestion-no-src.sh"
+      - ".github/workflows/ingestion-ci.yml"
+
+jobs:
+  ingestion:
+    name: Python ingestion
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ingestion tooling
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e "services/ingestion[dev]"
+
+      - name: Ruff
+        run: ruff check services/ingestion
+
+      - name: Mypy
+        run: mypy services/ingestion
+
+      - name: Pytest
+        run: pytest services/ingestion
+
+      - name: Smoke
+        run: bash scripts/smoke-ingestion.sh
