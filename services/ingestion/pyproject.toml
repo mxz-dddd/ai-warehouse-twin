@@ -7,13 +7,16 @@ name = "ai-warehouse-ingestion"
 version = "0.1.0"
 description = "Python ingestion scaffolding for AI Warehouse Twin scenario inputs."
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+  "jsonschema>=4.22",
+]
 
 [project.optional-dependencies]
 dev = [
   "mypy>=1.10",
   "pytest>=8.0",
   "ruff>=0.5",
+  "types-jsonschema>=4.22",
 ]
 
 [tool.setuptools.packages.find]
