@@ -248,6 +248,10 @@ entries describe the state at the time of that task and are superseded by
 - CONTRACT-R2b: Added MovementArtifact v1 schema/fixture planning checklist.
   - Does not add schema files, generated contracts, golden artifacts, or movement implementation.
   - Keeps RunArtifact v1 unchanged.
+- CONTRACT-R2c-preflight: Added contract generation and drift-check preflight for MovementArtifact.
+  - Audits current contract/schema/generation/drift flow.
+  - Does not add schema files, generated contracts, golden artifacts, or movement implementation.
+  - Keeps RunArtifact v1 unchanged.
 
 ## Boundaries
 

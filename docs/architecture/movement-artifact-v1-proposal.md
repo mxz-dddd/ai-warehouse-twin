@@ -12,6 +12,9 @@ CONTRACT-R2b adds the schema/fixture planning checklist in
 `docs/architecture/movement-artifact-v1-schema-fixture-plan.md`. It remains
 planning-only and does not add schema files or generated contracts.
 
+CONTRACT-R2c-preflight audits the existing contract generation and drift-check
+flow before any MovementArtifact schema implementation.
+
 ## Scope
 
 This proposal covers:
