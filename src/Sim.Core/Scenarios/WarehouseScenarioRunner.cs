@@ -33,6 +33,13 @@ public sealed class WarehouseScenarioRunner
             unifiedResult.FinalInventorySnapshot);
     }
 
+    public WarehouseRunResult RunWithUnifiedAdapter(WarehouseScenario scenario)
+    {
+        ArgumentNullException.ThrowIfNull(scenario);
+
+        return RunUnified(WarehouseScenarioToUnifiedScenarioAdapter.Convert(scenario));
+    }
+
     public WarehouseRunResult Run(WarehouseScenario scenario)
     {
         return RunInternal(scenario, traceCollector: null);
