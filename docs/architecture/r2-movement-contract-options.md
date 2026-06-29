@@ -290,3 +290,7 @@ Do not change contracts in CORE-U4c.
 Do not implement movement in CORE-U4c.
 Keep RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 Use this document to prepare a future CONTRACT-R2 movement artifact proposal.
+
+CONTRACT-R2a adds a proposal-level MovementArtifact v1 field outline in
+`docs/architecture/movement-artifact-v1-proposal.md`. This remains a proposal
+and does not approve a contract change.

@@ -241,6 +241,10 @@ entries describe the state at the time of that task and are superseded by
   - Compares separate MovementArtifact, RunArtifact schema bump, and internal-only options.
   - Recommends separate MovementArtifact planning path, subject to future CONTRACT- approval.
   - Does not change contracts, schema, golden artifacts, runner behavior, Unity, or ingestion.
+- CONTRACT-R2a: Added proposal-level MovementArtifact v1 field outline.
+  - Keeps RunArtifact v1 unchanged.
+  - Does not implement movement/path/route.
+  - Requires future CONTRACT- approval before schema or generated contract changes.
 
 ## Boundaries
 
