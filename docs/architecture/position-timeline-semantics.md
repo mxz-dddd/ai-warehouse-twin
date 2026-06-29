@@ -221,6 +221,10 @@ CORE-U4c records contract options for future R2 movement semantics in
 task approves movement fields, current RunArtifact v1 `position_timeline`
 remains baseline layout positions, NOT simulated movement.
 
+MovementArtifact v1 proposal work does not change the current RunArtifact v1
+`position_timeline`; it remains baseline layout positions, NOT simulated
+movement.
+
 ## Current decision
 
 Do not implement or claim real movement in CORE-U4a.

@@ -19,6 +19,10 @@ Future movement artifacts or RunArtifact movement fields must follow the
 `CONTRACT-` governance described here; see
 `docs/architecture/r2-movement-contract-options.md`.
 
+A proposal-level MovementArtifact v1 outline is documented in
+`docs/architecture/movement-artifact-v1-proposal.md`; it remains non-binding
+until a future CONTRACT- PR updates schemas/contracts.
+
 ## Why this matters
 
 Contracts are the boundary that lets:
