@@ -1,0 +1,84 @@
+{
+  "schema_version": "movement-artifact.v1",
+  "artifact_kind": "warehouse-movement",
+  "scenario_id": "sample-small-warehouse",
+  "run_id": "run-001",
+  "seed": 20240627,
+  "source_run_artifact": "run-artifact.v1.json",
+  "warehouse_graph": {
+    "nodes": [
+      {
+        "node_id": "dock-1",
+        "node_type": "dock",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "node_id": "station-1",
+        "node_type": "station",
+        "x": 10,
+        "y": 0
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "edge-dock-1-station-1",
+        "from_node_id": "dock-1",
+        "to_node_id": "station-1",
+        "distance_m": 10,
+        "travel_time_ms": 1000,
+        "bidirectional": true
+      }
+    ]
+  },
+  "actors": [
+    {
+      "actor_id": "worker-1",
+      "actor_type": "worker",
+      "resource_id": "worker-1",
+      "initial_node_id": "dock-1",
+      "capacity": 1,
+      "load_state": "empty"
+    }
+  ],
+  "movement_events": [
+    {
+      "event_id": "evt-move-started-1",
+      "actor_id": "worker-1",
+      "operation_id": "each-pick-1",
+      "event_type": "movement.started",
+      "at_ms": 0,
+      "node_id": "dock-1",
+      "x": 0,
+      "y": 0,
+      "load_state": "empty",
+      "related_resource_id": "dock-1"
+    }
+  ],
+  "route_segments": [
+    {
+      "segment_id": "seg-worker-1-001",
+      "actor_id": "worker-1",
+      "operation_id": "each-pick-1",
+      "from_node_id": "dock-1",
+      "to_node_id": "station-1",
+      "start_ms": 1000,
+      "end_ms": 999,
+      "distance_m": 10,
+      "path_node_ids": [
+        "dock-1",
+        "station-1"
+      ],
+      "edge_ids": [
+        "edge-dock-1-station-1"
+      ],
+      "travel_time_ms": 1000
+    }
+  ],
+  "provenance": {
+    "movement_generator_version": "fixture-only",
+    "graph_source": "contract-fixture",
+    "movement_enabled": true,
+    "deterministic_generation_policy": "test-only-static-json"
+  }
+}

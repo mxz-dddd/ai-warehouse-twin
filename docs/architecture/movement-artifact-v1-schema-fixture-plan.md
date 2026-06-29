@@ -15,6 +15,10 @@ It remains preflight-only and does not add schema files or generated contracts.
 CONTRACT-R2d adds the minimal schema/generated-contract layer only. Validation
 fixtures and golden artifacts remain future work.
 
+CONTRACT-R2e adds test-only MovementArtifact schema fixtures and contract
+fixture tests. These fixtures are not golden artifacts and do not imply runtime
+MovementArtifact generation.
+
 ## Scope
 
 This plan covers:
