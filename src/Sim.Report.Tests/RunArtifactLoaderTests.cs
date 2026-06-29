@@ -23,7 +23,7 @@ public class RunArtifactLoaderTests
         Assert.Equal("sample-small-warehouse", artifact.ScenarioId);
         Assert.Equal(20240627, artifact.Seed);
         Assert.Equal(3, artifact.KpiSummary.TotalCompletedWorkItems);
-        Assert.Equal(10, artifact.EventLog.Count);
+        Assert.Equal(13, artifact.EventLog.Count);
     }
 
     [Fact]
@@ -62,10 +62,7 @@ public class RunArtifactLoaderTests
             "each_pick");
         AssertStageTypes(
             artifact.PositionTimeline,
-            "dock",
-            "forklift",
-            "station",
-            "worker");
+            "operation");
     }
 
     [Fact]

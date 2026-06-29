@@ -71,7 +71,7 @@ if (args.Length == 5 &&
 {
     var baseline = WarehouseScenarioJsonLoader.Load(args[1]);
     var candidate = WarehouseScenarioJsonLoader.Load(args[2]);
-    var comparison = new WarehouseScenarioComparisonRunner().Compare(
+    var comparison = new WarehouseScenarioComparisonRunner().CompareWithUnifiedAdapter(
         baseline,
         candidate);
     var comparisonJson = JsonSerializer.Serialize(
@@ -117,7 +117,7 @@ if (args.Length == 7 &&
 
 WarehouseScenario scenario;
 string? artifactOutputPath = null;
-var useUnifiedRunner = false;
+var useUnifiedRunner = true;
 
 if (args.Length == 1 && args[0] == "sample-small-warehouse")
 {
@@ -183,6 +183,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path> --run-runner <legacy|unified|unknown> --comparison-runner <legacy|unified|unknown>");
+    Console.Error.WriteLine("Defaults: sample-small-warehouse, run-file, export-artifact, and compare-files use the unified runner. Use --runner legacy to reproduce pre-unified outputs.");
     return 1;
 }
 

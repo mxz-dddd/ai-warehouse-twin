@@ -14,8 +14,8 @@ baseline="datasets/sample-small-warehouse/scenario.json"
 candidate="datasets/sample-small-warehouse/scenario-candidate.json"
 golden="datasets/sample-small-warehouse/artifacts/comparison-artifact.v1.json"
 default_artifact="$tmpdir/comparison-default.json"
-legacy_artifact="$tmpdir/comparison-legacy.json"
 unified_artifact="$tmpdir/comparison-unified.json"
+legacy_artifact="$tmpdir/comparison-legacy.json"
 bad_output="$tmpdir/bad-runner.stderr"
 
 dotnet run --project src/Sim.Cli -- compare-files \
@@ -26,75 +26,83 @@ dotnet run --project src/Sim.Cli -- compare-files \
 dotnet run --project src/Sim.Cli -- compare-files \
   "$baseline" \
   "$candidate" \
-  -o "$legacy_artifact" \
-  --runner legacy >/dev/null
+  -o "$unified_artifact" \
+  --runner unified >/dev/null
 
 dotnet run --project src/Sim.Cli -- compare-files \
   "$baseline" \
   "$candidate" \
-  -o "$unified_artifact" \
-  --runner unified >/dev/null
+  -o "$legacy_artifact" \
+  --runner legacy >/dev/null
 
+cmp "$default_artifact" "$unified_artifact"
 cmp "$default_artifact" "$golden"
-cmp "$legacy_artifact" "$default_artifact"
 
+python3 -m json.tool "$default_artifact" >/dev/null
 python3 -m json.tool "$unified_artifact" >/dev/null
+python3 -m json.tool "$legacy_artifact" >/dev/null
 
-python3 - "$unified_artifact" <<'PY'
+python3 - "$default_artifact" "$legacy_artifact" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-artifact = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+default = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+legacy = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
 
-if artifact.get("schema_version") != "comparison_artifact.v1":
+if default.get("schema_version") != "comparison_artifact.v1":
     raise SystemExit(
-        "FAIL: expected schema_version comparison_artifact.v1, "
-        f"got {artifact.get('schema_version')!r}"
+        "FAIL: expected default schema_version comparison_artifact.v1, "
+        f"got {default.get('schema_version')!r}"
     )
 
-baseline = artifact.get("baseline", {})
-candidate = artifact.get("candidate", {})
-if baseline.get("scenario_id") != "sample-small-warehouse":
+if legacy.get("schema_version") != "comparison_artifact.v1":
     raise SystemExit(
-        f"FAIL: unexpected baseline scenario id {baseline.get('scenario_id')!r}"
+        "FAIL: expected legacy schema_version comparison_artifact.v1, "
+        f"got {legacy.get('schema_version')!r}"
     )
 
-if candidate.get("scenario_id") != "sample-small-warehouse-candidate":
-    raise SystemExit(
-        f"FAIL: unexpected candidate scenario id {candidate.get('scenario_id')!r}"
-    )
-
-deltas = artifact.get("deltas", [])
-if len(deltas) != 11:
-    raise SystemExit(f"FAIL: expected 11 comparison deltas, got {len(deltas)}")
-
-metric_names = [delta.get("metric_name") for delta in deltas]
-required = {
-    "finished_at_ms",
-    "completed_receipts",
-    "completed_outbound_orders",
-    "completed_each_pick_orders",
-    "total_work_item_throughput_per_hour",
-}
-missing = sorted(required.difference(metric_names))
-if missing:
-    raise SystemExit(f"FAIL: missing unified comparison deltas: {missing!r}")
-
-baseline_metrics = baseline.get("metrics", {})
-candidate_metrics = candidate.get("metrics", {})
-for name, metrics in [("baseline", baseline_metrics), ("candidate", candidate_metrics)]:
-    completed = (
-        metrics.get("completed_receipts", 0)
-        + metrics.get("completed_outbound_orders", 0)
-        + metrics.get("completed_each_pick_orders", 0)
-    )
-    if completed != 3:
+for name, artifact in [("default", default), ("legacy", legacy)]:
+    baseline = artifact.get("baseline", {})
+    candidate = artifact.get("candidate", {})
+    if baseline.get("scenario_id") != "sample-small-warehouse":
         raise SystemExit(
-            f"FAIL: expected {name} completed work items 3, got {completed!r}"
+            f"FAIL: unexpected {name} baseline scenario id {baseline.get('scenario_id')!r}"
         )
+    if candidate.get("scenario_id") != "sample-small-warehouse-candidate":
+        raise SystemExit(
+            f"FAIL: unexpected {name} candidate scenario id {candidate.get('scenario_id')!r}"
+        )
+    if len(artifact.get("deltas", [])) != 11:
+        raise SystemExit(f"FAIL: expected 11 {name} deltas")
 
-print("PASS: unified comparison artifact is valid ComparisonArtifact v1")
+summary = {
+    "baseline.finished_at_ms": (
+        legacy["baseline"]["metrics"]["finished_at_ms"],
+        default["baseline"]["metrics"]["finished_at_ms"],
+    ),
+    "candidate.finished_at_ms": (
+        legacy["candidate"]["metrics"]["finished_at_ms"],
+        default["candidate"]["metrics"]["finished_at_ms"],
+    ),
+    "baseline.total_work_item_throughput_per_hour": (
+        legacy["baseline"]["metrics"]["total_work_item_throughput_per_hour"],
+        default["baseline"]["metrics"]["total_work_item_throughput_per_hour"],
+    ),
+    "candidate.total_work_item_throughput_per_hour": (
+        legacy["candidate"]["metrics"]["total_work_item_throughput_per_hour"],
+        default["candidate"]["metrics"]["total_work_item_throughput_per_hour"],
+    ),
+}
+
+if not any(legacy_value != default_value for legacy_value, default_value in summary.values()):
+    raise SystemExit("FAIL: expected legacy fallback comparison to differ from unified default")
+
+print("Unified default vs legacy fallback comparison diff summary")
+for metric, (legacy_value, default_value) in summary.items():
+    print(f"- {metric}: legacy={legacy_value!r}, unified={default_value!r}")
+
+print("PASS: explicit legacy comparison artifact remains valid ComparisonArtifact v1")
 PY
 
 if dotnet run --project src/Sim.Cli -- compare-files \
@@ -112,6 +120,6 @@ if ! grep -q "Unknown runner mode 'bad-value'. Allowed values: legacy, unified."
     exit 1
 fi
 
-echo "PASS: default and explicit legacy comparison artifacts match"
+echo "PASS: default compare-files matches explicit unified and golden"
 echo "PASS: bad compare-files runner mode rejected"
 echo "PASS: unified comparison artifact smoke"

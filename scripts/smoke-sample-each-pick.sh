@@ -11,18 +11,23 @@ tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
 output="$tmp_dir/sample-each-pick.json"
+legacy_output="$tmp_dir/sample-each-pick-legacy.json"
 
 dotnet run --project src/Sim.Cli -- \
   run-file datasets/sample-each-pick/scenario.json >"$output"
+dotnet run --project src/Sim.Cli -- \
+  run-file datasets/sample-each-pick/scenario.json --runner legacy >"$legacy_output"
 
-python3 - "$output" <<'PY'
+python3 - "$output" "$legacy_output" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 payload = json.loads(Path(sys.argv[1]).read_text(encoding="utf-8"))
+legacy_payload = json.loads(Path(sys.argv[2]).read_text(encoding="utf-8"))
 
 expected = {
+    "runner_mode": "unified",
     "scenario_id": "sample-each-pick",
     "seed": 20240628,
     "started_at_ms": 0,
@@ -43,10 +48,10 @@ for key, value in expected.items():
 
 event_lines = payload.get("event_log_text", "").splitlines()
 required_events = [
-    "each_pick|0|0|each_pick.order_released.each-order-1|EachPickOrderReleased",
-    "each_pick|1|30|each_pick.at_station.each-order-1|EachPickAtStation",
-    "each_pick|2|60|each_pick.completed.each-order-1|EachPickCompleted",
-    "each_pick|3|100|each_pick.staged.each-order-1|EachPickStaged",
+    "0|resource.requested|resource_id=station-1|owner=each_pick:each_pick:each-order-1",
+    "0|resource.acquired|resource_id=station-1|owner=each_pick:each_pick:each-order-1",
+    "0|inventory.removed|sku_id=sku-each-pick-1|quantity=5|operation=each_pick:each-order-1",
+    "100|resource.released|resource_id=station-1|owner=each_pick:each_pick:each-order-1",
 ]
 
 if event_lines != required_events:
@@ -55,8 +60,27 @@ if event_lines != required_events:
         f"got {event_lines!r}"
     )
 
-orders_released = sum(
-    "EachPickOrderReleased" in event for event in event_lines
+if any("EachPick" in event for event in event_lines):
+    raise SystemExit(
+        f"FAIL: default unified each-pick output should not require legacy domain events: {event_lines!r}"
+    )
+
+legacy_event_lines = legacy_payload.get("event_log_text", "").splitlines()
+legacy_required_events = [
+    "each_pick|0|0|each_pick.order_released.each-order-1|EachPickOrderReleased",
+    "each_pick|1|30|each_pick.at_station.each-order-1|EachPickAtStation",
+    "each_pick|2|60|each_pick.completed.each-order-1|EachPickCompleted",
+    "each_pick|3|100|each_pick.staged.each-order-1|EachPickStaged",
+]
+
+if legacy_event_lines != legacy_required_events:
+    raise SystemExit(
+        f"FAIL: expected legacy fallback each-pick event log {legacy_required_events!r}, "
+        f"got {legacy_event_lines!r}"
+    )
+
+resource_requests = sum(
+    "resource.requested" in event for event in event_lines
 )
 orders_completed = payload.get("completed_each_pick_orders")
 units_picked = payload.get("total_quantity_picked")
@@ -65,9 +89,9 @@ sim_completed = (
     and payload.get("finished_at_ms") == payload.get("final_world_time_ms")
 )
 
-if orders_released != 1:
+if resource_requests != 1:
     raise SystemExit(
-        f"FAIL: expected one released each-pick order, got {orders_released}"
+        f"FAIL: expected one resource request, got {resource_requests}"
     )
 if orders_completed != 1:
     raise SystemExit(
@@ -95,9 +119,10 @@ if abs(throughput - 36000.0) > 1e-6:
     )
 
 print("PASS: sample each-pick scenario ran")
-print(f"orders released: {orders_released}")
+print(f"resource requests: {resource_requests}")
 print(f"orders completed: {orders_completed}")
 print(f"units picked: {units_picked}")
 print(f"events: {len(event_lines)}")
 print(f"sim completed: {str(sim_completed).lower()}")
+print("legacy fallback: PASS")
 PY

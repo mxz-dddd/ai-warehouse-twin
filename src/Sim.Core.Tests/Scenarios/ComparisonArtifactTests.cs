@@ -26,8 +26,8 @@ public sealed class ComparisonArtifactTests
         Assert.Equal(
             "sample-small-warehouse-candidate",
             artifact.Candidate.ScenarioId);
-        Assert.Equal(220, artifact.Baseline.Metrics.FinishedAtMs);
-        Assert.Equal(210, artifact.Candidate.Metrics.FinishedAtMs);
+        Assert.Equal(410, artifact.Baseline.Metrics.FinishedAtMs);
+        Assert.Equal(360, artifact.Candidate.Metrics.FinishedAtMs);
         Assert.Equal(3, artifact.Baseline.Metrics.CompletedReceipts +
             artifact.Baseline.Metrics.CompletedOutboundOrders +
             artifact.Baseline.Metrics.CompletedEachPickOrders);
@@ -63,10 +63,10 @@ public sealed class ComparisonArtifactTests
     {
         var delta = Delta(LoadGolden(), "finished_at_ms");
 
-        Assert.Equal(220m, delta.BaselineValue);
-        Assert.Equal(210m, delta.CandidateValue);
-        Assert.Equal(-10m, delta.Delta);
-        Assert.Equal(-4.545m, delta.DeltaPercent);
+        Assert.Equal(410m, delta.BaselineValue);
+        Assert.Equal(360m, delta.CandidateValue);
+        Assert.Equal(-50m, delta.Delta);
+        Assert.Equal(-12.195m, delta.DeltaPercent);
         Assert.Equal("decrease", delta.Direction);
     }
 
@@ -77,10 +77,10 @@ public sealed class ComparisonArtifactTests
             LoadGolden(),
             "total_work_item_throughput_per_hour");
 
-        Assert.Equal(51_428.571m, delta.BaselineValue);
-        Assert.Equal(54_000.000m, delta.CandidateValue);
-        Assert.Equal(2_571.429m, delta.Delta);
-        Assert.Equal(5.000m, delta.DeltaPercent);
+        Assert.Equal(27_000.000m, delta.BaselineValue);
+        Assert.Equal(30_857.143m, delta.CandidateValue);
+        Assert.Equal(3_857.143m, delta.Delta);
+        Assert.Equal(14.286m, delta.DeltaPercent);
         Assert.Equal("increase", delta.Direction);
     }
 
