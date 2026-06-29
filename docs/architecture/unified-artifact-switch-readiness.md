@@ -9,6 +9,7 @@ This audit documents the current difference between the legacy default
 It is a readiness check for a future default switch, not the switch itself.
 
 CORE-U3d-1 aligns compare-files runner mode before any default switch.
+CORE-U3d-2 adds report-visible runner provenance through render-report flags.
 
 ## Scope
 
@@ -18,6 +19,9 @@ CORE-U3d-1 aligns compare-files runner mode before any default switch.
 - RunArtifact schema is unchanged.
 - `compare-files` remains legacy.
 - `render-report` remains a consumer only.
+- Runner provenance is operator-provided and is not stored in RunArtifact v1
+  or ComparisonArtifact v1.
+- Default `render-report` output remains unchanged.
 - No customer-facing movement claim changes are made here.
 
 ## Commands audited
