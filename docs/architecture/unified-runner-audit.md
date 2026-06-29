@@ -233,6 +233,10 @@ entries describe the state at the time of that task and are superseded by
   - Do not claim real movement until R2 movement-driven RunArtifact exists.
   - CORE-U4a adds the position timeline semantics audit in
     `docs/architecture/position-timeline-semantics.md`.
+- CORE-U4b: Added position timeline semantics guard tests.
+  - Guards RunArtifact v1 `position_timeline` as operation/resource handoff at baseline layout positions.
+  - Guards customer report wording against movement/path/route claims.
+  - Does not change RunArtifact schema, golden artifacts, runner behavior, report renderer, Unity, or ingestion.
 
 ## Boundaries
 
