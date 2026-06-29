@@ -214,6 +214,13 @@ as operation/resource handoff at baseline layout positions, NOT simulated
 movement. These tests are not movement tests. They are safety guards until R2
 defines real movement semantics.
 
+## R2 movement contract planning
+
+CORE-U4c records contract options for future R2 movement semantics in
+`docs/architecture/r2-movement-contract-options.md`. Until a later `CONTRACT-`
+task approves movement fields, current RunArtifact v1 `position_timeline`
+remains baseline layout positions, NOT simulated movement.
+
 ## Current decision
 
 Do not implement or claim real movement in CORE-U4a.

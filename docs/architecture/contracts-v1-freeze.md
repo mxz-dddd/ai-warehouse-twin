@@ -15,6 +15,10 @@ The freeze covers the current reviewed v1 handoff surfaces, including:
 
 This freeze does not mean the product is feature-complete. It means the current v1 contract surface is a protected compatibility boundary.
 
+Future movement artifacts or RunArtifact movement fields must follow the
+`CONTRACT-` governance described here; see
+`docs/architecture/r2-movement-contract-options.md`.
+
 ## Why this matters
 
 Contracts are the boundary that lets:

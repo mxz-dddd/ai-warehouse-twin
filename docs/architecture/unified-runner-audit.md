@@ -237,6 +237,10 @@ entries describe the state at the time of that task and are superseded by
   - Guards RunArtifact v1 `position_timeline` as operation/resource handoff at baseline layout positions.
   - Guards customer report wording against movement/path/route claims.
   - Does not change RunArtifact schema, golden artifacts, runner behavior, report renderer, Unity, or ingestion.
+- CORE-U4c: Added R2 movement contract/options planning.
+  - Compares separate MovementArtifact, RunArtifact schema bump, and internal-only options.
+  - Recommends separate MovementArtifact planning path, subject to future CONTRACT- approval.
+  - Does not change contracts, schema, golden artifacts, runner behavior, Unity, or ingestion.
 
 ## Boundaries
 
