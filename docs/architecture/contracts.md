@@ -34,11 +34,14 @@ from the generated `packages/contracts` schemas in the current phase.
 RunArtifact v1 now includes:
 
 - `layout.resources`: a deterministic default layout for resources observed
-  in the real resource lease trace. Resources are sorted by `resource_id`;
-  the baseline position is `x = N`, `y = 0`.
-- `position_timeline`: start/finish position entries derived from the real
-  resource lease timeline. This is a deterministic handoff baseline, not a
-  full warehouse map, path model, or Unity visualization implementation.
+  in the resource lease trace. Resources are sorted by `resource_id`; the
+  baseline position is `x = N`, `y = 0`.
+- `position_timeline`: start/finish position entries that reflect
+  deterministic baseline layout coordinates rather than simulated travel
+  paths. Current position timeline entries reflect deterministic baseline
+  layout coordinates rather than simulated travel paths. This is baseline
+  layout positions, NOT simulated movement. It is not a full warehouse map,
+  path model, movement trace, or Unity visualization implementation.
 
 `comparison_artifact.v1` is the handwritten C# handoff contract for A/B
 scenario comparison output. It contains baseline metrics, candidate metrics,
