@@ -24,3 +24,6 @@ This repository is a monorepo for AI Warehouse Twin, a startup product for real 
 - Every bug fix must include a regression test.
 - Each task must modify only files related to that task.
 - Do not expand scope beyond the current task card.
+- Contracts v1 are frozen product handoff boundaries after FIX-004; see `docs/architecture/contracts-v1-freeze.md`. Any contract change must use a dedicated `CONTRACT-` PR, justify the customer-product need, bump version when compatibility changes, regenerate contracts, run drift checks, and explicitly review artifact golden diffs.
+- Generated contracts must not be edited casually or inside unrelated feature PRs.
+- Artifact golden files are customer-facing regression baselines and must not change unless the task explicitly allows it.
