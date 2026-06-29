@@ -24,6 +24,7 @@ bash scripts/smoke-sample-warehouse-run-file.sh
 bash scripts/smoke-export-artifact.sh
 bash scripts/smoke-comparison-artifact.sh
 bash scripts/smoke-customer-report.sh
+bash scripts/smoke-report-demo-docs.sh
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT

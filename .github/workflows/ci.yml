@@ -67,3 +67,6 @@ jobs:
 
       - name: Smoke customer report
         run: bash scripts/smoke-customer-report.sh
+
+      - name: Smoke report demo docs
+        run: bash scripts/smoke-report-demo-docs.sh

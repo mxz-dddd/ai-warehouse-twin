@@ -90,6 +90,8 @@ bash scripts/smoke-sample-warehouse.sh
 bash scripts/smoke-sample-warehouse-run-file.sh
 bash scripts/smoke-export-artifact.sh
 bash scripts/smoke-comparison-artifact.sh
+bash scripts/smoke-customer-report.sh
+bash scripts/smoke-report-demo-docs.sh
 ```
 
 ## 已知限制
