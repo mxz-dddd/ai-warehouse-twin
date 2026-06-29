@@ -4,6 +4,20 @@ using System.Collections.Generic;
 
 namespace WarehouseTwin.Contracts;
 
+public sealed record MovementArtifact(
+    string schema_version,
+    string artifact_kind,
+    string scenario_id,
+    string run_id,
+    long seed,
+    string source_run_artifact,
+    object warehouse_graph,
+    IReadOnlyList<object> actors,
+    IReadOnlyList<object> movement_events,
+    IReadOnlyList<object> route_segments,
+    object provenance
+);
+
 public sealed record CalibrationRequest(
     string request_id,
     string warehouse_id,

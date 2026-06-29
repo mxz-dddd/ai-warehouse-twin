@@ -15,6 +15,9 @@ planning-only and does not add schema files or generated contracts.
 CONTRACT-R2c-preflight audits the existing contract generation and drift-check
 flow before any MovementArtifact schema implementation.
 
+CONTRACT-R2d begins implementing the proposal at the contract/schema layer only.
+It does not implement movement generation or consumer behavior.
+
 ## Scope
 
 This proposal covers:

@@ -7,6 +7,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA_GLOBS = (
+    "packages/contracts/artifacts/*.schema.json",
     "packages/contracts/domain/*.schema.json",
     "packages/contracts/events/*.schema.json",
     "packages/contracts/optimization/*.schema.json",
@@ -55,10 +56,12 @@ class ContractCodegenTests(unittest.TestCase):
         csharp_text = CSharp_OUT.read_text(encoding="utf-8")
         self.assertIn("namespace WarehouseTwin.Contracts", csharp_text)
         self.assertIn("public sealed record DomainEvent", csharp_text)
+        self.assertIn("public sealed record MovementArtifact", csharp_text)
 
         python_text = PYTHON_OUT.read_text(encoding="utf-8")
         self.assertIn("@dataclass(frozen=True)", python_text)
         self.assertIn("class DomainEvent", python_text)
+        self.assertIn("class MovementArtifact", python_text)
 
     def test_manifest_contains_all_schema_hashes(self):
         subprocess.run(
@@ -78,6 +81,30 @@ class ContractCodegenTests(unittest.TestCase):
             expected_hash = hashlib.sha256(path.read_bytes()).hexdigest()
             with self.subTest(path=rel_path):
                 self.assertEqual(manifest_hashes[rel_path], expected_hash)
+
+    def test_movement_artifact_schema_is_included(self):
+        movement_schema = (
+            ROOT
+            / "packages"
+            / "contracts"
+            / "artifacts"
+            / "movement-artifact.v1.schema.json"
+        )
+
+        self.assertIn(movement_schema, schema_paths())
+
+        with movement_schema.open("r", encoding="utf-8") as handle:
+            schema = json.load(handle)
+
+        self.assertEqual("MovementArtifact", schema["title"])
+        self.assertEqual(
+            ["movement-artifact.v1"],
+            schema["properties"]["schema_version"]["enum"],
+        )
+        self.assertEqual(
+            ["warehouse-movement"],
+            schema["properties"]["artifact_kind"]["enum"],
+        )
 
 
 if __name__ == "__main__":
