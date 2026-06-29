@@ -3,6 +3,23 @@ using Sim.Contracts.Artifacts;
 using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
+using Sim.Report;
+
+if (args.Length == 5 &&
+    args[0] == "render-report" &&
+    args[3] == "-o")
+{
+    var markdown = CustomerReportService.RenderFromFiles(
+        args[1],
+        args[2]);
+
+    File.WriteAllText(
+        args[4],
+        NormalizeMarkdown(markdown));
+
+    Console.WriteLine($"Exported customer report: {args[4]}");
+    return 0;
+}
 
 if (args.Length == 5 &&
     args[0] == "compare-files" &&
@@ -48,6 +65,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
     return 1;
 }
 
@@ -217,6 +235,11 @@ static JsonSerializerOptions ArtifactJsonOptions()
 static string NormalizeLineEndings(string value)
 {
     return value.Replace("\r\n", "\n").Replace('\r', '\n');
+}
+
+static string NormalizeMarkdown(string value)
+{
+    return NormalizeLineEndings(value).TrimEnd('\n') + "\n";
 }
 
 static decimal RoundKpi(decimal value)

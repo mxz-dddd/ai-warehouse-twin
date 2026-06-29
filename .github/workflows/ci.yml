@@ -64,3 +64,6 @@ jobs:
 
       - name: Smoke comparison artifact
         run: bash scripts/smoke-comparison-artifact.sh
+
+      - name: Smoke customer report
+        run: bash scripts/smoke-customer-report.sh
