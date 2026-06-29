@@ -12,6 +12,28 @@ public sealed class WarehouseScenarioComparisonRunner
         var runner = new WarehouseScenarioRunner();
         var baselineResult = runner.Run(baseline);
         var candidateResult = runner.Run(candidate);
+        return CompareResults(baseline, candidate, baselineResult, candidateResult);
+    }
+
+    public WarehouseScenarioComparisonResult CompareWithUnifiedAdapter(
+        WarehouseScenario baseline,
+        WarehouseScenario candidate)
+    {
+        ArgumentNullException.ThrowIfNull(baseline);
+        ArgumentNullException.ThrowIfNull(candidate);
+
+        var runner = new WarehouseScenarioRunner();
+        var baselineResult = runner.RunWithUnifiedAdapter(baseline);
+        var candidateResult = runner.RunWithUnifiedAdapter(candidate);
+        return CompareResults(baseline, candidate, baselineResult, candidateResult);
+    }
+
+    private static WarehouseScenarioComparisonResult CompareResults(
+        WarehouseScenario baseline,
+        WarehouseScenario candidate,
+        WarehouseRunResult baselineResult,
+        WarehouseRunResult candidateResult)
+    {
         var baselineMetrics =
             WarehouseScenarioComparisonMetrics.FromRunResult(baselineResult);
         var candidateMetrics =

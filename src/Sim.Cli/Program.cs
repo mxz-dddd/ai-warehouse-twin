@@ -43,6 +43,35 @@ if (args.Length == 5 &&
     return 0;
 }
 
+if (args.Length == 7 &&
+    args[0] == "compare-files" &&
+    args[3] == "-o" &&
+    args[5] == "--runner")
+{
+    if (!TryParseRunnerMode(args[6], out var useUnifiedComparisonRunner, out var errorMessage))
+    {
+        Console.Error.WriteLine(errorMessage);
+        return 1;
+    }
+
+    var baseline = WarehouseScenarioJsonLoader.Load(args[1]);
+    var candidate = WarehouseScenarioJsonLoader.Load(args[2]);
+    var comparisonRunner = new WarehouseScenarioComparisonRunner();
+    var comparison = useUnifiedComparisonRunner
+        ? comparisonRunner.CompareWithUnifiedAdapter(baseline, candidate)
+        : comparisonRunner.Compare(baseline, candidate);
+    var comparisonJson = JsonSerializer.Serialize(
+        ToComparisonArtifact(comparison),
+        ArtifactJsonOptions());
+
+    File.WriteAllText(
+        args[4],
+        NormalizeLineEndings(comparisonJson) + "\n");
+
+    Console.WriteLine($"Exported comparison artifact: {args[4]}");
+    return 0;
+}
+
 WarehouseScenario scenario;
 string? artifactOutputPath = null;
 var useUnifiedRunner = false;
@@ -108,6 +137,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
     return 1;
 }

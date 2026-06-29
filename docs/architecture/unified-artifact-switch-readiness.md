@@ -8,6 +8,8 @@ This audit documents the current difference between the legacy default
 `export-artifact` path and the opt-in unified runner path added in CORE-U3c.
 It is a readiness check for a future default switch, not the switch itself.
 
+CORE-U3d-1 aligns compare-files runner mode before any default switch.
+
 ## Scope
 
 - Default `export-artifact` remains legacy.
