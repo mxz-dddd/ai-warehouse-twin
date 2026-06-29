@@ -42,10 +42,12 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
 
 - `sample-small-warehouse` CLI
   - Uses `new WarehouseScenarioRunner().Run(scenario)`.
-  - Current status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
+  - Current default status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
+  - CORE-U3b added `--runner unified` as an explicit opt-in mode that calls `RunWithUnifiedAdapter(...)`.
 - `run-file` CLI
   - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().Run(scenario)`.
-  - Current status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
+  - Current default status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
+  - CORE-U3b added `--runner unified` as an explicit opt-in mode that calls `RunWithUnifiedAdapter(...)`.
 - `export-artifact`
   - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().RunWithTrace(scenario)`.
   - Current status: traditional child-flow aggregation path with `ResourceLeaseTraceCollector`, not `WarehouseUnifiedOperationRunner`.
@@ -132,7 +134,14 @@ Existing characterization coverage already documents the current baseline:
   - `RunWithTrace(...)` / `export-artifact` remain legacy.
   - CLI / RunArtifact / compare-files remain unchanged.
   - CORE-U3b is still required before any default runner switch.
-- CORE-U3b: Make the unified path the single authority only after parity and gap tests are green.
+- CORE-U3b: Added CLI opt-in runner mode for sample-small-warehouse and run-file.
+  - Default CLI runner remains legacy.
+  - `sample-small-warehouse --runner unified` and `run-file <scenario> --runner unified` call the explicit unified adapter path.
+  - `export-artifact` remains legacy.
+  - `compare-files` remains legacy.
+  - RunArtifact / ComparisonArtifact golden files remain unchanged.
+  - CORE-U3c is still required before artifact generation can use unified runner.
+- CORE-U3c: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
 - CORE-U4: Reconcile resource lease trace / position timeline generation with unified operation intervals.
