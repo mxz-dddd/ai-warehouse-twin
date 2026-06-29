@@ -155,6 +155,11 @@ Existing characterization coverage already documents the current baseline:
   - `compare-files` remains legacy.
   - `render-report` remains a report consumer only.
   - CORE-U3d is still required before default artifact generation can switch to unified.
+- CORE-U3d-readiness: Added artifact switch readiness audit.
+  - Compares legacy default export-artifact with opt-in unified export-artifact.
+  - Does not switch default export-artifact.
+  - Does not update RunArtifact schema or tracked golden files.
+  - Recommends whether CORE-U3d default switch is safe.
 - CORE-U3d: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
