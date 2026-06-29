@@ -64,6 +64,8 @@ services/          ← 成员1: 后期 Python 优化/校准
 ```
 > 若你需要 run-artifact 里多一个字段、或需要新场景能跑通，**通过 `CONTRACT-` PR 或 issue 找成员1**，不要自己去改内核。
 
+Status: planned / not yet implemented. `services/calibration`、`services/optimization`、校准可信度、误差区间、可信度等级 A–D 和闭环优化建议都属于 R5/R7 之后的 future service boundary；当前 Track B 不能把它们描述成已具备产品能力。
+
 ---
 
 ## 5. 你的任务序列（按顺序，带验收）
@@ -87,7 +89,7 @@ services/          ← 成员1: 后期 Python 优化/校准
 ### 第三波（交接点 H2 之后：A/B 双产物）
 - **APP-060 布局设计器**：拖拽编辑区域/货架/通道/月台导出 `layout.json`（回交成员1 跑仿真）。
   - *验收*：编辑→导出→成员1 可重跑。
-- **APP-070 A/B 对比交付视图**：分屏读两份 run-artifact，呈现"现状 vs 优化"+ 改善% + 导出报告/短片（v2 §9.5）。
+- **APP-070 A/B 对比交付视图**：分屏读两份 run-artifact，呈现 baseline/candidate 指标差异 + 导出报告/短片（v2 §9.5）。闭环优化建议是 planned / not yet implemented，必须等待 R7 optimization slice。
   - *验收*：A/B 视图读两份 artifact 正确呈现改善%。
 
 ---
@@ -144,4 +146,4 @@ services/          ← 成员1: 后期 Python 优化/校准
 
 ---
 
-*Track B 的使命：只认"契约 + run-artifact 文件"，把它变成真实仓库客户能看的报告与画面，并为后续可视化、校准可信度和 WMS 试点提供交付层。绝不碰内核——这正是两人能并行、各自可测、互不打架的关键。*
+*Track B 的使命：只认"契约 + run-artifact 文件"，把它变成真实仓库客户能看的报告与画面，并为后续可视化、校准可信度和 WMS 试点提供交付层。校准可信度和优化建议闭环当前是 planned / not yet implemented，不得写成已实现。绝不碰内核——这正是两人能并行、各自可测、互不打架的关键。*
