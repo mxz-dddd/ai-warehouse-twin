@@ -21,6 +21,10 @@ trap 'rm -rf "$tmpdir"' EXIT
     --input "$repo_root/datasets/ingestion-cases/csv-basic/input" \
     --output "$tmpdir/csv-basic" \
     --repo-root "$repo_root" >/dev/null
+  "$python_cmd" -m ingestion mock-wms-to-scenario \
+    --input "$repo_root/datasets/ingestion-cases/mock-wms-basic/input" \
+    --output "$tmpdir/mock-wms-basic" \
+    --repo-root "$repo_root" >/dev/null
 )
 
 test -f "$tmpdir/csv-basic/scenario.json"
@@ -29,6 +33,13 @@ cmp "$tmpdir/csv-basic/scenario.json" \
   "$repo_root/datasets/ingestion-cases/csv-basic/expected/scenario.json"
 cmp "$tmpdir/csv-basic/data-quality-report.md" \
   "$repo_root/datasets/ingestion-cases/csv-basic/expected/data-quality-report.md"
+
+test -f "$tmpdir/mock-wms-basic/scenario.json"
+test -f "$tmpdir/mock-wms-basic/data-quality-report.md"
+cmp "$tmpdir/mock-wms-basic/scenario.json" \
+  "$repo_root/datasets/ingestion-cases/mock-wms-basic/expected/scenario.json"
+cmp "$tmpdir/mock-wms-basic/data-quality-report.md" \
+  "$repo_root/datasets/ingestion-cases/mock-wms-basic/expected/data-quality-report.md"
 
 bash scripts/check-ingestion-no-src.sh
 

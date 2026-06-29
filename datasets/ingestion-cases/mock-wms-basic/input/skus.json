@@ -1,0 +1,10 @@
+[
+  {
+    "sku_id": "sku-mock-a",
+    "name": "Mock Widget A"
+  },
+  {
+    "sku_id": "sku-mock-b",
+    "name": "Mock Widget B"
+  }
+]

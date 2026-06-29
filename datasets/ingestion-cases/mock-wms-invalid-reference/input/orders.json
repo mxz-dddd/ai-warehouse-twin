@@ -1,0 +1,12 @@
+[
+  {
+    "order_id": "mock-order-1",
+    "warehouse_id": "warehouse-1",
+    "sku_id": "sku-missing",
+    "quantity": 5,
+    "pick_location_id": "dock-as-pick",
+    "staging_location_id": "mock-stage-1",
+    "dock_id": "dock-missing",
+    "released_at_ms": 0
+  }
+]

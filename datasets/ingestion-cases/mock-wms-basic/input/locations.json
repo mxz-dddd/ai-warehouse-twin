@@ -1,0 +1,18 @@
+[
+  {
+    "location_id": "dock-mock-1",
+    "location_type": "dock"
+  },
+  {
+    "location_id": "mock-stage-1",
+    "location_type": "staging"
+  },
+  {
+    "location_id": "mock-pick-a",
+    "location_type": "pick"
+  },
+  {
+    "location_id": "mock-pick-b",
+    "location_type": "pick"
+  }
+]
