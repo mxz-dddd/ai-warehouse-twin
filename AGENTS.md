@@ -16,6 +16,7 @@ This repository is a monorepo for AI Warehouse Twin, a startup product for real 
 - Every simulation run must use an explicit seed, and results must be reproducible.
 - WMS writes and equipment control require explicit approval, auditability, and idempotency.
 - Clearly separate implemented capabilities from planned capabilities such as real path movement, Unity visualization, calibration confidence, WMS pilots, and closed-loop optimization recommendations.
+- Until R2 real path movement is implemented, RunArtifact position timeline must be described as baseline layout positions, NOT simulated movement. Do not build customer-facing movement animation or claims on it.
 
 ## Engineering Rules
 

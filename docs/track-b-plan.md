@@ -52,7 +52,7 @@
 | `src/Sim.Report/` + `Sim.Report.Tests/` | 客户报告生成：run-artifact → Markdown/HTML 报告 |
 | `src/Sim.Validation/` + `Sim.Validation.Tests/` | 输入校验：JSON Schema + 友好报错 + CSV/JSON 模板 |
 | `datasets/`（**你主导**，成员1 校验可跑） | 多订单/多 SKU/多资源 场景 + `expected` 验收集 |
-| `engine/unity/`（后期里程碑） | Unity 引擎可视化：播放器 / 2D 空间 / 布局设计器 / A/B 对比交付视图 |
+| `engine/unity/`（后期里程碑） | Unity 引擎可视化：播放器 / 2D 空间 / 布局设计器 / A/B 对比交付视图。当前 RunArtifact v1 的 position timeline 只能作为 baseline layout positions, NOT simulated movement。 |
 | `src/Sim.Contracts/` | **只读 + 提议**（改动走 `CONTRACT-` PR 双评审） |
 
 ## 4. 你不可触碰的边界（成员1 的地盘）
@@ -81,8 +81,8 @@ services/          ← 成员1: 后期 Python 优化/校准
 ### 第二波（交接点 H1 之后：run-artifact 含 position/布局）
 - **APP-040 Unity 工程脚手架 + 产物播放器**：Unity 6.3 工程；加载 run-artifact；**事件时间线播放器 + KPI 仪表盘**（先用现有 KPI，不需要空间）。
   - *验收*：Unity 载入 golden artifact，按时间轴回放事件、显示 KPI；对固定 artifact 的状态可断言（EditMode 测）。
-- **APP-050 2D 俯视空间可视化**：用 artifact 的 layout+position 画区域/货架/通道/月台，人/货/车按状态插值移动；热力图。
-  - *验收*：实体位置与 artifact 一致；热力与统计一致。
+- **APP-050 2D 俯视空间可视化**：R2 之前只能消费 layout / position timeline 做静态布局、资源位置和 artifact handoff 检查，不得把当前 position timeline 插值成真实移动动画。R4 引擎可视化中的“按真实 position 插值移动”必须依赖 R2 之后的真实 movement-driven RunArtifact，不能基于当前 v1 baseline layout positions 实现。
+  - *验收*：R2 之前只验证静态 layout handoff；R2 之后再验证真实移动位置、热力与统计一致。
 
 ### 第三波（交接点 H2 之后：A/B 双产物）
 - **APP-060 布局设计器**：拖拽编辑区域/货架/通道/月台导出 `layout.json`（回交成员1 跑仿真）。
@@ -96,7 +96,7 @@ services/          ← 成员1: 后期 Python 优化/校准
 
 **你从成员1 收到（你在等这些，收到才能开工对应模块）：**
 - **H0**：`Sim.Contracts` v1 + `RunArtifact` schema + `export-artifact` 命令 + 1 份 golden artifact 入库。→ 解锁 APP-010/020/030。
-- **H1**：run-artifact 内含 `position` + 布局信息。→ 解锁 APP-050 空间可视化。
+- **H1**：run-artifact 内含 `position` + 布局信息。当前语义是 baseline layout positions, NOT simulated movement。→ 只解锁静态 layout / artifact handoff 检查；真实移动可视化必须等 R2。
 - **H2**：A/B 双 run-artifact。→ 解锁 APP-070 对比视图。
 
 **你交付给成员1（产出）：**
