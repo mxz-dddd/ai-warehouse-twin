@@ -109,6 +109,8 @@ Existing characterization coverage already documents the current baseline:
   - Freezes sample conversion, deterministic adapter output, stable resource ids, unified runner compatibility, and the fact that the default runner remains unchanged.
 - `WarehouseScenarioRunnerUnifiedTests` CORE-U3a coverage
   - Freezes that `RunWithUnifiedAdapter(...)` can run sample-small-warehouse, matches legacy core counts and quantities, produces a final inventory snapshot, leaves default `Run(...)` unchanged, leaves `RunWithTrace(...)` on the legacy trace path, and documents the current coarse operation mapping gap.
+- `WarehouseDefaultRunnerSwitchReadinessTests` CORE-U3b coverage
+  - Freezes the current pre-switch state: default `Run(...)` remains legacy, `RunWithTrace(...)` remains legacy, `RunWithUnifiedAdapter(...)` remains explicit opt-in, and only semantically comparable fields are compared between legacy and unified outputs.
 
 ## R1 gap list
 
@@ -133,6 +135,12 @@ Existing characterization coverage already documents the current baseline:
   - CLI / RunArtifact / compare-files remain unchanged.
   - CORE-U3b is still required before any default runner switch.
 - CORE-U3b: Make the unified path the single authority only after parity and gap tests are green.
+  - CORE-U3b readiness audit verifies the current state before switching the default runner.
+  - `Run(...)` still uses the legacy path.
+  - `RunWithTrace(...)` still uses the legacy trace path.
+  - `RunWithUnifiedAdapter(...)` remains an explicit opt-in path.
+  - CLI, artifact export, report, validation, and compare paths remain unchanged.
+  - Byte-level artifact golden compatibility is not claimed yet.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
 - CORE-U4: Reconcile resource lease trace / position timeline generation with unified operation intervals.
