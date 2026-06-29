@@ -5,6 +5,20 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class MovementArtifact:
+    schema_version: str
+    artifact_kind: str
+    scenario_id: str
+    run_id: str
+    seed: int
+    source_run_artifact: str
+    warehouse_graph: dict[str, Any]
+    actors: list[Any]
+    movement_events: list[Any]
+    route_segments: list[Any]
+    provenance: dict[str, Any]
+
+@dataclass(frozen=True)
 class CalibrationRequest:
     request_id: str
     warehouse_id: str

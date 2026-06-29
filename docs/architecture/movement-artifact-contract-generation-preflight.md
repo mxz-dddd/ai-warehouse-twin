@@ -292,3 +292,10 @@ Do not modify contracts or generated code.
 Use this audit to prepare a later CONTRACT implementation PR.
 
 RunArtifact v1 `position_timeline` remains baseline layout positions, NOT simulated movement.
+
+## CONTRACT-R2d status
+
+CONTRACT-R2d implemented the schema-first path for MovementArtifact v1 by
+adding `packages/contracts/artifacts/movement-artifact.v1.schema.json` and
+regenerated contracts. Runtime generation, loaders, validators, Unity, reports,
+and golden artifacts remain out of scope.

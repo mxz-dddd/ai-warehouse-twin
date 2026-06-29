@@ -12,6 +12,9 @@ CONTRACT-R2c-preflight records the current contract generation and drift-check
 audit in `docs/architecture/movement-artifact-contract-generation-preflight.md`.
 It remains preflight-only and does not add schema files or generated contracts.
 
+CONTRACT-R2d adds the minimal schema/generated-contract layer only. Validation
+fixtures and golden artifacts remain future work.
+
 ## Scope
 
 This plan covers:

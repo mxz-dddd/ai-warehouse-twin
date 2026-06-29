@@ -252,6 +252,11 @@ entries describe the state at the time of that task and are superseded by
   - Audits current contract/schema/generation/drift flow.
   - Does not add schema files, generated contracts, golden artifacts, or movement implementation.
   - Keeps RunArtifact v1 unchanged.
+- CONTRACT-R2d: Added MovementArtifact v1 schema and regenerated contracts.
+  - Adds schema/generated contract layer only.
+  - Does not implement movement/path/route generation.
+  - Does not add loaders, validators, golden artifacts, Unity animation, report sections, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

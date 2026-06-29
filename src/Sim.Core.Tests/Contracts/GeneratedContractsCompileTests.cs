@@ -34,4 +34,41 @@ public sealed class GeneratedContractsCompileTests
 
         Assert.Equal("evt-001", domainEvent.event_id);
     }
+
+    [Fact]
+    public void MovementArtifact_GeneratedContractType_IsReferenceable()
+    {
+        Assert.Equal("MovementArtifact", typeof(MovementArtifact).Name);
+    }
+
+    [Fact]
+    public void MovementArtifact_GeneratedContractType_CanBeCreated()
+    {
+        var movementArtifact = new MovementArtifact(
+            schema_version: "movement-artifact.v1",
+            artifact_kind: "warehouse-movement",
+            scenario_id: "scenario-001",
+            run_id: "run-001",
+            seed: 20240627,
+            source_run_artifact: "run-artifact.v1.json",
+            warehouse_graph: new
+            {
+                nodes = new object[0],
+                edges = new object[0]
+            },
+            actors: new object[0],
+            movement_events: new object[0],
+            route_segments: new object[0],
+            provenance: new
+            {
+                movement_generator_version = "0.0.0",
+                graph_source = "fixture",
+                movement_enabled = true,
+                deterministic_generation_policy = "test"
+            });
+
+        Assert.Equal("movement-artifact.v1", movementArtifact.schema_version);
+        Assert.Equal("warehouse-movement", movementArtifact.artifact_kind);
+        Assert.Equal("scenario-001", movementArtifact.scenario_id);
+    }
 }

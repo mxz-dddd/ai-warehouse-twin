@@ -11,6 +11,7 @@ from typing import Any
 GENERATOR_VERSION = "0.1.0"
 REQUIRED_SCHEMA_KEYS = ("$schema", "$id", "title", "type", "properties")
 SCHEMA_GLOBS = (
+    "packages/contracts/artifacts/*.schema.json",
     "packages/contracts/domain/*.schema.json",
     "packages/contracts/events/*.schema.json",
     "packages/contracts/optimization/*.schema.json",
