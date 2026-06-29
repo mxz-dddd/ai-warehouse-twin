@@ -12,9 +12,9 @@
 ## 仿真时间
 
 - 开始 (started_at_ms): 10 ms
-- 结束 (finished_at_ms): 220 ms
-- 仿真总时长 (total_duration_ms): 210 ms
-- 最终世界时间 (final_world_time_ms): 220 ms
+- 结束 (finished_at_ms): 410 ms
+- 仿真总时长 (total_duration_ms): 400 ms
+- 最终世界时间 (final_world_time_ms): 410 ms
 
 ## 完成任务
 
@@ -24,14 +24,14 @@
 
 注意：以下吞吐为按仿真时间线性换算的结果，不代表真实设备产能。
 
-- 入库 receipt: 17142.857 / 小时
-- 出库整箱 outbound: 17142.857 / 小时
-- 拣选 each-pick: 17142.857 / 小时
-- 合计 work item: 51428.571 / 小时
+- 入库 receipt: 9000 / 小时
+- 出库整箱 outbound: 9000 / 小时
+- 拣选 each-pick: 9000 / 小时
+- 合计 work item: 27000 / 小时
 
 ## 事件摘要
 
-- 事件日志总行数 (event_log_line_count): 10
+- 事件日志总行数 (event_log_line_count): 13
 
 ## 当前限制
 

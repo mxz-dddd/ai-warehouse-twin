@@ -3,42 +3,42 @@
   "baseline": {
     "scenario_id": "sample-small-warehouse",
     "metrics": {
-      "finished_at_ms": 220,
+      "finished_at_ms": 410,
       "completed_receipts": 1,
       "completed_outbound_orders": 1,
       "completed_each_pick_orders": 1,
       "total_quantity_received": 7,
       "total_quantity_shipped": 8,
       "total_quantity_picked": 9,
-      "inbound_receipt_throughput_per_hour": 17142.857,
-      "outbound_order_throughput_per_hour": 17142.857,
-      "each_pick_order_throughput_per_hour": 17142.857,
-      "total_work_item_throughput_per_hour": 51428.571
+      "inbound_receipt_throughput_per_hour": 9000.000,
+      "outbound_order_throughput_per_hour": 9000.000,
+      "each_pick_order_throughput_per_hour": 9000.000,
+      "total_work_item_throughput_per_hour": 27000.000
     }
   },
   "candidate": {
     "scenario_id": "sample-small-warehouse-candidate",
     "metrics": {
-      "finished_at_ms": 210,
+      "finished_at_ms": 360,
       "completed_receipts": 1,
       "completed_outbound_orders": 1,
       "completed_each_pick_orders": 1,
       "total_quantity_received": 7,
       "total_quantity_shipped": 8,
       "total_quantity_picked": 9,
-      "inbound_receipt_throughput_per_hour": 18000.000,
-      "outbound_order_throughput_per_hour": 18000.000,
-      "each_pick_order_throughput_per_hour": 18000.000,
-      "total_work_item_throughput_per_hour": 54000.000
+      "inbound_receipt_throughput_per_hour": 10285.714,
+      "outbound_order_throughput_per_hour": 10285.714,
+      "each_pick_order_throughput_per_hour": 10285.714,
+      "total_work_item_throughput_per_hour": 30857.143
     }
   },
   "deltas": [
     {
       "metric_name": "finished_at_ms",
-      "baseline_value": 220,
-      "candidate_value": 210,
-      "delta": -10,
-      "delta_percent": -4.545,
+      "baseline_value": 410,
+      "candidate_value": 360,
+      "delta": -50,
+      "delta_percent": -12.195,
       "direction": "decrease"
     },
     {
@@ -91,34 +91,34 @@
     },
     {
       "metric_name": "inbound_receipt_throughput_per_hour",
-      "baseline_value": 17142.857,
-      "candidate_value": 18000.000,
-      "delta": 857.143,
-      "delta_percent": 5.000,
+      "baseline_value": 9000.000,
+      "candidate_value": 10285.714,
+      "delta": 1285.714,
+      "delta_percent": 14.286,
       "direction": "increase"
     },
     {
       "metric_name": "outbound_order_throughput_per_hour",
-      "baseline_value": 17142.857,
-      "candidate_value": 18000.000,
-      "delta": 857.143,
-      "delta_percent": 5.000,
+      "baseline_value": 9000.000,
+      "candidate_value": 10285.714,
+      "delta": 1285.714,
+      "delta_percent": 14.286,
       "direction": "increase"
     },
     {
       "metric_name": "each_pick_order_throughput_per_hour",
-      "baseline_value": 17142.857,
-      "candidate_value": 18000.000,
-      "delta": 857.143,
-      "delta_percent": 5.000,
+      "baseline_value": 9000.000,
+      "candidate_value": 10285.714,
+      "delta": 1285.714,
+      "delta_percent": 14.286,
       "direction": "increase"
     },
     {
       "metric_name": "total_work_item_throughput_per_hour",
-      "baseline_value": 51428.571,
-      "candidate_value": 54000.000,
-      "delta": 2571.429,
-      "delta_percent": 5.000,
+      "baseline_value": 27000.000,
+      "candidate_value": 30857.143,
+      "delta": 3857.143,
+      "delta_percent": 14.286,
       "direction": "increase"
     }
   ]

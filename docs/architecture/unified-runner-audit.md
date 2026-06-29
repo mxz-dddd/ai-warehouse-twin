@@ -4,7 +4,10 @@
 
 AI Warehouse Twin is a startup product for real warehouse customers. R1 exists because product credibility depends on a single timeline with real shared resources, shared inventory, and queueing delays across inbound, outbound, and each-pick work.
 
-This audit is a baseline for CORE-U2 / CORE-U3. It documents the current implementation without changing contracts, artifacts, CLI behavior, golden files, or customer-facing claims.
+This audit is a baseline for CORE-U2 / CORE-U3 and the later dedicated
+`GOLDEN-U3d-default-unified-runner` switch. It documents current implementation
+state without changing contracts, schemas, generated contracts, ingestion,
+Unity, or customer-facing movement claims.
 
 ## Current implementation inventory
 
@@ -13,9 +16,9 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
   - `RunWithTrace(WarehouseScenario)` also uses the traditional child-flow aggregation path, with a shared trace collector for lease recording.
   - `RunUnified(WarehouseUnifiedScenario)` is an explicit unified path and is not the default `WarehouseScenario` path.
   - `RunWithUnifiedAdapter(WarehouseScenario)` was added in CORE-U3a as an explicit opt-in path that converts `WarehouseScenario` through `WarehouseScenarioToUnifiedScenarioAdapter` and then calls `RunUnified(...)`.
-  - Default `Run(...)` remains legacy.
-  - `RunWithTrace(...)` / `export-artifact` remain legacy.
-  - CLI / RunArtifact / compare-files remain unchanged.
+  - `Run(...)` remains available as the traditional legacy path.
+  - `RunWithUnifiedAdapter(...)` is now the customer-facing default path for
+    CLI run output, export-artifact, and compare-files.
 - `WarehouseUnifiedOperationRunner`
   - Exists under `src/Sim.Core/Scenarios/Unified`.
   - Runs `WarehouseUnifiedOperation` records on capacity-one resource timelines grouped by `ResourceId`.
@@ -41,22 +44,25 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
 ## Current CLI / artifact path
 
 - `sample-small-warehouse` CLI
-  - Uses `new WarehouseScenarioRunner().Run(scenario)`.
-  - Current default status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
-  - CORE-U3b added `--runner unified` as an explicit opt-in mode that calls `RunWithUnifiedAdapter(...)`.
+  - Uses `new WarehouseScenarioRunner().RunWithUnifiedAdapter(scenario)` by default.
+  - Current default status: unified adapter path backed by `WarehouseUnifiedOperationRunner`.
+  - `--runner legacy` remains available to call the traditional child-flow aggregation path.
+  - `--runner unified` explicitly matches the default.
 - `run-file` CLI
-  - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().Run(scenario)`.
-  - Current default status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
-  - CORE-U3b added `--runner unified` as an explicit opt-in mode that calls `RunWithUnifiedAdapter(...)`.
+  - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().RunWithUnifiedAdapter(scenario)` by default.
+  - Current default status: unified adapter path backed by `WarehouseUnifiedOperationRunner`.
+  - `--runner legacy` remains available to call the traditional child-flow aggregation path.
+  - `--runner unified` explicitly matches the default.
 - `export-artifact`
-  - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().RunWithTrace(scenario)`.
-  - Current default status: traditional child-flow aggregation path with `ResourceLeaseTraceCollector`, not `WarehouseUnifiedOperationRunner`.
-  - CORE-U3c added `--runner unified` as an explicit opt-in mode that generates RunArtifact v1 from the unified adapter path.
+  - Loads `WarehouseScenario` from JSON and generates RunArtifact v1 from the unified adapter path by default.
+  - Current default status: unified adapter path backed by `WarehouseUnifiedOperationRunner`.
+  - `--runner legacy` remains available to generate the traditional child-flow aggregation artifact with `ResourceLeaseTraceCollector`.
+  - `--runner unified` explicitly matches the default.
 - `compare-files`
-  - Uses `WarehouseScenarioComparisonRunner.Compare(...)`.
-  - `WarehouseScenarioComparisonRunner` calls `WarehouseScenarioRunner.Run(...)` for baseline and candidate.
-  - Current default status: traditional child-flow aggregation path, not `WarehouseUnifiedOperationRunner`.
-  - CORE-U3d-1 added `--runner unified` as an explicit opt-in mode that compares baseline and candidate with `RunWithUnifiedAdapter(...)`.
+  - Uses `WarehouseScenarioComparisonRunner.CompareWithUnifiedAdapter(...)` by default.
+  - Current default status: unified adapter path backed by `WarehouseUnifiedOperationRunner`.
+  - `--runner legacy` remains available to compare baseline and candidate with the traditional runner.
+  - `--runner unified` explicitly matches the default.
 - `render-report`
   - Consumes existing RunArtifact / ComparisonArtifact files through `Sim.Report`.
   - It does not run simulation and does not choose a runner.
@@ -68,7 +74,12 @@ Partially implemented.
 
 `WarehouseUnifiedOperationRunner` uses a single `WarehouseInventoryLedger` and produces `FinalInventorySnapshot`. Existing tests cover conservation and non-negative inventory behavior on that unified path.
 
-The default `WarehouseScenarioRunner.Run(...)`, `RunWithTrace(...)`, sample CLI, run-file CLI, export-artifact path, and compare-files path do not use the unified ledger. They still run inbound, outbound, and each-pick child scenarios separately and merge child results. In this default path, inventory is not truly shared across inbound / outbound / each-pick.
+The customer-facing default sample CLI, run-file CLI, export-artifact path, and
+compare-files path now use the unified adapter path and unified ledger.
+
+The traditional `WarehouseScenarioRunner.Run(...)` and `RunWithTrace(...)`
+methods remain as explicit legacy fallback internals. They still run inbound,
+outbound, and each-pick child scenarios separately and merge child results.
 
 ## Shared resource competition status
 
@@ -76,7 +87,14 @@ Partially implemented.
 
 `WarehouseUnifiedOperationRunner` schedules operations by `ResourceId` through `WarehouseSharedResourceTimelineRunner.RunCapacityOne(...)`. Existing tests cover capacity-one queueing, non-overlapping allocations, deterministic resource timelines, and operation waiting time on the unified path.
 
-The default `WarehouseScenarioRunner.Run(...)` and `RunWithTrace(...)` still construct separate resource pools inside `InboundScenarioRunner`, `OutboundScenarioRunner`, and `EachPickScenarioRunner`. Those child flows can record resource leases into one trace collector, but they do not compete for one shared worker / forklift / dock pool across flows. Cross-flow queueing delay is therefore not truly produced by the current customer-facing default path.
+The customer-facing default sample CLI, run-file CLI, export-artifact path, and
+compare-files path now use unified resource scheduling through the adapter path.
+
+The traditional `WarehouseScenarioRunner.Run(...)` and `RunWithTrace(...)`
+methods still construct separate resource pools inside `InboundScenarioRunner`,
+`OutboundScenarioRunner`, and `EachPickScenarioRunner`. Those child flows can
+record resource leases into one trace collector, but they remain legacy fallback
+semantics.
 
 ## Single timeline status
 
@@ -84,17 +102,32 @@ Partially implemented.
 
 `WarehouseUnifiedOperationRunner` creates a deterministic unified event log from shared resource events and inventory mutation events, ordered by time and deterministic tie-breakers.
 
-The default `WarehouseScenarioRunner.Run(...)` path still runs child flows separately and merges their event log lines with flow prefixes. That merge is deterministic, but it is not a single event scheduler where inbound, outbound, and each-pick events all compete on one authoritative timeline.
+The customer-facing default sample CLI, run-file CLI, export-artifact path, and
+compare-files path now use the unified event log produced from shared resource
+events and inventory mutation events.
+
+The traditional `WarehouseScenarioRunner.Run(...)` path remains available for
+legacy fallback and still runs child flows separately and merges their event log
+lines with flow prefixes.
 
 ## RunArtifact connection status
 
 Partially implemented for the unified runner.
 
-Default `export-artifact` currently uses `WarehouseScenarioRunner.RunWithTrace(...)`, which is the traditional child-flow aggregation path plus resource lease trace collection. The default RunArtifact `layout.resources` and `position_timeline` fields are mapped from that trace result.
+Default `export-artifact` now converts the scenario through
+`WarehouseScenarioToUnifiedScenarioAdapter`, runs the unified path, and writes
+RunArtifact v1 without changing the schema.
 
-CORE-U3c added `export-artifact --runner unified` as an explicit opt-in mode. It converts the scenario through `WarehouseScenarioToUnifiedScenarioAdapter`, runs the unified path, and writes RunArtifact v1 without changing the schema or tracked golden files.
+`export-artifact --runner unified` matches the default byte-for-byte.
+`export-artifact --runner legacy` remains available for pre-switch reproduction
+and support investigations.
 
-`compare-files` remains legacy. `render-report` remains a report consumer only and does not choose a simulation runner.
+Default `compare-files` now uses the unified adapter path for both baseline and
+candidate. `compare-files --runner unified` matches the default, and
+`compare-files --runner legacy` remains available for pre-switch reproduction.
+
+`render-report` remains a report consumer only and does not choose a simulation
+runner.
 
 The current `position_timeline` remains baseline layout positions, NOT simulated movement.
 
@@ -115,23 +148,24 @@ Existing characterization coverage already documents the current baseline:
 - `WarehouseScenarioTraceTests.Run_DoesNotChangeTraditionalBehavior`
   - Freezes that `RunWithTrace(...)` does not change traditional `Run(...)` behavior.
 - `WarehouseScenarioToUnifiedScenarioAdapterTests`
-  - Freezes sample conversion, deterministic adapter output, stable resource ids, unified runner compatibility, and the fact that the default runner remains unchanged.
+  - Freezes sample conversion, deterministic adapter output, stable resource ids, unified runner compatibility, and the fact that the default runner remained unchanged at CORE-U2 time.
 - `WarehouseScenarioRunnerUnifiedTests` CORE-U3a coverage
-  - Freezes that `RunWithUnifiedAdapter(...)` can run sample-small-warehouse, matches legacy core counts and quantities, produces a final inventory snapshot, leaves default `Run(...)` unchanged, leaves `RunWithTrace(...)` on the legacy trace path, and documents the current coarse operation mapping gap.
+  - Freezes that `RunWithUnifiedAdapter(...)` can run sample-small-warehouse, matches legacy core counts and quantities, produces a final inventory snapshot, left default `Run(...)` unchanged at CORE-U3a time, leaves `RunWithTrace(...)` on the legacy trace path, and documents the current coarse operation mapping gap.
 
 ## R1 gap list
 
-- Default `WarehouseScenarioRunner.Run(...)` does not use `WarehouseUnifiedOperationRunner`.
-- `RunWithTrace(...)` and `export-artifact` do not use `WarehouseUnifiedOperationRunner`.
-- Default `export-artifact` does not use `WarehouseUnifiedOperationRunner`.
-- `export-artifact --runner unified` is opt-in only and does not change tracked golden files.
-- `compare-files` does not use `WarehouseUnifiedOperationRunner`.
+- Internal legacy `WarehouseScenarioRunner.Run(...)` does not use `WarehouseUnifiedOperationRunner`.
+- Internal legacy `RunWithTrace(...)` does not use `WarehouseUnifiedOperationRunner`.
 - Traditional inbound / outbound / each-pick states still own separate inventory models.
 - Traditional inbound / outbound / each-pick runners still construct separate process-local resource pools.
-- RunArtifact position timeline is trace-backed baseline layout handoff, not unified movement or real movement.
-- There is no single authoritative runner for all customer-facing warehouse runs yet.
+- RunArtifact position timeline is unified baseline layout handoff, not real movement.
+- There is still no R2 real path movement model.
 
-## Recommended next task split
+## Historical task split
+
+The following bullets preserve the incremental R1 migration history. Some
+entries describe the state at the time of that task and are superseded by
+`GOLDEN-U3d-default-unified-runner`.
 
 - CORE-U2: Added an internal `WarehouseScenario` → `WarehouseUnifiedScenario` adapter with characterization tests.
   - CLI and RunArtifact output remain unchanged.
@@ -139,33 +173,33 @@ Existing characterization coverage already documents the current baseline:
   - Multi-stage legacy details such as separate dock / forklift / worker / station leases are not yet 1:1 mapped into unified operations.
 - CORE-U3: Wire `WarehouseScenarioRunner` behind an explicitly tested internal unified path.
 - CORE-U3a: Added `RunWithUnifiedAdapter(...)` as an explicit opt-in unified path behind `WarehouseScenarioRunner`.
-  - Default `Run(...)` remains legacy.
-  - `RunWithTrace(...)` / `export-artifact` remain legacy.
-  - CLI / RunArtifact / compare-files remain unchanged.
-  - CORE-U3b is still required before any default runner switch.
+  - At CORE-U3a time, default `Run(...)` remained legacy.
+  - At CORE-U3a time, `RunWithTrace(...)` / `export-artifact` remained legacy.
+  - At CORE-U3a time, CLI / RunArtifact / compare-files remained unchanged.
+  - CORE-U3b followed before any default runner switch.
 - CORE-U3b: Added CLI opt-in runner mode for sample-small-warehouse and run-file.
-  - Default CLI runner remains legacy.
+  - At CORE-U3b time, default CLI runner remained legacy.
   - `sample-small-warehouse --runner unified` and `run-file <scenario> --runner unified` call the explicit unified adapter path.
-  - `export-artifact` remains legacy.
-  - `compare-files` remains legacy.
-  - RunArtifact / ComparisonArtifact golden files remain unchanged.
-  - CORE-U3c follows with export-artifact opt-in unified runner support; default artifact switching remains out of scope.
+  - At CORE-U3b time, `export-artifact` remained legacy.
+  - At CORE-U3b time, `compare-files` remained legacy.
+  - At CORE-U3b time, RunArtifact / ComparisonArtifact golden files remained unchanged.
+  - CORE-U3c followed with export-artifact opt-in unified runner support; default artifact switching remained out of scope.
 - CORE-U3c: Added export-artifact opt-in runner mode.
-  - Default export-artifact remains legacy.
+  - At CORE-U3c time, default export-artifact remained legacy.
   - `export-artifact --runner unified` can generate RunArtifact v1 from the explicit unified adapter path.
-  - RunArtifact schema and tracked golden files remain unchanged.
-  - `compare-files` remains legacy.
-  - `render-report` remains a report consumer only.
-  - CORE-U3d is still required before default artifact generation can switch to unified.
+  - At CORE-U3c time, RunArtifact schema and tracked golden files remained unchanged.
+  - At CORE-U3c time, `compare-files` remained legacy.
+  - `render-report` remained a report consumer only.
+  - CORE-U3d followed before default artifact generation switched to unified.
 - CORE-U3d-readiness: Added artifact switch readiness audit.
-  - Compares legacy default export-artifact with opt-in unified export-artifact.
-  - Does not switch default export-artifact.
-  - Does not update RunArtifact schema or tracked golden files.
-  - Recommends whether CORE-U3d default switch is safe.
+  - Compared legacy default export-artifact with opt-in unified export-artifact.
+  - Did not switch default export-artifact.
+  - Did not update RunArtifact schema or tracked golden files.
+  - Recommended whether the later default switch was safe.
 - CORE-U3d-1: Added compare-files opt-in runner mode.
-  - Default compare-files remains legacy.
+  - At CORE-U3d-1 time, default compare-files remained legacy.
   - `compare-files --runner unified` compares baseline and candidate with the explicit unified adapter path.
-  - ComparisonArtifact schema and tracked golden files remain unchanged.
+  - ComparisonArtifact schema and tracked golden files remained unchanged.
   - This prevents export-artifact and compare-files from diverging when both are explicitly run in unified mode.
 - CORE-U3d-2: Added report-visible runner provenance.
   - `render-report` can display operator-provided run/comparison runner modes.
@@ -173,15 +207,22 @@ Existing characterization coverage already documents the current baseline:
   - Default render-report output remains unchanged.
   - Mixed runner modes are shown with a warning.
 - CORE-U3d-3: Added golden update policy.
-  - No tracked golden files are updated.
-  - Default legacy artifacts remain the customer-facing baseline.
-  - Future unified default switch requires a dedicated GOLDEN PR.
+  - No tracked golden files were updated in CORE-U3d-3.
+  - At CORE-U3d-3 time, default legacy artifacts remained the customer-facing baseline.
+  - Future unified default switch required a dedicated GOLDEN PR.
   - RunArtifact / ComparisonArtifact / customer report golden changes must include diff evidence and customer impact notes.
 - CORE-U3d-4-plan: Added default runner switch release / migration plan.
-  - No default runner switch is performed.
-  - No tracked golden files are updated.
-  - A future default switch requires a dedicated GOLDEN PR.
+  - No default runner switch was performed in CORE-U3d-4-plan.
+  - No tracked golden files were updated in CORE-U3d-4-plan.
+  - The future default switch required a dedicated GOLDEN PR.
   - Release note, migration note, and rollback requirements are documented.
+- GOLDEN-U3d-default-unified-runner: Switches customer-facing defaults to unified.
+  - `sample-small-warehouse`, `run-file`, `export-artifact`, and `compare-files` default to unified semantics.
+  - `--runner unified` matches the default.
+  - `--runner legacy` remains available for pre-switch reproduction and rollback investigations.
+  - RunArtifact v1 and ComparisonArtifact v1 schemas remain unchanged.
+  - Tracked golden artifacts are regenerated in the dedicated GOLDEN PR.
+  - The release note documents customer impact and rollback.
 - CORE-U3d: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
@@ -191,4 +232,6 @@ Existing characterization coverage already documents the current baseline:
 
 ## Boundaries
 
-This audit does not change contracts, artifacts, CLI behavior, golden files, schema versions, generated contracts, scripts, CI, reports, validation, license files, or customer-facing claims.
+This audit does not change contracts, schema versions, generated contracts, CI,
+reports, validation, license files, ingestion, Unity, or customer-facing
+movement claims.

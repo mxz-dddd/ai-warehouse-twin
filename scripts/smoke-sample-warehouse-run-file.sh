@@ -25,17 +25,18 @@ if builtin != run_file:
     raise SystemExit("FAIL: built-in output and run-file output differ")
 
 expected = {
+    "runner_mode": "unified",
     "scenario_id": "sample-small-warehouse",
     "seed": 20240627,
     "started_at_ms": 10,
-    "finished_at_ms": 220,
+    "finished_at_ms": 410,
     "completed_receipts": 1,
     "completed_outbound_orders": 1,
     "completed_each_pick_orders": 1,
     "total_quantity_available": 7,
     "total_quantity_shipped": 8,
     "total_quantity_picked": 9,
-    "final_world_time_ms": 220,
+    "final_world_time_ms": 410,
 }
 
 for key, value in expected.items():
@@ -46,13 +47,13 @@ for key, value in expected.items():
 event_log_text = run_file.get("event_log_text", "")
 event_lines = event_log_text.splitlines()
 
-if len(event_lines) != 10:
-    raise SystemExit(f"FAIL: expected 10 event log lines, got {len(event_lines)}")
+if len(event_lines) != 13:
+    raise SystemExit(f"FAIL: expected 13 event log lines, got {len(event_lines)}")
 
 required_events = [
-    "inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived",
-    "outbound|0|20|outbound.order_released.order-1|OutboundOrderReleased",
-    "each_pick|0|30|each_pick.order_released.each-order-1|EachPickOrderReleased",
+    "10|resource.requested|resource_id=dock-1|owner=inbound:inbound:receipt-1",
+    "20|resource.queued|resource_id=dock-1|owner=outbound:outbound:order-1",
+    "30|resource.acquired|resource_id=station-1|owner=each_pick:each_pick:each-order-1",
 ]
 
 for event in required_events:

@@ -156,9 +156,20 @@ schema unless a separate schema PR explicitly handles that rollback.
 
 ## Current decision
 
-No golden files are updated by CORE-U3d-3.
+`GOLDEN-U3d-default-unified-runner` is the dedicated golden update PR for the
+default legacy-to-unified runner switch.
 
-Default legacy runner remains the customer-facing golden baseline.
+Default unified runner becomes the customer-facing golden baseline.
 
-Unified artifacts remain opt-in until a dedicated default-switch and `GOLDEN-`
-PR is approved.
+Explicit `--runner legacy` remains available for pre-switch reproduction and
+rollback investigations, but legacy output no longer matches the tracked
+default golden files after this switch.
+
+This update follows the policy requirements:
+
+- dedicated `GOLDEN-` branch / PR;
+- golden diff summary;
+- customer impact statement;
+- regeneration commands;
+- rollback plan;
+- no RunArtifact / ComparisonArtifact schema changes.

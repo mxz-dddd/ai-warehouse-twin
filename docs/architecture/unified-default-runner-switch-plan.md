@@ -2,7 +2,12 @@
 
 ## Status
 
-Planning only. No default runner switch happens in this PR.
+Implemented by `GOLDEN-U3d-default-unified-runner`.
+
+This document remains as the migration record for the default runner switch.
+The original planning gates were satisfied by CORE-U3d-1 through CORE-U3d-4,
+then this dedicated `GOLDEN-` PR performed the customer-facing default switch
+and regenerated tracked golden artifacts.
 
 ## Scope
 
@@ -15,26 +20,30 @@ from legacy runner semantics to unified runner semantics:
 - `compare-files`: ComparisonArtifact generation entry point.
 - `render-report`: artifact / report consumer; it does not run simulation.
 
-This plan does not implement the switch, update golden files, change contracts,
-or create a release.
+This switch updates golden files but does not change contracts or create a
+release.
 
 ## Current state
 
-- Default `sample-small-warehouse`: legacy.
+- Default `sample-small-warehouse`: unified.
 - `sample-small-warehouse --runner unified`: opt-in unified.
-- Default `run-file`: legacy.
+- `sample-small-warehouse --runner legacy`: explicit legacy fallback.
+- Default `run-file`: unified.
 - `run-file --runner unified`: opt-in unified.
-- Default `export-artifact`: legacy.
+- `run-file --runner legacy`: explicit legacy fallback.
+- Default `export-artifact`: unified.
 - `export-artifact --runner unified`: opt-in unified.
-- Default `compare-files`: legacy.
+- `export-artifact --runner legacy`: explicit legacy fallback.
+- Default `compare-files`: unified.
 - `compare-files --runner unified`: opt-in unified.
+- `compare-files --runner legacy`: explicit legacy fallback.
 - `render-report` can show operator-provided provenance, but artifact schemas do
   not store runner mode.
 
 ## Target state
 
-Future target: customer-facing default simulation paths use unified runner
-semantics consistently.
+Customer-facing default simulation paths use unified runner semantics
+consistently.
 
 The target state must preserve these constraints:
 
@@ -49,7 +58,7 @@ The target state must preserve these constraints:
 
 ## Customer-visible changes
 
-A default switch will be visible to customers and artifact consumers:
+The default switch is visible to customers and artifact consumers:
 
 - KPI timing may change. The current readiness audit shows `finished_at_ms`
   changing from legacy `220` to unified `410` for the sample warehouse.
@@ -81,9 +90,9 @@ dotnet run --project src/Sim.Cli -- compare-files <baseline> <candidate> -o <com
 - It can display operator-provided provenance.
 - Artifact schemas do not gain a `runner_mode` field.
 
-## Required readiness gates
+## Completed readiness gates
 
-Before any default switch PR, all of these gates must be satisfied:
+Before the default switch PR, these gates were satisfied:
 
 1. `export-artifact --runner unified` smoke passes.
 2. `compare-files --runner unified` smoke passes.
@@ -96,14 +105,14 @@ Before any default switch PR, all of these gates must be satisfied:
 8. Report consumer confirms provenance wording is sufficient.
 9. Contract owner confirms no schema version bump is required, or if a bump is
    required, the work first goes through `CONTRACT-` governance.
-10. Dedicated `GOLDEN-` PR is prepared.
+10. Dedicated `GOLDEN-` PR was prepared and used for the switch.
 
-## Required GOLDEN PR
+## Completed GOLDEN PR
 
-Default switch must not be merged as a generic CORE PR.
-It requires a dedicated `GOLDEN-` PR.
+The default switch was not merged as a generic CORE PR.
+It was performed by a dedicated `GOLDEN-` PR.
 
-The `GOLDEN-` PR must include:
+The `GOLDEN-` PR includes:
 
 - Default runner switch implementation.
 - Regenerated run artifact golden.
@@ -153,9 +162,9 @@ If default switch behavior causes unexpected KPI or artifact changes:
 - Do not roll back unrelated documentation, policy, ingestion, WMS, or Unity
   changes.
 
-## Do-not-switch conditions
+## Pre-switch do-not-switch conditions
 
-Do not switch default runner while any of these conditions hold:
+The team would not switch default runner while any of these conditions held:
 
 - Readiness audit still says not ready.
 - Golden diff lacks product explanation.
@@ -178,7 +187,7 @@ Do not switch default runner while any of these conditions hold:
 
 ## Current decision
 
-Do not switch default runner in CORE-U3d-4-plan.
+Default runner has switched to unified in the dedicated `GOLDEN-` PR.
 
-Default legacy remains the customer-facing baseline until a dedicated `GOLDEN-`
-PR is approved.
+Explicit legacy fallback remains available through `--runner legacy` for
+reproducing pre-switch outputs.
