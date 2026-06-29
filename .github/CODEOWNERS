@@ -23,3 +23,6 @@ src/Sim.Contracts/ @mxz-dddd
 # Report and CLI handoff surfaces.
 src/Sim.Cli/ @mxz-dddd
 src/Sim.Report/ @mxz-dddd
+
+# Reserved ingestion service workspace.
+/services/ingestion/ @kevinknightmxz
