@@ -22,6 +22,49 @@ if (args.Length == 5 &&
     return 0;
 }
 
+if (args.Length == 9 &&
+    args[0] == "render-report" &&
+    args[3] == "-o" &&
+    args[5] == "--run-runner" &&
+    args[7] == "--comparison-runner")
+{
+    if (!TryParseRunnerProvenanceMode(args[6], out var runRunnerMode, out var runRunnerErrorMessage))
+    {
+        Console.Error.WriteLine(runRunnerErrorMessage);
+        return 1;
+    }
+
+    if (!TryParseRunnerProvenanceMode(args[8], out var comparisonRunnerMode, out var comparisonRunnerErrorMessage))
+    {
+        Console.Error.WriteLine(comparisonRunnerErrorMessage);
+        return 1;
+    }
+
+    var markdown = CustomerReportService.RenderFromFiles(
+        args[1],
+        args[2],
+        new CustomerReportRenderOptions(
+            runRunnerMode,
+            comparisonRunnerMode));
+
+    File.WriteAllText(
+        args[4],
+        NormalizeMarkdown(markdown));
+
+    Console.WriteLine($"Exported customer report: {args[4]}");
+    return 0;
+}
+
+if (args.Length > 5 &&
+    args[0] == "render-report" &&
+    (args.Contains("--run-runner") ||
+     args.Contains("--comparison-runner")))
+{
+    Console.Error.WriteLine(
+        "Both --run-runner and --comparison-runner are required when providing runner provenance.");
+    return 1;
+}
+
 if (args.Length == 5 &&
     args[0] == "compare-files" &&
     args[3] == "-o")
@@ -139,6 +182,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path> --run-runner <legacy|unified|unknown> --comparison-runner <legacy|unified|unknown>");
     return 1;
 }
 
@@ -487,5 +531,37 @@ static bool TryParseRunnerMode(
     useUnifiedRunner = false;
     errorMessage =
         $"Unknown runner mode '{value}'. Allowed values: legacy, unified.";
+    return false;
+}
+
+static bool TryParseRunnerProvenanceMode(
+    string value,
+    out string runnerMode,
+    out string errorMessage)
+{
+    if (string.Equals(value, "legacy", StringComparison.OrdinalIgnoreCase))
+    {
+        runnerMode = "legacy";
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    if (string.Equals(value, "unified", StringComparison.OrdinalIgnoreCase))
+    {
+        runnerMode = "unified";
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    if (string.Equals(value, "unknown", StringComparison.OrdinalIgnoreCase))
+    {
+        runnerMode = "unknown";
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    runnerMode = string.Empty;
+    errorMessage =
+        $"Unknown runner mode '{value}'. Allowed values: legacy, unified, unknown.";
     return false;
 }

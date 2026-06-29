@@ -60,6 +60,7 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
 - `render-report`
   - Consumes existing RunArtifact / ComparisonArtifact files through `Sim.Report`.
   - It does not run simulation and does not choose a runner.
+  - CORE-U3d-2 added optional operator-provided runner provenance flags for report visibility.
 
 ## Shared inventory status
 
@@ -166,6 +167,11 @@ Existing characterization coverage already documents the current baseline:
   - `compare-files --runner unified` compares baseline and candidate with the explicit unified adapter path.
   - ComparisonArtifact schema and tracked golden files remain unchanged.
   - This prevents export-artifact and compare-files from diverging when both are explicitly run in unified mode.
+- CORE-U3d-2: Added report-visible runner provenance.
+  - `render-report` can display operator-provided run/comparison runner modes.
+  - RunArtifact v1 and ComparisonArtifact v1 schemas remain unchanged.
+  - Default render-report output remains unchanged.
+  - Mixed runner modes are shown with a warning.
 - CORE-U3d: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
