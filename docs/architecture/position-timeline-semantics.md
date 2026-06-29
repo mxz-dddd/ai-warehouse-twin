@@ -206,6 +206,14 @@ Before any customer-facing movement visualization is enabled:
 - Validation covers at least one route with known nodes, edges, travel times,
   and expected position progression.
 
+## Guard tests
+
+CORE-U4b adds tests that load the tracked RunArtifact golden and customer
+report golden to ensure the current v1 `position_timeline` remains documented
+as operation/resource handoff at baseline layout positions, NOT simulated
+movement. These tests are not movement tests. They are safety guards until R2
+defines real movement semantics.
+
 ## Current decision
 
 Do not implement or claim real movement in CORE-U4a.
