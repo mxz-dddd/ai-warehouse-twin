@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Sim.Contracts.Artifacts;
 using Sim.Core.Scenarios;
+using Sim.Core.Scenarios.Unified;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
 using Sim.Report;
@@ -83,6 +84,20 @@ else if (args.Length == 4 && args[0] == "export-artifact" && args[2] == "-o")
     scenario = WarehouseScenarioJsonLoader.Load(args[1]);
     artifactOutputPath = args[3];
 }
+else if (args.Length == 6 &&
+         args[0] == "export-artifact" &&
+         args[2] == "-o" &&
+         args[4] == "--runner")
+{
+    if (!TryParseRunnerMode(args[5], out useUnifiedRunner, out var errorMessage))
+    {
+        Console.Error.WriteLine(errorMessage);
+        return 1;
+    }
+
+    scenario = WarehouseScenarioJsonLoader.Load(args[1]);
+    artifactOutputPath = args[3];
+}
 else
 {
     Console.Error.WriteLine("Usage:");
@@ -91,6 +106,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
     return 1;
@@ -100,9 +116,10 @@ var runner = new WarehouseScenarioRunner();
 
 if (artifactOutputPath is not null)
 {
-    var traceResult = runner.RunWithTrace(scenario);
     var artifactJson = JsonSerializer.Serialize(
-        ToRunArtifact(traceResult),
+        useUnifiedRunner
+            ? ToUnifiedRunArtifact(scenario, runner)
+            : ToRunArtifact(runner.RunWithTrace(scenario)),
         ArtifactJsonOptions());
 
     File.WriteAllText(
@@ -187,6 +204,23 @@ static object ToPayloadWithRunnerMode(WarehouseRunResult result, string runnerMo
     };
 }
 
+static RunArtifact ToUnifiedRunArtifact(
+    WarehouseScenario scenario,
+    WarehouseScenarioRunner runner)
+{
+    var unifiedScenario =
+        WarehouseScenarioToUnifiedScenarioAdapter.Convert(scenario);
+    var result = runner.RunUnified(unifiedScenario);
+    var unifiedOperationResult = new WarehouseUnifiedOperationRunner().Run(
+        unifiedScenario.InitialInventory,
+        unifiedScenario.Operations);
+
+    return ToRunArtifactFromUnifiedResult(
+        result,
+        unifiedOperationResult,
+        unifiedScenario.Operations);
+}
+
 static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
 {
     var result = traceResult.RunResult;
@@ -237,6 +271,99 @@ static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
             .Split('\n')
             .Where(line => line.Length > 0)
             .ToArray()
+    };
+}
+
+static RunArtifact ToRunArtifactFromUnifiedResult(
+    WarehouseRunResult result,
+    WarehouseUnifiedOperationResult unifiedResult,
+    IReadOnlyList<WarehouseUnifiedOperation> operations)
+{
+    var kpi = result.KpiSummary;
+    var operationsById = operations.ToDictionary(
+        operation => operation.OperationId,
+        StringComparer.Ordinal);
+
+    return new RunArtifact
+    {
+        SchemaVersion = RunArtifact.CurrentSchemaVersion,
+        ArtifactKind = RunArtifact.CurrentArtifactKind,
+        ScenarioId = result.ScenarioId,
+        Seed = result.Seed,
+        StartedAtMs = result.StartedAtMs,
+        FinishedAtMs = result.FinishedAtMs,
+        FinalWorldTimeMs = result.FinalWorldState.TimeMs,
+        KpiSummary = new RunArtifactKpiSummary
+        {
+            TotalDurationMs = kpi.TotalDurationMs,
+            TotalCompletedWorkItems = kpi.TotalCompletedWorkItems,
+            EventLogLineCount = kpi.EventLogLineCount,
+            ReceiptThroughputPerHour = RoundKpi(kpi.ReceiptThroughputPerHour),
+            OutboundOrderThroughputPerHour = RoundKpi(kpi.OutboundOrderThroughputPerHour),
+            EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
+            TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
+        },
+        Layout = new RunArtifactLayout
+        {
+            Resources = unifiedResult.PositionTimeline
+                .GroupBy(entry => entry.ResourceId, StringComparer.Ordinal)
+                .OrderBy(group => group.Key, StringComparer.Ordinal)
+                .Select(group =>
+                {
+                    var position = group
+                        .OrderBy(entry => entry.AtMs)
+                        .ThenBy(entry => entry.OperationId, StringComparer.Ordinal)
+                        .ThenBy(entry => entry.EventType, StringComparer.Ordinal)
+                        .First()
+                        .Position;
+
+                    return new RunArtifactLayoutResource(
+                        group.Key,
+                        position.NodeId,
+                        position.X,
+                        position.Y);
+                })
+                .ToArray()
+        },
+        // CORE-U3c preserves RunArtifact v1 and maps the opt-in unified
+        // runner's deterministic layout handoff into the existing position
+        // timeline contract. These coordinates are baseline layout positions,
+        // NOT simulated movement.
+        PositionTimeline = unifiedResult.PositionTimeline
+            .Select(entry =>
+            {
+                var operation = operationsById[entry.OperationId];
+                return new RunArtifactPositionTimelineEntry(
+                    entry.OperationId,
+                    ToArtifactOperationType(operation.OperationType),
+                    "operation",
+                    entry.ResourceId,
+                    entry.AtMs,
+                    entry.EventType,
+                    entry.Position.NodeId,
+                    entry.Position.X,
+                    entry.Position.Y);
+            })
+            .ToArray(),
+        EventLog = NormalizeLineEndings(result.EventLogText)
+            .Split('\n')
+            .Where(line => line.Length > 0)
+            .ToArray()
+    };
+}
+
+static string ToArtifactOperationType(
+    WarehouseUnifiedOperationType operationType)
+{
+    return operationType switch
+    {
+        WarehouseUnifiedOperationType.Inbound => "inbound",
+        WarehouseUnifiedOperationType.Outbound => "outbound",
+        WarehouseUnifiedOperationType.EachPick => "each_pick",
+        _ => throw new ArgumentOutOfRangeException(
+            nameof(operationType),
+            operationType,
+            "Unsupported warehouse unified operation type.")
     };
 }
 
