@@ -18,6 +18,10 @@ flow before any MovementArtifact schema implementation.
 CONTRACT-R2d begins implementing the proposal at the contract/schema layer only.
 It does not implement movement generation or consumer behavior.
 
+CONTRACT-R2e adds contract-level fixtures for the MovementArtifact schema.
+Runtime generation, loaders, reports, Unity, and golden artifacts remain future
+work.
+
 ## Scope
 
 This proposal covers:

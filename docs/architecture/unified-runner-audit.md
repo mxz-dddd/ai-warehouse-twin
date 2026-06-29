@@ -257,6 +257,10 @@ entries describe the state at the time of that task and are superseded by
   - Does not implement movement/path/route generation.
   - Does not add loaders, validators, golden artifacts, Unity animation, report sections, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CONTRACT-R2e: Added MovementArtifact schema fixtures and contract fixture tests.
+  - Adds test-only valid and invalid MovementArtifact JSON fixtures.
+  - Does not implement runtime MovementArtifact generation, loaders, validators, golden artifacts, Unity animation, report sections, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
