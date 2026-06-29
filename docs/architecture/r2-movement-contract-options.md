@@ -294,3 +294,6 @@ Use this document to prepare a future CONTRACT-R2 movement artifact proposal.
 CONTRACT-R2a adds a proposal-level MovementArtifact v1 field outline in
 `docs/architecture/movement-artifact-v1-proposal.md`. This remains a proposal
 and does not approve a contract change.
+
+CONTRACT-R2b records the future schema, fixture, drift-check, and CI plan for
+MovementArtifact v1 without changing contracts.

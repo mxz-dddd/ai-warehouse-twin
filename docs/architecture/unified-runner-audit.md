@@ -245,6 +245,9 @@ entries describe the state at the time of that task and are superseded by
   - Keeps RunArtifact v1 unchanged.
   - Does not implement movement/path/route.
   - Requires future CONTRACT- approval before schema or generated contract changes.
+- CONTRACT-R2b: Added MovementArtifact v1 schema/fixture planning checklist.
+  - Does not add schema files, generated contracts, golden artifacts, or movement implementation.
+  - Keeps RunArtifact v1 unchanged.
 
 ## Boundaries
 

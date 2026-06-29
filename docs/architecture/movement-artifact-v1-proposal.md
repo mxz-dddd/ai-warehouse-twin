@@ -8,6 +8,10 @@ This document is not contract approval. A later CONTRACT- PR is required before 
 
 CONTRACT-R2a documents the proposed shape, semantics, validation needs, golden strategy, and consumer handoff expectations for a future movement-specific artifact. It does not add a schema file, generated contracts, runtime movement, path planning, route interpolation, Unity animation, or report behavior.
 
+CONTRACT-R2b adds the schema/fixture planning checklist in
+`docs/architecture/movement-artifact-v1-schema-fixture-plan.md`. It remains
+planning-only and does not add schema files or generated contracts.
+
 ## Scope
 
 This proposal covers:
