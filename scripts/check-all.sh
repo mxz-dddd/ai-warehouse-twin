@@ -34,7 +34,8 @@ each_pick_a="$tmp_dir/each-pick-a.json"
 each_pick_b="$tmp_dir/each-pick-b.json"
 comparison_a="$tmp_dir/comparison-a.json"
 comparison_b="$tmp_dir/comparison-b.json"
-customer_report="$tmp_dir/customer-report.md"
+customer_report_a="$tmp_dir/customer-report-a.md"
+customer_report_b="$tmp_dir/customer-report-b.md"
 
 dotnet run --project src/Sim.Cli -- \
   export-artifact datasets/sample-small-warehouse/scenario.json \
@@ -69,8 +70,13 @@ cmp "$comparison_a" \
 dotnet run --project src/Sim.Cli -- \
   render-report datasets/sample-small-warehouse/artifacts/run-artifact.v1.json \
   datasets/sample-small-warehouse/artifacts/comparison-artifact.v1.json \
-  -o "$customer_report" >/dev/null
-cmp "$customer_report" \
+  -o "$customer_report_a" >/dev/null
+dotnet run --project src/Sim.Cli -- \
+  render-report datasets/sample-small-warehouse/artifacts/run-artifact.v1.json \
+  datasets/sample-small-warehouse/artifacts/comparison-artifact.v1.json \
+  -o "$customer_report_b" >/dev/null
+cmp "$customer_report_a" "$customer_report_b"
+cmp "$customer_report_a" \
   datasets/sample-small-warehouse/artifacts/customer-report.v1.md
 
 echo "PASS: full local validation"

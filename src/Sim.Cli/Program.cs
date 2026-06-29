@@ -17,7 +17,7 @@ if (args.Length == 5 &&
         args[4],
         NormalizeMarkdown(markdown));
 
-    Console.WriteLine($"Rendered customer report: {args[4]}");
+    Console.WriteLine($"Exported customer report: {args[4]}");
     return 0;
 }
 

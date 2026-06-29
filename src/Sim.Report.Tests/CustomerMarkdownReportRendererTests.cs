@@ -121,7 +121,7 @@ public sealed class CustomerMarkdownReportRendererTests
         var rendered = TestPaths.NormalizeNewlines(CustomerMarkdownReportRenderer.Render(
             runArtifact,
             comparisonArtifact));
-        var golden = TestPaths.NormalizeNewlines(File.ReadAllText(TestPaths.CustomerReportPath()));
+        var golden = TestPaths.NormalizeNewlines(File.ReadAllText(TestPaths.CustomerReportGoldenPath()));
 
         Assert.Equal(golden, rendered);
     }

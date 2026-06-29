@@ -36,7 +36,7 @@ internal static class TestPaths
             RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "comparison-artifact.v1.json");
     }
 
-    public static string CustomerReportPath()
+    public static string CustomerReportGoldenPath()
     {
         return Path.Combine(
             RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "customer-report.v1.md");
