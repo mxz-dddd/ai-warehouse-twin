@@ -1,6 +1,6 @@
 # AI Warehouse Twin Engineering Rules
 
-This repository is a monorepo for an AI warehouse digital twin simulation platform. Follow these rules on every task.
+This repository is a monorepo for AI Warehouse Twin, a startup product for real warehouse customers. The product goal is to let customers input real warehouse data and receive credible, visual, confidence-scored evaluation and optimization guidance. Follow these rules on every task.
 
 ## Core Boundaries
 
@@ -15,6 +15,7 @@ This repository is a monorepo for an AI warehouse digital twin simulation platfo
 - LLM/AI components must not directly modify inventory or control physical equipment.
 - Every simulation run must use an explicit seed, and results must be reproducible.
 - WMS writes and equipment control require explicit approval, auditability, and idempotency.
+- Clearly separate implemented capabilities from planned capabilities such as real path movement, Unity visualization, calibration confidence, WMS pilots, and closed-loop optimization recommendations.
 
 ## Engineering Rules
 
