@@ -130,6 +130,8 @@ candidate. `compare-files --runner unified` matches the default, and
 runner.
 
 The current `position_timeline` remains baseline layout positions, NOT simulated movement.
+See `docs/architecture/position-timeline-semantics.md` for the current
+RunArtifact position timeline honesty boundary and R2 movement requirements.
 
 ## Characterization tests added
 
@@ -229,6 +231,8 @@ entries describe the state at the time of that task and are superseded by
 - CORE-U4: Reconcile resource lease trace / position timeline generation with unified operation intervals.
   - Keep the honesty label: baseline layout positions, NOT simulated movement.
   - Do not claim real movement until R2 movement-driven RunArtifact exists.
+  - CORE-U4a adds the position timeline semantics audit in
+    `docs/architecture/position-timeline-semantics.md`.
 
 ## Boundaries
 

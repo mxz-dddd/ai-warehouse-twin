@@ -53,6 +53,8 @@ The target state must preserve these constraints:
 - Position timelines must not be described as simulated movement.
 - Position timelines remain baseline layout positions, NOT simulated movement
   until R2 real movement semantics land.
+- `docs/architecture/position-timeline-semantics.md` is the current honesty
+  boundary for RunArtifact position timeline wording and visualization usage.
 - Default switch work must not leave tracked golden files representing old
   legacy behavior.
 
