@@ -1,0 +1,22 @@
+[
+  {
+    "order_id": "mock-order-1",
+    "warehouse_id": "warehouse-1",
+    "sku_id": "sku-mock-a",
+    "quantity": 6,
+    "pick_location_id": "mock-pick-a",
+    "staging_location_id": "mock-stage-1",
+    "dock_id": "dock-mock-1",
+    "released_at_ms": 0
+  },
+  {
+    "order_id": "mock-order-2",
+    "warehouse_id": "warehouse-1",
+    "sku_id": "sku-mock-b",
+    "quantity": 4,
+    "pick_location_id": "mock-pick-b",
+    "staging_location_id": "mock-stage-1",
+    "dock_id": "dock-mock-1",
+    "released_at_ms": 90
+  }
+]
