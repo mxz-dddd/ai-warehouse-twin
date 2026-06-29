@@ -1,149 +1,145 @@
-# 成员2 工程计划 · AI Warehouse Twin · Track B（产品 / 输入输出 / 可视化 · 消费侧）
+# 成员2工程计划 · Track B：R4 引擎可视化轨道
 
-> **本文件用途**：交给 **Claude** 阅读并执行。
-> **你协助的人**：成员2（Windows 环境，项目新加入的伙伴）。
-> **总目标不变**：AI Warehouse Twin 是面向真实仓库客户的创业产品。本 Track 负责"把输入产品化、把仿真产物变成客户能看的报告与画面"，服务于可校准、可视、可信度分级的评估闭环。
-> **协作对象**：成员1（Mac，使用 GPT）拥有并深化仿真内核 `Sim.Core`，向你**导出 run-artifact 运行产物文件**。你**只消费产物与契约，绝不改他的内核**。
+Track B 当前主线：R4 引擎可视化轨道。
 
----
+AI Warehouse Twin 是面向真实仓库客户的创业产品，不是展示包装优先。Track B 的使命是把已经冻结或正在演进的 artifact / contracts / docs 消费成真实仓库客户可视化交付面，包括引擎可视化、artifact handoff 检查、客户报告展示层和 A/B 可视化交付视图。
 
-## 0. 给执行 AI（Claude）的总则（铁律，每个任务都遵守）
+成员2负责引擎可视化、artifact 消费、客户报告展示层、A/B 可视化交付视图。
 
-1. **你只消费、不生产仿真**：你的代码**只读 run-artifact 文件 + 只依赖 `Sim.Contracts`**，**禁止引用 `Sim.Core`**（有 CI 红线 `check-consumer-no-core` 守门）。
-2. **你只在 Track B 的目录里写代码**（§3）；**绝不碰**成员1 的 `Sim.Core`/`Sim.Cli`/内核（§4）。
-3. **契约只读+提议**：`Sim.Contracts` 是共管接缝；你可以提出修改，但**必须开 `CONTRACT-` PR 让成员1 一起评审**、bump `schema_version`，不可单方改。
-4. **模块独立可测**：用成员1 提交的**固定 golden run-artifact 文件**做快照测试，不依赖他的仿真是否在跑。
-5. **小步提交**：一个模块 = 一个分支 `app/<id>` = 一个 PR，含测试，跑绿 CI 才算完成。
-6. **跨平台**：Windows 上开发，但代码/换行/路径必须跨平台（§7）；近期统一 .NET，不引入多余工具链。
-7. **不做**：WMS 写回、设备直控；不要去"修"仿真逻辑（那是成员1 的 Track A）。
+成员2当前不再负责输入校验、JSON template、schema validation、contract schema、Sim.Validation 主体实现。这些内容已经由主线完成或部分失效，只能作为 historical / completed / no longer primary track 记录，不能继续作为 Track B 当前主线。
 
 ---
 
-## 1. 项目基线（共享起点，2026-06-27）
+## 1. 当前硬边界
 
-```text
-仓库:    github.com/mxz-dddd/ai-warehouse-twin   分支 main
-质量:    dotnet build 0/0 · dotnet test 258 passed · CI success
-成员1 已建成: 纯C# 确定性DES内核 + 三条最小流程 + warehouse 聚合 +
-             外部 scenario.json 输入闭环 + WarehouseKpiSummary 核心模型
-你将面对的缺口(正是你的活): 报告化 KPI、客户输入模板/校验、多订单数据集、以及全部可视化
-```
+成员2近期只消费 artifact / contracts / docs，不修改仿真内核、契约或 golden artifact。
 
-> 你**不需要读懂 `Sim.Core` 内部**。你只需要熟悉两样东西：`Sim.Contracts` 契约 + 成员1 导出的 **run-artifact JSON 结构**。
+当前禁止：
 
----
+- 不改 `Sim.Core`。
+- 不改 `Sim.Contracts`。
+- 不改 `packages/contracts`。
+- 不改 artifact golden。
+- 不改 validation 主体逻辑。
+- 不把当前 position timeline 做成真实移动动画。
+- 不宣传“人/叉车/货物在动”。
+- 不声称 calibration / optimization / WMS / confidence grading 已实现。
 
-## 2. 协作全景：两个成员 + 一条接缝
+当前 `RunArtifact v1` 的 layout resources 与 position timeline 只能表示 baseline layout positions, NOT simulated movement。它们是 deterministic layout handoff，不是由路径规划或移动仿真产生的真实 movement trace。
 
-- **成员1（Track A，用 GPT）**：`Sim.Core`/`Sim.Cli` 深化 → **导出 run-artifact**。
-- **成员2（你协助的人，本 Track B）**：读 run-artifact → 报告生成 / 输入校验 / Unity 可视化。
-- **接缝（唯一协调点）**：`Sim.Contracts`（数据契约）+ **run-artifact**（一次仿真的完整产物 JSON）。
-  ```
-  成员1: 仿真 → 导出 run-artifact JSON → 提交到 datasets/**/artifacts/ 作 golden
-  你:    读这些 JSON 文件做报告/校验/可视化, 只认契约, 不碰内核
-  ```
+R4 real movement visualization depends on R2 movement-driven RunArtifact. 在 R2 完成真实路径移动、PathGraph / A* 或等价 movement-driven RunArtifact 之前，成员2只能做静态 layout handoff、资源位置检查、artifact player 输入边界设计和 A/B view 数据需求设计。
 
 ---
 
-## 3. 你的职责与拥有的模块（只在这些目录写代码）
+## 2. 当前可做的 R0/R4 前置工作
 
-| 模块 / 目录 | 职责 |
-|---|---|
-| `src/Sim.Report/` + `Sim.Report.Tests/` | 客户报告生成：run-artifact → Markdown/HTML 报告 |
-| `src/Sim.Validation/` + `Sim.Validation.Tests/` | 输入校验：JSON Schema + 友好报错 + CSV/JSON 模板 |
-| `datasets/`（**你主导**，成员1 校验可跑） | 多订单/多 SKU/多资源 场景 + `expected` 验收集 |
-| `engine/unity/`（后期里程碑） | Unity 引擎可视化：播放器 / 2D 空间 / 布局设计器 / A/B 对比交付视图。当前 RunArtifact v1 的 position timeline 只能作为 baseline layout positions, NOT simulated movement。 |
-| `src/Sim.Contracts/` | **只读 + 提议**（改动走 `CONTRACT-` PR 双评审） |
+成员2现在可以做的工作是可视化交付面的准备，不是重新实现主线已经完成的输入校验或 schema 工作。
 
-## 4. 你不可触碰的边界（成员1 的地盘）
-
-```text
-src/Sim.Core/      ← 成员1: 仿真内核 (你禁止引用)
-src/Sim.Cli/       ← 成员1: 运行与导出
-services/          ← 成员1: 后期 Python 优化/校准
-```
-> 若你需要 run-artifact 里多一个字段、或需要新场景能跑通，**通过 `CONTRACT-` PR 或 issue 找成员1**，不要自己去改内核。
-
-Status: planned / not yet implemented. `services/calibration`、`services/optimization`、校准可信度、误差区间、可信度等级 A–D 和闭环优化建议都属于 R5/R7 之后的 future service boundary；当前 Track B 不能把它们描述成已具备产品能力。
+- 阅读 `RunArtifact v1`，理解 layout resources、position timeline、KPI、event log 和 schema version。
+- 阅读 `ComparisonArtifact v1`，理解 baseline / candidate / deltas 的客户交付语义。
+- 阅读 `customer-report.v1.md`，理解当前 customer Markdown report 的已实现输出。
+- 阅读 `docs/architecture/contracts-v1-freeze.md`，理解 contracts-v1-freeze 后的契约治理边界。
+- 熟悉 baseline layout positions, NOT simulated movement 的限制，并在任何可视化设计里显式保留这个边界。
+- 设计 Unity 2D artifact player 的输入边界：只读 artifact / contracts，不读 `Sim.Core`。
+- 设计 Static layout handoff viewer：展示静态布局、资源 baseline position、artifact handoff 完整性。
+- 设计 A/B comparison view 的数据需求清单：只列出需要从 `ComparisonArtifact v1` 或未来 contract 读取的字段，不直接改 contract。
+- 明确 R2 之后才能做真实移动插值；R2 之前不得把 position timeline 插值成 movement animation。
 
 ---
 
-## 5. 你的任务序列（按顺序，带验收）
+## 3. 近期 Track B 任务重排
 
-> ⚠️ **开工前提（交接点 H0）**：必须等成员1 交付 `Sim.Contracts` v1 + 第一份 golden run-artifact（落在 `datasets/**/artifacts/`）。在那之前，先做 §8 的环境准备与契约研读。
+下面是当前 Track B 的建议任务顺序。它们只是成员2任务表，不在本 PR 中创建 Unity 工程、脚本或实现。
 
-### 第一波（H0 之后立刻可做，最解耦、最好测）
-- **APP-010 报告生成器 `Sim.Report`**：读 run-artifact → 渲染**客户可读报告**（场景摘要 / 仿真时间 / 完成任务 / 吞吐 / 事件摘要 / 当前限制说明）。先 Markdown，后 HTML。
-  - *验收*：`dotnet run --project src/Sim.Report -- <artifact.json> -o report.md`；**golden artifact → golden 报告**快照测试；吞吐标注"基于仿真时间换算，不代表真实产能"。
-- **APP-020 输入校验 `Sim.Validation`**：JSON Schema + `schema_version`/必填/数量>0/时长≥0/状态枚举/expected 校验，**友好错误定位**；附 `scenario.template.json` + CSV 模板 + 字段说明文档。
-  - *验收*：一组合法/非法样例 golden 用例全过；坏输入给出可读错误。
-- **APP-030 多订单 golden 数据集**：在 `datasets/` 增加 多 SKU/多订单/多资源/多时段 场景 + `expected` 字段。
-  - *验收*：成员1 的 `export-artifact` 能跑通该场景；`expected` 断言进 smoke/CI。
+### VIS-PREP-001：Artifact contract reading checklist
 
-### 第二波（交接点 H1 之后：run-artifact 含 position/布局）
-- **APP-040 Unity 工程脚手架 + 产物播放器**：Unity 6.3 工程；加载 run-artifact；**事件时间线播放器 + KPI 仪表盘**（先用现有 KPI，不需要空间）。
-  - *验收*：Unity 载入 golden artifact，按时间轴回放事件、显示 KPI；对固定 artifact 的状态可断言（EditMode 测）。
-- **APP-050 2D 俯视空间可视化**：R2 之前只能消费 layout / position timeline 做静态布局、资源位置和 artifact handoff 检查，不得把当前 position timeline 插值成真实移动动画。R4 引擎可视化中的“按真实 position 插值移动”必须依赖 R2 之后的真实 movement-driven RunArtifact，不能基于当前 v1 baseline layout positions 实现。
-  - *验收*：R2 之前只验证静态 layout handoff；R2 之后再验证真实移动位置、热力与统计一致。
+目标：建立成员2读取 artifact / contracts 的 checklist。
 
-### 第三波（交接点 H2 之后：A/B 双产物）
-- **APP-060 布局设计器**：拖拽编辑区域/货架/通道/月台导出 `layout.json`（回交成员1 跑仿真）。
-  - *验收*：编辑→导出→成员1 可重跑。
-- **APP-070 A/B 对比交付视图**：分屏读两份 run-artifact，呈现 baseline/candidate 指标差异 + 导出报告/短片（v2 §9.5）。闭环优化建议是 planned / not yet implemented，必须等待 R7 optimization slice。
-  - *验收*：A/B 视图读两份 artifact 正确呈现改善%。
+范围：
 
----
+- `RunArtifact v1`
+- `ComparisonArtifact v1`
+- `customer-report.v1.md`
+- `contracts-v1-freeze.md`
+- baseline layout positions, NOT simulated movement 边界
 
-## 6. 交接节点（你"收到"什么 / 你"给出"什么）★
+验收：形成可视化输入字段清单，标注已实现字段、planned 字段和不得误用的字段。
 
-**你从成员1 收到（你在等这些，收到才能开工对应模块）：**
-- **H0**：`Sim.Contracts` v1 + `RunArtifact` schema + `export-artifact` 命令 + 1 份 golden artifact 入库。→ 解锁 APP-010/020/030。
-- **H1**：run-artifact 内含 `position` + 布局信息。当前语义是 baseline layout positions, NOT simulated movement。→ 只解锁静态 layout / artifact handoff 检查；真实移动可视化必须等 R2。
-- **H2**：A/B 双 run-artifact。→ 解锁 APP-070 对比视图。
+### VIS-PREP-002：Unity 2D player input boundary design
 
-**你交付给成员1（产出）：**
-- 多订单场景 + `expected`（`datasets/`，APP-030）→ 他 `export-artifact` 跑通并纳入 smoke。
-- 输入 JSON Schema / 模板（APP-020）→ 他的 CLI 可调用校验。
-- 设计器导出的 `layout.json`（APP-060）→ 他用于跑仿真。
+目标：定义 Unity 2D artifact player 只能读取哪些输入。
 
-**契约变更协议**：你需要产物多字段时，开 `CONTRACT-` PR，**成员1 一起评审**，bump `schema_version`，`check-contract-drift` 兜底。**不要单方改契约或去改内核。**
+范围：
 
----
+- artifact file path
+- schema version
+- layout resources
+- position timeline 的 baseline layout handoff 语义
+- event log / KPI / comparison deltas
 
-## 7. 工程约定（Windows 跨平台 / 测试 / Git）
+验收：明确 Unity player 不引用 `Sim.Core`，不修改 contracts，不基于当前 v1 position timeline 做真实移动动画。
 
-- **环境**：装 **.NET 8 SDK**（`global.json` 已锁版本）+ **Git for Windows（含 Git Bash）**；后期 APP-040 起装 **Unity 6.3 LTS**。
-- **跨平台**：遵守根目录 `.gitattributes`（LF 换行，避免 CRLF 冲突）；C# 用 `Path.Combine`，文件名注意大小写（Linux CI 区分大小写）；`*.sh` smoke 用 Git Bash 跑，或用项目提供的 `dotnet`/`python` 跨平台入口。
-- **测试**：对 `datasets/**/artifacts/*.json` 固定样本做**快照测试**（报告快照 / 校验用例 / 可视化状态断言），完全不依赖仿真运行。
-- **CI 红线**：`check-consumer-no-core`（你的 Report/Validation 不得引用 Sim.Core）必须 PASS；Windows/Ubuntu 双 job 都要绿。
-- **Unity（APP-040 起）**：`.gitignore` 屏蔽 `Library/ Temp/ Obj/ Build/ Logs/`；二进制资源用 **Git LFS**；场景文件用 `unityyamlmerge` 减少冲突。
-- **Git**：`main` 保护、必须绿 CI；分支 `app/<id>`；PR squash。CODEOWNERS：`/src/Sim.Report/ /src/Sim.Validation/ /engine/ @你`，`/src/Sim.Contracts/ @你 @成员1`。
+### VIS-PREP-003：Static layout handoff viewer plan
 
----
+目标：设计静态 layout handoff viewer。
 
-## 8. 立即开始（给 Claude 的执行顺序）
+范围：
 
-1. **拉环境**：装 .NET 8 SDK + Git；`git clone`，本机 `dotnet build` / `dotnet test` 跑通（**验证 Windows 跨平台 OK**，这本身是第一项有价值的检查）。
-2. **研读接缝**：读 `src/Sim.Contracts` 与 `docs/`，弄懂 `RunArtifact` JSON 结构即可——**不用读 `Sim.Core` 内部**。
-3. **等 H0**：成员1 一旦把 golden run-artifact 提交入库，立刻开 **APP-010 报告生成器**（最易上手、最解耦）。
-4. 然后 **APP-020 校验 → APP-030 数据集**；待 **H1** 到来再进 **APP-040/050** Unity。
+- 静态仓库布局展示
+- 资源 baseline position 展示
+- artifact handoff 完整性检查
+- 对 position timeline 的 warning / honesty label
 
-## 9. 任务卡模板（Claude 执行每个模块时套用）
+验收：viewer 文案明确 baseline layout positions, NOT simulated movement，不出现“人/叉车/货物在动”的表达。
 
-```md
-## Task: <APP-xxx 标题>
-目标(1-2句): <做什么、为何>
-涉及目录: src/Sim.Report|Sim.Validation|datasets|engine/unity (只在 Track B 目录内)
-前置: <依赖的交接点 H0/H1/H2 或前序 APP 卡>
-要点: <只读 run-artifact + 依赖 Sim.Contracts; 禁止引用 Sim.Core; 只动本卡文件>
-验收命令(可机器验证):
- - [ ] dotnet build 0/0 且 dotnet test 全绿
- - [ ] 针对 golden artifact 的快照/用例通过
- - [ ] check-consumer-no-core PASS
-不在本卡范围: <成员1 的内核 / 后续卡>
-回交影响: <是否产出 datasets/schema/layout.json 给成员1>
-```
+### VIS-PREP-004：A/B comparison view data requirement
+
+目标：为 A/B comparison view 建立数据需求清单。
+
+范围：
+
+- baseline / candidate KPI
+- deltas
+- customer-facing summary
+- future visualization requirements that may require a later `CONTRACT-` proposal
+
+验收：只消费 `ComparisonArtifact v1` 已有字段；如需新字段，只提出 `CONTRACT-` proposal，不直接修改 contracts。
+
+### VIS-PREP-005：R2 movement dependency checklist
+
+目标：明确 R4 真实移动可视化依赖哪些 R2 产物。
+
+范围：
+
+- movement-driven RunArtifact
+- PathGraph / A* 或等价路径模型输出
+- resource lease trace 与 position trace 对齐规则
+- 真实 movement trace 与当前 deterministic layout handoff 的差异
+
+验收：R4 真正开始前，必须确认 R2 movement-driven RunArtifact 已落地并有 tests / golden / CI guard。
 
 ---
 
-*Track B 的使命：只认"契约 + run-artifact 文件"，把它变成真实仓库客户能看的报告与画面，并为后续可视化、校准可信度和 WMS 试点提供交付层。校准可信度和优化建议闭环当前是 planned / not yet implemented，不得写成已实现。绝不碰内核——这正是两人能并行、各自可测、互不打架的关键。*
+## 4. Historical / completed / no longer primary track
+
+以下内容曾经属于 Track B 早期设想，但现在不再是成员2当前主线。
+
+- APP-010 customer report：主线已完成 customer Markdown report，Track B 后续只围绕报告展示层和可视化交付面消费现有 report / artifact。
+- APP-020 输入校验、JSON template、schema validation、Sim.Validation 主体实现：historical / completed / no longer primary track。成员2当前不继续以输入校验为主线。
+- APP-030 多订单 dataset：historical / completed / no longer primary track。后续如需可视化专用样例，必须走独立任务卡，且不得修改 artifact golden 除非任务明确授权。
+- contract schema：contracts-v1-freeze 后属于治理边界；成员2只读或提出 `CONTRACT-` proposal，不单方修改。
+
+这些历史任务不能被重新包装成当前 Track B 主线；当前主线是 R4 引擎可视化轨道。
+
+---
+
+## 5. 协作协议
+
+- Track A / Core 继续拥有 `Sim.Core`、仿真逻辑、scenario runner、RunArtifact 生产逻辑。
+- Track B / Visualization 只消费 artifact / contracts / docs，准备真实仓库客户可视化交付面。
+- 任何 contract 字段新增或 schema version 变化都必须走 dedicated `CONTRACT-` PR。
+- 任何 golden artifact 变化都必须由任务卡显式授权。
+- 当前 position timeline 不是 movement trace；R2 之前不得基于它做移动动画或客户宣传。
+- calibration、optimization、WMS、confidence grading 都是 planned / not yet implemented，不能写成已实现。
+
+Track B 的成功标准不是展示包装优先，而是帮助真实仓库客户理解 artifact-backed deterministic simulation 的结果，并为 R2 之后的真实 movement-driven RunArtifact 和 R4 引擎可视化建立可信交付面。
