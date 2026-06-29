@@ -2,6 +2,8 @@
 
 `packages/contracts` is the single source of truth for domain objects and event contracts. Simulation, optimization, calibration, and integration code must consume generated types from these schemas instead of redefining contract shapes by hand.
 
+Status: planned / not yet implemented for optimization and calibration product services. The current optimization and calibration schema areas are contract planning / future service boundaries only; they do not mean the product can calibrate historical data, output confidence grading, compute error intervals, or produce closed-loop optimization recommendations today. Those capabilities require later R5/R7 implementation tasks with tests, artifacts, and CI guards.
+
 The C# and Python contract types are generated because duplicate handwritten models drift quickly. Schema-first generation keeps both runtimes aligned with one reviewed source.
 
 ## Generate Contracts
@@ -22,8 +24,8 @@ The drift check regenerates contract outputs and fails if tracked generated file
 
 - `domain`
 - `events`
-- `optimization`
-- `calibration`
+- `optimization` — Status: planned / not yet implemented; schema / future service boundary only.
+- `calibration` — Status: planned / not yet implemented; schema / future service boundary only.
 
 ## RunArtifact Handoff
 
