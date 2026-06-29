@@ -22,6 +22,11 @@ CONTRACT-R2e adds contract-level fixtures for the MovementArtifact schema.
 Runtime generation, loaders, reports, Unity, and golden artifacts remain future
 work.
 
+REPORT-R2a adds a minimal MovementArtifact loader boundary in Sim.Report. It
+only loads MovementArtifact JSON and checks schema identity; it does not
+generate movement artifacts, validate full movement semantics, update reports,
+add Unity animation, or create golden artifacts.
+
 ## Scope
 
 This proposal covers:

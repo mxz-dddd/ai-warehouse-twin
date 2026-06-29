@@ -261,6 +261,10 @@ entries describe the state at the time of that task and are superseded by
   - Adds test-only valid and invalid MovementArtifact JSON fixtures.
   - Does not implement runtime MovementArtifact generation, loaders, validators, golden artifacts, Unity animation, report sections, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- REPORT-R2a: Added minimal MovementArtifact loader boundary.
+  - Loads generated MovementArtifact contract JSON and checks schema identity.
+  - Does not implement runtime MovementArtifact generation, full movement validation, golden artifacts, Unity animation, report movement sections, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

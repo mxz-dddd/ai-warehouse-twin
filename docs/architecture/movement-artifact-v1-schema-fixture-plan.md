@@ -19,6 +19,9 @@ CONTRACT-R2e adds test-only MovementArtifact schema fixtures and contract
 fixture tests. These fixtures are not golden artifacts and do not imply runtime
 MovementArtifact generation.
 
+REPORT-R2a reuses the valid MovementArtifact contract fixture for loader
+boundary tests. The fixture remains test-only and is not a golden artifact.
+
 ## Scope
 
 This plan covers:
