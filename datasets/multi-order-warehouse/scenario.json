@@ -1,0 +1,92 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "multi-order-warehouse",
+  "seed": 20240630,
+  "description": "APP-030 中等规模多订单/多 SKU/多资源场景。三个流程各自独立运行、库存不共享:outbound 与 each_pick 各自携带自己的 inventory[]。每个订单对应一条专属库存(数量精确匹配、location 独立),与 Sim.Core 的分配语义对齐(outbound 数量精确相等并消耗;each_pick 数量够即可)。",
+  "inbound": {
+    "scenario_id": "multi-order-warehouse.inbound",
+    "seed": 101,
+    "dock_count": 2,
+    "forklift_count": 3,
+    "process": {
+      "unload_duration_ms": 100,
+      "qc_duration_ms": 50,
+      "putaway_duration_ms": 50
+    },
+    "receipts": [
+      { "receipt_id": "rcpt-1", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 20, "staging_location_id": "inbound-stage-1", "storage_location_id": "reserve-a", "arrives_at_ms": 0 },
+      { "receipt_id": "rcpt-2", "warehouse_id": "warehouse-1", "sku_id": "sku-b", "quantity": 15, "staging_location_id": "inbound-stage-1", "storage_location_id": "reserve-b", "arrives_at_ms": 50 },
+      { "receipt_id": "rcpt-3", "warehouse_id": "warehouse-1", "sku_id": "sku-c", "quantity": 25, "staging_location_id": "inbound-stage-2", "storage_location_id": "reserve-c", "arrives_at_ms": 100 },
+      { "receipt_id": "rcpt-4", "warehouse_id": "warehouse-1", "sku_id": "sku-d", "quantity": 30, "staging_location_id": "inbound-stage-2", "storage_location_id": "reserve-d", "arrives_at_ms": 150 },
+      { "receipt_id": "rcpt-5", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 10, "staging_location_id": "inbound-stage-1", "storage_location_id": "reserve-a", "arrives_at_ms": 200 }
+    ]
+  },
+  "outbound": {
+    "scenario_id": "multi-order-warehouse.outbound",
+    "seed": 202,
+    "worker_count": 3,
+    "dock_count": 2,
+    "process": {
+      "pick_duration_ms": 50,
+      "stage_duration_ms": 50,
+      "dock_travel_duration_ms": 25,
+      "load_duration_ms": 75
+    },
+    "inventory": [
+      { "inventory_id": "inv-ob-1", "sku_id": "sku-a", "quantity": 5, "location_id": "pick-1", "status": "available" },
+      { "inventory_id": "inv-ob-2", "sku_id": "sku-b", "quantity": 8, "location_id": "pick-2", "status": "available" },
+      { "inventory_id": "inv-ob-3", "sku_id": "sku-c", "quantity": 6, "location_id": "pick-3", "status": "available" },
+      { "inventory_id": "inv-ob-4", "sku_id": "sku-d", "quantity": 10, "location_id": "pick-4", "status": "available" },
+      { "inventory_id": "inv-ob-5", "sku_id": "sku-a", "quantity": 7, "location_id": "pick-5", "status": "available" },
+      { "inventory_id": "inv-ob-6", "sku_id": "sku-b", "quantity": 4, "location_id": "pick-6", "status": "available" }
+    ],
+    "orders": [
+      { "order_id": "ob-order-1", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 5, "pick_location_id": "pick-1", "staging_location_id": "outbound-stage-1", "dock_id": "dock-1", "released_at_ms": 0 },
+      { "order_id": "ob-order-2", "warehouse_id": "warehouse-1", "sku_id": "sku-b", "quantity": 8, "pick_location_id": "pick-2", "staging_location_id": "outbound-stage-1", "dock_id": "dock-2", "released_at_ms": 30 },
+      { "order_id": "ob-order-3", "warehouse_id": "warehouse-1", "sku_id": "sku-c", "quantity": 6, "pick_location_id": "pick-3", "staging_location_id": "outbound-stage-1", "dock_id": "dock-1", "released_at_ms": 60 },
+      { "order_id": "ob-order-4", "warehouse_id": "warehouse-1", "sku_id": "sku-d", "quantity": 10, "pick_location_id": "pick-4", "staging_location_id": "outbound-stage-1", "dock_id": "dock-2", "released_at_ms": 90 },
+      { "order_id": "ob-order-5", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 7, "pick_location_id": "pick-5", "staging_location_id": "outbound-stage-1", "dock_id": "dock-1", "released_at_ms": 120 },
+      { "order_id": "ob-order-6", "warehouse_id": "warehouse-1", "sku_id": "sku-b", "quantity": 4, "pick_location_id": "pick-6", "staging_location_id": "outbound-stage-1", "dock_id": "dock-2", "released_at_ms": 150 }
+    ]
+  },
+  "each_pick": {
+    "scenario_id": "multi-order-warehouse.each-pick",
+    "seed": 303,
+    "station_count": 2,
+    "worker_count": 3,
+    "process": {
+      "tote_bind_duration_ms": 10,
+      "travel_to_station_duration_ms": 20,
+      "pick_service_duration_ms": 30,
+      "move_to_staging_duration_ms": 40
+    },
+    "inventory": [
+      { "inventory_id": "inv-ep-1", "sku_id": "sku-a", "quantity": 3, "location_id": "face-1", "status": "available" },
+      { "inventory_id": "inv-ep-2", "sku_id": "sku-b", "quantity": 5, "location_id": "face-2", "status": "available" },
+      { "inventory_id": "inv-ep-3", "sku_id": "sku-c", "quantity": 4, "location_id": "face-3", "status": "available" },
+      { "inventory_id": "inv-ep-4", "sku_id": "sku-d", "quantity": 6, "location_id": "face-4", "status": "available" },
+      { "inventory_id": "inv-ep-5", "sku_id": "sku-a", "quantity": 2, "location_id": "face-5", "status": "available" },
+      { "inventory_id": "inv-ep-6", "sku_id": "sku-c", "quantity": 3, "location_id": "face-6", "status": "available" }
+    ],
+    "orders": [
+      { "order_id": "ep-order-1", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 3, "pick_face_location_id": "face-1", "pick_station_id": "station-1", "staging_location_id": "each-pick-stage-1", "released_at_ms": 0 },
+      { "order_id": "ep-order-2", "warehouse_id": "warehouse-1", "sku_id": "sku-b", "quantity": 5, "pick_face_location_id": "face-2", "pick_station_id": "station-2", "staging_location_id": "each-pick-stage-1", "released_at_ms": 20 },
+      { "order_id": "ep-order-3", "warehouse_id": "warehouse-1", "sku_id": "sku-c", "quantity": 4, "pick_face_location_id": "face-3", "pick_station_id": "station-1", "staging_location_id": "each-pick-stage-1", "released_at_ms": 40 },
+      { "order_id": "ep-order-4", "warehouse_id": "warehouse-1", "sku_id": "sku-d", "quantity": 6, "pick_face_location_id": "face-4", "pick_station_id": "station-2", "staging_location_id": "each-pick-stage-1", "released_at_ms": 60 },
+      { "order_id": "ep-order-5", "warehouse_id": "warehouse-1", "sku_id": "sku-a", "quantity": 2, "pick_face_location_id": "face-5", "pick_station_id": "station-1", "staging_location_id": "each-pick-stage-1", "released_at_ms": 80 },
+      { "order_id": "ep-order-6", "warehouse_id": "warehouse-1", "sku_id": "sku-c", "quantity": 3, "pick_face_location_id": "face-6", "pick_station_id": "station-2", "staging_location_id": "each-pick-stage-1", "released_at_ms": 100 }
+    ]
+  },
+  "expected": {
+    "started_at_ms": 0,
+    "finished_at_ms": 430,
+    "completed_receipts": 5,
+    "completed_outbound_orders": 6,
+    "completed_each_pick_orders": 6,
+    "total_quantity_available": 100,
+    "total_quantity_shipped": 40,
+    "total_quantity_picked": 23,
+    "final_world_time_ms": 430,
+    "event_log_line_count": 57
+  }
+}
