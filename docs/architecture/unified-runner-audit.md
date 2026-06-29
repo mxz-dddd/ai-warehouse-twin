@@ -50,7 +50,8 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
   - CORE-U3b added `--runner unified` as an explicit opt-in mode that calls `RunWithUnifiedAdapter(...)`.
 - `export-artifact`
   - Loads `WarehouseScenario` from JSON and uses `new WarehouseScenarioRunner().RunWithTrace(scenario)`.
-  - Current status: traditional child-flow aggregation path with `ResourceLeaseTraceCollector`, not `WarehouseUnifiedOperationRunner`.
+  - Current default status: traditional child-flow aggregation path with `ResourceLeaseTraceCollector`, not `WarehouseUnifiedOperationRunner`.
+  - CORE-U3c added `--runner unified` as an explicit opt-in mode that generates RunArtifact v1 from the unified adapter path.
 - `compare-files`
   - Uses `WarehouseScenarioComparisonRunner.Compare(...)`.
   - `WarehouseScenarioComparisonRunner` calls `WarehouseScenarioRunner.Run(...)` for baseline and candidate.
@@ -85,9 +86,13 @@ The default `WarehouseScenarioRunner.Run(...)` path still runs child flows separ
 
 ## RunArtifact connection status
 
-Not implemented for the unified runner.
+Partially implemented for the unified runner.
 
-`export-artifact` currently uses `WarehouseScenarioRunner.RunWithTrace(...)`, which is the traditional child-flow aggregation path plus resource lease trace collection. The RunArtifact `layout.resources` and `position_timeline` fields are mapped from that trace result. They are not generated from `WarehouseUnifiedOperationRunner`.
+Default `export-artifact` currently uses `WarehouseScenarioRunner.RunWithTrace(...)`, which is the traditional child-flow aggregation path plus resource lease trace collection. The default RunArtifact `layout.resources` and `position_timeline` fields are mapped from that trace result.
+
+CORE-U3c added `export-artifact --runner unified` as an explicit opt-in mode. It converts the scenario through `WarehouseScenarioToUnifiedScenarioAdapter`, runs the unified path, and writes RunArtifact v1 without changing the schema or tracked golden files.
+
+`compare-files` remains legacy. `render-report` remains a report consumer only and does not choose a simulation runner.
 
 The current `position_timeline` remains baseline layout positions, NOT simulated movement.
 
@@ -116,6 +121,8 @@ Existing characterization coverage already documents the current baseline:
 
 - Default `WarehouseScenarioRunner.Run(...)` does not use `WarehouseUnifiedOperationRunner`.
 - `RunWithTrace(...)` and `export-artifact` do not use `WarehouseUnifiedOperationRunner`.
+- Default `export-artifact` does not use `WarehouseUnifiedOperationRunner`.
+- `export-artifact --runner unified` is opt-in only and does not change tracked golden files.
 - `compare-files` does not use `WarehouseUnifiedOperationRunner`.
 - Traditional inbound / outbound / each-pick states still own separate inventory models.
 - Traditional inbound / outbound / each-pick runners still construct separate process-local resource pools.
@@ -140,8 +147,15 @@ Existing characterization coverage already documents the current baseline:
   - `export-artifact` remains legacy.
   - `compare-files` remains legacy.
   - RunArtifact / ComparisonArtifact golden files remain unchanged.
-  - CORE-U3c is still required before artifact generation can use unified runner.
-- CORE-U3c: Make the unified path the single authority only after parity and gap tests are green.
+  - CORE-U3c follows with export-artifact opt-in unified runner support; default artifact switching remains out of scope.
+- CORE-U3c: Added export-artifact opt-in runner mode.
+  - Default export-artifact remains legacy.
+  - `export-artifact --runner unified` can generate RunArtifact v1 from the explicit unified adapter path.
+  - RunArtifact schema and tracked golden files remain unchanged.
+  - `compare-files` remains legacy.
+  - `render-report` remains a report consumer only.
+  - CORE-U3d is still required before default artifact generation can switch to unified.
+- CORE-U3d: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
 - CORE-U4: Reconcile resource lease trace / position timeline generation with unified operation intervals.
