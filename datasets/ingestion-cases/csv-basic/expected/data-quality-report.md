@@ -22,4 +22,24 @@ Status: PASS
 - errors: 0
 
 ## Issues
-- None
+| severity | code | file | row | field | message |
+| --- | --- | --- | --- | --- | --- |
+| - | - | - | - | - | None |
+
+## Coverage Summary
+- dock_locations: 1
+- inventory_locations_covered: 2/2
+- inventory_records: 2
+- inventory_sku_location_pairs: 2
+- inventory_skus_covered: 2/2
+- locations: 4
+- order_records: 2
+- order_skus_covered: 2/2
+- pick_locations: 2
+- skus: 2
+- staging_locations: 1
+
+## Scenario Output Summary
+- inventory_items: 2
+- orders: 2
+- process_fields: 4

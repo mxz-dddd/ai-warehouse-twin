@@ -1,0 +1,4 @@
+location_id,location_type
+dock-1,dock
+outbound-stage-1,staging
+pick-a,pick

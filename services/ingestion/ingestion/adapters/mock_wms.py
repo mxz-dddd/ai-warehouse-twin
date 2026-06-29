@@ -10,14 +10,19 @@ from ingestion.adapters.common import (
     CONFIG_KEYS,
     NON_NEGATIVE_CONFIG_KEYS,
     POSITIVE_CONFIG_KEYS,
+    VALID_LOCATION_TYPES,
     VALID_STATUSES,
     DataQualityIssue,
     DataQualityReport,
     IngestionInputError,
+    add_issue,
     build_outbound_scenario,
+    build_quality_report,
     parse_int,
     require_known,
     require_known_location_type,
+    require_location_type_coverage,
+    require_text_value,
     write_scenario_outputs,
 )
 from ingestion.sources import ScenarioDocument
@@ -80,11 +85,15 @@ class MockWmsIngestSource:
         orders = _order_rows(order_records, skus, location_types, issues)
 
         scenario = build_outbound_scenario(config, inventory, orders)
-        report = DataQualityReport(
+        report = build_quality_report(
             source_name=self.source_name,
             input_files=MOCK_WMS_FILES,
             record_counts=record_counts,
-            issues=tuple(issues),
+            issues=issues,
+            skus=skus,
+            location_types=location_types,
+            inventory=inventory,
+            orders=orders,
         )
         return scenario, report
 
@@ -100,13 +109,24 @@ def write_mock_wms_scenario_outputs(
 
 def _read_json_payload(path: Path, issues: list[DataQualityIssue]) -> Any:
     if not path.is_file():
-        issues.append(DataQualityIssue("error", path.name, None, "required input file is missing"))
+        add_issue(
+            issues,
+            code="missing_required_file",
+            source_file=path.name,
+            message="required input file is missing",
+        )
         return None
 
     try:
         return json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as error:
-        issues.append(DataQualityIssue("error", path.name, error.lineno, error.msg))
+        add_issue(
+            issues,
+            code="invalid_json",
+            source_file=path.name,
+            row_number=error.lineno,
+            message=error.msg,
+        )
         return None
 
 
@@ -118,7 +138,12 @@ def _object_payload(
     if isinstance(payload, dict):
         return payload
     if payload is not None:
-        issues.append(DataQualityIssue("error", file_name, None, "payload must be a JSON object"))
+        add_issue(
+            issues,
+            code="invalid_payload_type",
+            source_file=file_name,
+            message="payload must be a JSON object",
+        )
     return {}
 
 
@@ -129,8 +154,11 @@ def _list_payload(
 ) -> list[dict[str, Any]]:
     if not isinstance(payload, list):
         if payload is not None:
-            issues.append(
-                DataQualityIssue("error", file_name, None, "payload must be a JSON array")
+            add_issue(
+                issues,
+                code="invalid_payload_type",
+                source_file=file_name,
+                message="payload must be a JSON array",
             )
         return []
 
@@ -139,8 +167,12 @@ def _list_payload(
         if isinstance(item, dict):
             rows.append(item)
         else:
-            issues.append(
-                DataQualityIssue("error", file_name, index, "record must be a JSON object")
+            add_issue(
+                issues,
+                code="invalid_record_type",
+                source_file=file_name,
+                row_number=index,
+                message="record must be a JSON object",
             )
     return rows
 
@@ -149,8 +181,12 @@ def _read_config(payload: dict[str, Any], issues: list[DataQualityIssue]) -> dic
     config = {key: _string_value(payload.get(key)) for key in CONFIG_KEYS}
     for key in CONFIG_KEYS:
         if not config[key]:
-            issues.append(
-                DataQualityIssue("error", "config.json", None, f"missing required key '{key}'")
+            add_issue(
+                issues,
+                code="missing_required_field",
+                source_file="config.json",
+                field=key,
+                message=f"missing required key '{key}'",
             )
 
     for key in POSITIVE_CONFIG_KEYS:
@@ -171,14 +207,22 @@ def _id_set(
     ids: set[str] = set()
     for index, row in enumerate(rows, start=1):
         value = _string_value(row.get(id_column))
-        if not value:
-            issues.append(
-                DataQualityIssue("error", file_name, index, f"{id_column} must not be empty")
-            )
+        if not require_text_value(
+            value,
+            file_name=file_name,
+            row_number=index,
+            field_name=id_column,
+            issues=issues,
+        ):
             continue
         if value in ids:
-            issues.append(
-                DataQualityIssue("error", file_name, index, f"duplicate {id_column} '{value}'")
+            add_issue(
+                issues,
+                code=f"duplicate_{id_column}",
+                source_file=file_name,
+                row_number=index,
+                field=id_column,
+                message=f"duplicate {id_column} '{value}'",
             )
         ids.add(value)
     return ids
@@ -192,30 +236,43 @@ def _location_types(
     for index, row in enumerate(rows, start=1):
         location_id = _string_value(row.get("location_id"))
         location_type = _string_value(row.get("location_type"))
-        if not location_id:
-            issues.append(
-                DataQualityIssue("error", "locations.json", index, "location_id must not be empty")
-            )
+        if not require_text_value(
+            location_id,
+            file_name="locations.json",
+            row_number=index,
+            field_name="location_id",
+            issues=issues,
+        ):
             continue
-        if not location_type:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "locations.json",
-                    index,
-                    "location_type must not be empty",
-                )
+        if require_text_value(
+            location_type,
+            file_name="locations.json",
+            row_number=index,
+            field_name="location_type",
+            issues=issues,
+        ) and location_type not in VALID_LOCATION_TYPES:
+            add_issue(
+                issues,
+                code="invalid_location_type",
+                source_file="locations.json",
+                row_number=index,
+                field="location_type",
+                message=(
+                    "location_type must be one of dock, pick, staging; "
+                    f"got '{location_type}'"
+                ),
             )
         if location_id in locations:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "locations.json",
-                    index,
-                    f"duplicate location_id '{location_id}'",
-                )
+            add_issue(
+                issues,
+                code="duplicate_location_id",
+                source_file="locations.json",
+                row_number=index,
+                field="location_id",
+                message=f"duplicate location_id '{location_id}'",
             )
         locations[location_id] = location_type
+    require_location_type_coverage(locations, "locations.json", issues)
     return locations
 
 
@@ -227,21 +284,57 @@ def _inventory_rows(
 ) -> list[dict[str, Any]]:
     inventory: list[dict[str, Any]] = []
     inventory_ids: set[str] = set()
+    sku_location_pairs: set[tuple[str, str]] = set()
     for index, row in enumerate(rows, start=1):
         inventory_id = _string_value(row.get("inventory_id"))
+        require_text_value(
+            inventory_id,
+            file_name="inventory.json",
+            row_number=index,
+            field_name="inventory_id",
+            issues=issues,
+        )
         if inventory_id in inventory_ids:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "inventory.json",
-                    index,
-                    f"duplicate inventory_id '{inventory_id}'",
-                )
+            add_issue(
+                issues,
+                code="duplicate_inventory_id",
+                source_file="inventory.json",
+                row_number=index,
+                field="inventory_id",
+                message=f"duplicate inventory_id '{inventory_id}'",
             )
         inventory_ids.add(inventory_id)
         sku_id = _string_value(row.get("sku_id"))
         location_id = _string_value(row.get("location_id"))
         status = _string_value(row.get("status"))
+        require_text_value(
+            sku_id,
+            file_name="inventory.json",
+            row_number=index,
+            field_name="sku_id",
+            issues=issues,
+        )
+        require_text_value(
+            location_id,
+            file_name="inventory.json",
+            row_number=index,
+            field_name="location_id",
+            issues=issues,
+        )
+        require_text_value(
+            status,
+            file_name="inventory.json",
+            row_number=index,
+            field_name="status",
+            issues=issues,
+        )
+        require_text_value(
+            _string_value(row.get("quantity")),
+            file_name="inventory.json",
+            row_number=index,
+            field_name="quantity",
+            issues=issues,
+        )
         require_known(sku_id, skus, "inventory.json", index, "sku_id", "sku", issues)
         require_known(
             location_id,
@@ -253,14 +346,25 @@ def _inventory_rows(
             issues,
         )
         if status not in VALID_STATUSES:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "inventory.json",
-                    index,
-                    f"status must be one of schema enum values; got '{status}'",
-                )
+            add_issue(
+                issues,
+                code="invalid_enum_value",
+                source_file="inventory.json",
+                row_number=index,
+                field="status",
+                message=f"status must be one of schema enum values; got '{status}'",
             )
+        sku_location_pair = (sku_id, location_id)
+        if sku_location_pair in sku_location_pairs:
+            add_issue(
+                issues,
+                code="duplicate_inventory_sku_location",
+                source_file="inventory.json",
+                row_number=index,
+                field="sku_id,location_id",
+                message=f"duplicate inventory sku/location pair '{sku_id}'/'{location_id}'",
+            )
+        sku_location_pairs.add(sku_location_pair)
         quantity = parse_int(
             _string_value(row.get("quantity")),
             "inventory.json",
@@ -292,9 +396,31 @@ def _order_rows(
     order_ids: set[str] = set()
     for index, row in enumerate(rows, start=1):
         order_id = _string_value(row.get("order_id"))
+        for field_name in (
+            "order_id",
+            "warehouse_id",
+            "sku_id",
+            "pick_location_id",
+            "staging_location_id",
+            "dock_id",
+            "quantity",
+            "released_at_ms",
+        ):
+            require_text_value(
+                _string_value(row.get(field_name)),
+                file_name="orders.json",
+                row_number=index,
+                field_name=field_name,
+                issues=issues,
+            )
         if order_id in order_ids:
-            issues.append(
-                DataQualityIssue("error", "orders.json", index, f"duplicate order_id '{order_id}'")
+            add_issue(
+                issues,
+                code="duplicate_order_id",
+                source_file="orders.json",
+                row_number=index,
+                field="order_id",
+                message=f"duplicate order_id '{order_id}'",
             )
         order_ids.add(order_id)
         sku_id = _string_value(row.get("sku_id"))

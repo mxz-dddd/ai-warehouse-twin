@@ -53,15 +53,13 @@ def test_invalid_mock_wms_writes_readable_report(tmp_path: Path) -> None:
     assert exit_code == 1
     assert not (tmp_path / "scenario.json").exists()
     assert "Status: FAIL" in report
-    assert (
-        "inventory.json row 1: location_id references unknown location 'missing-location'"
-        in report
-    )
-    assert "inventory.json row 1: quantity must be a positive integer; got -2" in report
-    assert "orders.json row 1: sku_id references unknown sku 'sku-missing'" in report
-    assert "orders.json row 1: dock-as-pick must be a pick location; got 'dock'" in report
-    assert "orders.json row 1: mock-stage-1 must be a staging location; got 'reserve'" in report
-    assert "orders.json row 1: dock location references unknown location 'dock-missing'" in report
+    assert "| error | unknown_location | inventory.json | 1 | location_id |" in report
+    assert "| error | negative_quantity | inventory.json | 1 | quantity |" in report
+    assert "| error | unknown_sku | orders.json | 1 | sku_id |" in report
+    assert "| error | invalid_location_type | orders.json | 1 | pick_location_id |" in report
+    assert "| error | invalid_location_type | orders.json | 1 | staging_location_id |" in report
+    assert "| error | unknown_location | orders.json | 1 | dock_id |" in report
+    assert "| error | missing_location_type | locations.json | - | location_type |" in report
 
 
 def test_invalid_mock_wms_source_raises_report_error() -> None:
@@ -70,7 +68,14 @@ def test_invalid_mock_wms_source_raises_report_error() -> None:
     try:
         source.to_scenario()
     except IngestionInputError as error:
-        assert error.report.error_count == 6
+        assert error.report.error_count == 9
+        assert {issue.code for issue in error.report.issues} >= {
+            "invalid_location_type",
+            "missing_location_type",
+            "negative_quantity",
+            "unknown_location",
+            "unknown_sku",
+        }
     else:
         raise AssertionError("expected invalid Mock WMS input to raise IngestionInputError")
 
@@ -99,6 +104,9 @@ def test_mock_wms_to_scenario_cli_reports_invalid_input(tmp_path: Path) -> None:
     assert "Mock WMS ingestion failed" in completed.stderr
     assert "Traceback" not in completed.stderr
     assert (tmp_path / "data-quality-report.md").is_file()
+    assert "invalid_location_type" in (tmp_path / "data-quality-report.md").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_mock_wms_outputs_are_byte_stable(tmp_path: Path) -> None:

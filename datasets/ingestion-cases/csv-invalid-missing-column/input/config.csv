@@ -1,0 +1,10 @@
+key,value
+scenario_id,csv-invalid-missing-column
+seed,42
+description,CSV invalid missing column fixture.
+worker_count,2
+dock_count,1
+pick_duration_ms,50
+stage_duration_ms,40
+dock_travel_duration_ms,25
+load_duration_ms,75
