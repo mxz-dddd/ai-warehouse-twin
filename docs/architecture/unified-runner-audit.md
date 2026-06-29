@@ -17,6 +17,11 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
   - Runs `WarehouseUnifiedOperation` records on capacity-one resource timelines grouped by `ResourceId`.
   - Applies a shared `WarehouseInventoryLedger`.
   - Produces operation intervals, operation telemetry, grouped customer KPI summaries, resource KPI summaries, bottleneck summary, position timeline, final inventory snapshot, and a deterministic event log.
+- `WarehouseScenarioToUnifiedScenarioAdapter`
+  - Added in CORE-U2 as an internal adapter from `WarehouseScenario` to `WarehouseUnifiedScenario`.
+  - Maps each inbound receipt, outbound order, and each-pick order to one coarse unified operation.
+  - Preserves scenario id, seed, stable operation ids, stable resource ids, deterministic ordering, and available starting inventory by SKU.
+  - Does not switch the default CLI / artifact / comparison paths.
 - `SharedResource` / shared resource timeline
   - There is no class named exactly `SharedResource`.
   - The current shared resource baseline is `WarehouseSharedResourceTimelineRunner`, `WarehouseSharedResourceWorkItem`, `WarehouseSharedResourceAllocation`, and `WarehouseSharedResourceTimelineResult`.
@@ -82,7 +87,7 @@ The current `position_timeline` remains baseline layout positions, NOT simulated
 
 ## Characterization tests added
 
-No new tests were added in this PR.
+CORE-U2 added `WarehouseScenarioToUnifiedScenarioAdapterTests`.
 
 Existing characterization coverage already documents the current baseline:
 
@@ -96,10 +101,11 @@ Existing characterization coverage already documents the current baseline:
   - Freezes unified operation intervals, telemetry, shared ledger behavior, KPI summaries, resource KPI, bottleneck summary, and position timeline determinism.
 - `WarehouseScenarioTraceTests.Run_DoesNotChangeTraditionalBehavior`
   - Freezes that `RunWithTrace(...)` does not change traditional `Run(...)` behavior.
+- `WarehouseScenarioToUnifiedScenarioAdapterTests`
+  - Freezes sample conversion, deterministic adapter output, stable resource ids, unified runner compatibility, and the fact that the default runner remains unchanged.
 
 ## R1 gap list
 
-- `WarehouseScenario` JSON input does not map into `WarehouseUnifiedScenario`.
 - Default `WarehouseScenarioRunner.Run(...)` does not use `WarehouseUnifiedOperationRunner`.
 - `RunWithTrace(...)` and `export-artifact` do not use `WarehouseUnifiedOperationRunner`.
 - `compare-files` does not use `WarehouseUnifiedOperationRunner`.
@@ -110,10 +116,10 @@ Existing characterization coverage already documents the current baseline:
 
 ## Recommended next task split
 
-- CORE-U2: Add an internal `WarehouseScenario` → `WarehouseUnifiedScenario` adapter with characterization tests.
-  - Keep CLI and RunArtifact output unchanged unless explicitly authorized.
-  - Start with sample-small-warehouse parity tests for completed counts, quantities, timing, event-log status, and final inventory snapshot expectations.
-  - Document any semantic mismatches between child-flow stages and unified operation granularity.
+- CORE-U2: Added an internal `WarehouseScenario` → `WarehouseUnifiedScenario` adapter with characterization tests.
+  - CLI and RunArtifact output remain unchanged.
+  - The adapter currently uses one coarse unified operation per inbound receipt, outbound order, or each-pick order.
+  - Multi-stage legacy details such as separate dock / forklift / worker / station leases are not yet 1:1 mapped into unified operations.
 - CORE-U3: Wire `WarehouseScenarioRunner` behind an explicitly tested internal unified path.
   - Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
