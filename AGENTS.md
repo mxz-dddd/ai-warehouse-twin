@@ -30,3 +30,7 @@ This repository is a monorepo for AI Warehouse Twin, a startup product for real 
 - This repository is proprietary. Do not add open-source license text, reuse third-party code, or copy external assets unless the license and commercial-use rights are explicitly reviewed.
 - Do not mark the project as open source in README/docs/issues/PRs.
 - Public visibility does not grant usage rights; preserve LICENSE and NOTICE wording unless a dedicated legal/licensing task changes it.
+
+## Golden update governance
+
+Tracked golden artifacts must not be updated casually. Any PR that changes tracked golden files must follow `docs/architecture/golden-update-policy.md`. Golden updates require explicit diff evidence, customer-visible impact notes, regeneration commands, and reviewer approval. Do not update golden files just to make tests pass.

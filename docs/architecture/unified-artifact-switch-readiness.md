@@ -10,6 +10,8 @@ It is a readiness check for a future default switch, not the switch itself.
 
 CORE-U3d-1 aligns compare-files runner mode before any default switch.
 CORE-U3d-2 adds report-visible runner provenance through render-report flags.
+CORE-U3d-3 adds the golden update policy required before any default runner
+switch or tracked golden artifact update.
 
 ## Scope
 
