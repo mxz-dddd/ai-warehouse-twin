@@ -9,6 +9,7 @@ public class ValidScenariosTests
     {
         yield return new object[] { Path.Combine(TestPaths.DatasetsDir(), "sample-small-warehouse", "scenario.json") };
         yield return new object[] { Path.Combine(TestPaths.DatasetsDir(), "sample-each-pick", "scenario.json") };
+        yield return new object[] { Path.Combine(TestPaths.DatasetsDir(), "multi-order-warehouse", "scenario.json") };
         yield return new object[] { Path.Combine(TestPaths.TemplatesDir(), "scenario.template.json") };
 
         foreach (var file in Directory.EnumerateFiles(TestPaths.ValidCasesDir(), "*.json"))
