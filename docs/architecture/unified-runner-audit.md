@@ -177,6 +177,11 @@ Existing characterization coverage already documents the current baseline:
   - Default legacy artifacts remain the customer-facing baseline.
   - Future unified default switch requires a dedicated GOLDEN PR.
   - RunArtifact / ComparisonArtifact / customer report golden changes must include diff evidence and customer impact notes.
+- CORE-U3d-4-plan: Added default runner switch release / migration plan.
+  - No default runner switch is performed.
+  - No tracked golden files are updated.
+  - A future default switch requires a dedicated GOLDEN PR.
+  - Release note, migration note, and rollback requirements are documented.
 - CORE-U3d: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.

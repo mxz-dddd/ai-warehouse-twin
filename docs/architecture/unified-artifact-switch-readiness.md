@@ -12,6 +12,8 @@ CORE-U3d-1 aligns compare-files runner mode before any default switch.
 CORE-U3d-2 adds report-visible runner provenance through render-report flags.
 CORE-U3d-3 adds the golden update policy required before any default runner
 switch or tracked golden artifact update.
+CORE-U3d-4-plan adds the release / migration / rollback plan required before
+any dedicated GOLDEN default-switch PR.
 
 ## Scope
 
@@ -151,5 +153,6 @@ the default customer-facing artifact path changes.
 - CORE-U3d-2: add report-visible runner provenance without changing
   RunArtifact v1 schema, if possible.
 - CORE-U3d-3: approve golden update policy.
-- CORE-U3d-4: dedicated default `export-artifact` switch PR.
+- CORE-U3d-4-plan: merge default switch release / migration / rollback plan.
+- GOLDEN-U3d-default-unified-runner: dedicated default switch and golden update PR.
 - CORE-U4: reconcile unified intervals with position timeline semantics.
