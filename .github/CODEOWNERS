@@ -1,0 +1,25 @@
+# AI Warehouse Twin code ownership
+#
+# This startup product treats contracts and generated artifacts as product handoff boundaries.
+# Contract changes require explicit review from both product/core and visualization/handoff tracks.
+
+# Global default owner
+* @mxz-dddd
+
+# Contract schemas and generated contract outputs require extra attention.
+packages/contracts/ @mxz-dddd
+
+# Contract documentation and architecture handoff docs.
+docs/architecture/contracts.md @mxz-dddd
+docs/architecture/contracts-v1-freeze.md @mxz-dddd
+
+# Artifact golden outputs are customer-facing regression baselines.
+datasets/sample-small-warehouse/artifacts/ @mxz-dddd
+
+# Core simulation remains owned by the core track.
+src/Sim.Core/ @mxz-dddd
+src/Sim.Contracts/ @mxz-dddd
+
+# Report and CLI handoff surfaces.
+src/Sim.Cli/ @mxz-dddd
+src/Sim.Report/ @mxz-dddd
