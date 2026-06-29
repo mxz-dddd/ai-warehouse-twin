@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import json
 from collections.abc import Callable, Mapping
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
+from ingestion.quality import DataQualityIssue, DataQualityReport
 from ingestion.schema import load_scenario_schema
 from ingestion.sources import ScenarioDocument
 
@@ -47,78 +47,123 @@ VALID_STATUSES = {
     "shipped",
 }
 
-
-@dataclass(frozen=True)
-class DataQualityIssue:
-    severity: str
-    file_name: str
-    row_number: int | None
-    message: str
-
-    def render(self) -> str:
-        location = self.file_name
-        if self.row_number is not None:
-            location = f"{location} row {self.row_number}"
-        return f"- {self.severity.upper()} {location}: {self.message}"
+VALID_LOCATION_TYPES = {"dock", "pick", "staging"}
 
 
-@dataclass(frozen=True)
-class DataQualityReport:
-    source_name: str
-    input_files: tuple[str, ...]
-    record_counts: dict[str, int]
-    issues: tuple[DataQualityIssue, ...]
-
-    @property
-    def error_count(self) -> int:
-        return sum(1 for issue in self.issues if issue.severity == "error")
-
-    @property
-    def warning_count(self) -> int:
-        return sum(1 for issue in self.issues if issue.severity == "warning")
-
-    @property
-    def status(self) -> str:
-        return "FAIL" if self.error_count else "PASS"
-
-    def render_markdown(self) -> str:
-        lines = [
-            "# Data Quality Report",
-            "",
-            f"Source: {self.source_name}",
-            f"Status: {self.status}",
-            "",
-            "## Input Files",
-        ]
-        for file_name in self.input_files:
-            table_name = Path(file_name).stem
-            lines.append(f"- {file_name}: {self.record_counts.get(table_name, 0)} records")
-
-        lines.extend(
-            [
-                "",
-                "## Record Counts",
-            ]
+def add_issue(
+    issues: list[DataQualityIssue],
+    *,
+    code: str,
+    message: str,
+    source_file: str,
+    row_number: int | None = None,
+    field: str | None = None,
+    severity: str = "error",
+) -> None:
+    issues.append(
+        DataQualityIssue(
+            severity=severity,
+            code=code,
+            message=message,
+            source_file=source_file,
+            row_number=row_number,
+            field=field,
         )
-        for table_name in sorted(self.record_counts):
-            lines.append(f"- {table_name}: {self.record_counts[table_name]}")
+    )
 
-        lines.extend(
-            [
-                "",
-                "## Issue Summary",
-                f"- warnings: {self.warning_count}",
-                f"- errors: {self.error_count}",
-                "",
-                "## Issues",
-            ]
-        )
-        if self.issues:
-            lines.extend(issue.render() for issue in self.issues)
-        else:
-            lines.append("- None")
 
-        return "\n".join(lines) + "\n"
+def build_quality_report(
+    *,
+    source_name: str,
+    input_files: tuple[str, ...],
+    record_counts: dict[str, int],
+    issues: list[DataQualityIssue],
+    skus: set[str],
+    location_types: Mapping[str, str],
+    inventory: list[dict[str, Any]],
+    orders: list[dict[str, Any]],
+) -> DataQualityReport:
+    return DataQualityReport(
+        source_name=source_name,
+        input_files=input_files,
+        record_counts=record_counts,
+        issues=tuple(issues),
+        coverage_summary=build_coverage_summary(skus, location_types, inventory, orders),
+        scenario_output_summary=build_scenario_output_summary(inventory, orders),
+    )
+
+
+def build_coverage_summary(
+    skus: set[str],
+    location_types: Mapping[str, str],
+    inventory: list[dict[str, Any]],
+    orders: list[dict[str, Any]],
+) -> dict[str, str]:
+    order_skus = {str(order.get("sku_id", "")) for order in orders if order.get("sku_id")}
+    inventory_skus = {
+        str(item.get("sku_id", "")) for item in inventory if item.get("sku_id")
+    }
+    inventory_locations = {
+        str(item.get("location_id", "")) for item in inventory if item.get("location_id")
+    }
+    known_locations = set(location_types)
+    return {
+        "dock_locations": str(_count_location_type(location_types, "dock")),
+        "inventory_locations_covered": _coverage_count(inventory_locations, known_locations),
+        "inventory_records": str(len(inventory)),
+        "inventory_sku_location_pairs": str(
+            len(
+                {
+                    (str(item.get("sku_id", "")), str(item.get("location_id", "")))
+                    for item in inventory
+                }
+            )
+        ),
+        "inventory_skus_covered": _coverage_count(inventory_skus, skus),
+        "locations": str(len(location_types)),
+        "order_records": str(len(orders)),
+        "order_skus_covered": _coverage_count(order_skus, skus),
+        "pick_locations": str(_count_location_type(location_types, "pick")),
+        "skus": str(len(skus)),
+        "staging_locations": str(_count_location_type(location_types, "staging")),
+    }
+
+
+def build_scenario_output_summary(
+    inventory: list[dict[str, Any]],
+    orders: list[dict[str, Any]],
+) -> dict[str, str]:
+    return {
+        "inventory_items": str(len(inventory)),
+        "orders": str(len(orders)),
+        "process_fields": "4",
+    }
+
+
+def require_location_type_coverage(
+    location_types: Mapping[str, str],
+    source_file: str,
+    issues: list[DataQualityIssue],
+) -> None:
+    for location_type in sorted(VALID_LOCATION_TYPES):
+        if not any(item == location_type for item in location_types.values()):
+            add_issue(
+                issues,
+                code="missing_location_type",
+                source_file=source_file,
+                field="location_type",
+                message=f"at least one {location_type} location is required",
+            )
+
+
+def issue_code_for_integer_minimum(field_name: str, minimum: int) -> str:
+    if field_name == "quantity" and minimum == 1:
+        return "negative_quantity"
+    if field_name.endswith("_ms") and minimum == 0:
+        return "negative_time"
+    if minimum == 1:
+        return "invalid_positive_integer"
+    return "invalid_non_negative_integer"
 
 
 class IngestionInputError(Exception):
@@ -189,25 +234,25 @@ def parse_int(
     try:
         parsed = int(value)
     except ValueError:
-        issues.append(
-            DataQualityIssue(
-                "error",
-                file_name,
-                row_number,
-                f"{field_name} must be an integer; got '{value}'",
-            )
+        add_issue(
+            issues,
+            code="invalid_number_format",
+            source_file=file_name,
+            row_number=row_number,
+            field=field_name,
+            message=f"{field_name} must be an integer; got '{value}'",
         )
         return 0
 
     if parsed < minimum:
         label = "positive" if minimum == 1 else "non-negative"
-        issues.append(
-            DataQualityIssue(
-                "error",
-                file_name,
-                row_number,
-                f"{field_name} must be a {label} integer; got {parsed}",
-            )
+        add_issue(
+            issues,
+            code=issue_code_for_integer_minimum(field_name, minimum),
+            source_file=file_name,
+            row_number=row_number,
+            field=field_name,
+            message=f"{field_name} must be a {label} integer; got {parsed}",
         )
     return parsed
 
@@ -222,13 +267,14 @@ def require_known(
     issues: list[DataQualityIssue],
 ) -> None:
     if value not in known_values:
-        issues.append(
-            DataQualityIssue(
-                "error",
-                file_name,
-                row_number,
-                f"{column_name} references unknown {label} '{value}'",
-            )
+        code = "unknown_sku" if label == "sku" else "unknown_location"
+        add_issue(
+            issues,
+            code=code,
+            source_file=file_name,
+            row_number=row_number,
+            field=column_name,
+            message=f"{column_name} references unknown {label} '{value}'",
         )
 
 
@@ -242,23 +288,52 @@ def require_known_location_type(
 ) -> None:
     actual_type = location_types.get(location_id)
     if actual_type is None:
-        issues.append(
-            DataQualityIssue(
-                "error",
-                file_name,
-                row_number,
-                f"{expected_type} location references unknown location '{location_id}'",
-            )
+        add_issue(
+            issues,
+            code="unknown_location",
+            source_file=file_name,
+            row_number=row_number,
+            field=f"{expected_type}_location_id" if expected_type != "dock" else "dock_id",
+            message=f"{expected_type} location references unknown location '{location_id}'",
         )
     elif actual_type != expected_type:
-        issues.append(
-            DataQualityIssue(
-                "error",
-                file_name,
-                row_number,
-                f"{location_id} must be a {expected_type} location; got '{actual_type}'",
-            )
+        add_issue(
+            issues,
+            code="invalid_location_type",
+            source_file=file_name,
+            row_number=row_number,
+            field=f"{expected_type}_location_id" if expected_type != "dock" else "dock_id",
+            message=f"{location_id} must be a {expected_type} location; got '{actual_type}'",
         )
+
+
+def require_text_value(
+    value: str,
+    *,
+    file_name: str,
+    row_number: int,
+    field_name: str,
+    issues: list[DataQualityIssue],
+) -> bool:
+    if value:
+        return True
+    add_issue(
+        issues,
+        code="missing_required_value",
+        source_file=file_name,
+        row_number=row_number,
+        field=field_name,
+        message=f"{field_name} must not be empty",
+    )
+    return False
+
+
+def _coverage_count(values: set[str], known_values: set[str]) -> str:
+    return f"{len(values & known_values)}/{len(values)}"
+
+
+def _count_location_type(location_types: Mapping[str, str], location_type: str) -> int:
+    return sum(1 for item in location_types.values() if item == location_type)
 
 
 def safe_int(value: str) -> int:

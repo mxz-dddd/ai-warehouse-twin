@@ -10,14 +10,19 @@ from ingestion.adapters.common import (
     CONFIG_KEYS,
     NON_NEGATIVE_CONFIG_KEYS,
     POSITIVE_CONFIG_KEYS,
+    VALID_LOCATION_TYPES,
     VALID_STATUSES,
     DataQualityIssue,
     DataQualityReport,
     IngestionInputError,
+    add_issue,
     build_outbound_scenario,
+    build_quality_report,
     parse_int,
     require_known,
     require_known_location_type,
+    require_location_type_coverage,
+    require_text_value,
     write_scenario_outputs,
 )
 from ingestion.sources import ScenarioDocument
@@ -89,11 +94,15 @@ class CsvExcelIngestSource:
         orders = _order_rows(rows_by_file["orders.csv"], skus, location_types, issues)
 
         scenario = _scenario_from_rows(config, inventory, orders)
-        report = DataQualityReport(
+        report = build_quality_report(
             source_name=self.source_name,
             input_files=tuple(sorted(CSV_TABLE_COLUMNS)),
             record_counts=record_counts,
-            issues=tuple(issues),
+            issues=issues,
+            skus=skus,
+            location_types=location_types,
+            inventory=inventory,
+            orders=orders,
         )
         return scenario, report
 
@@ -114,7 +123,12 @@ def _read_csv_rows(
     issues: list[DataQualityIssue],
 ) -> list[dict[str, str]]:
     if not path.is_file():
-        issues.append(DataQualityIssue("error", path.name, None, "required input file is missing"))
+        add_issue(
+            issues,
+            code="missing_required_file",
+            source_file=path.name,
+            message="required input file is missing",
+        )
         return []
 
     with path.open("r", encoding="utf-8", newline="") as csv_file:
@@ -122,14 +136,15 @@ def _read_csv_rows(
         columns = tuple(reader.fieldnames or ())
         missing = [column for column in required_columns if column not in columns]
         if missing:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    path.name,
-                    1,
-                    f"missing required column(s): {', '.join(missing)}",
+            for column in missing:
+                add_issue(
+                    issues,
+                    code="missing_required_column",
+                    source_file=path.name,
+                    row_number=1,
+                    field=column,
+                    message=f"missing required column '{column}'",
                 )
-            )
             return []
 
         return [
@@ -143,15 +158,24 @@ def _read_config(rows: list[dict[str, str]], issues: list[DataQualityIssue]) -> 
     for index, row in enumerate(rows, start=2):
         key = row["key"]
         value = row["value"]
-        if not key:
-            issues.append(DataQualityIssue("error", "config.csv", index, "key must not be empty"))
+        if not require_text_value(
+            key,
+            file_name="config.csv",
+            row_number=index,
+            field_name="key",
+            issues=issues,
+        ):
             continue
         config[key] = value
 
     for key in CONFIG_KEYS:
         if key not in config or not config[key]:
-            issues.append(
-                DataQualityIssue("error", "config.csv", None, f"missing required key '{key}'")
+            add_issue(
+                issues,
+                code="missing_required_field",
+                source_file="config.csv",
+                field=key,
+                message=f"missing required key '{key}'",
             )
 
     for key in POSITIVE_CONFIG_KEYS:
@@ -172,14 +196,22 @@ def _id_set(
     ids: set[str] = set()
     for index, row in enumerate(rows, start=2):
         value = row[id_column]
-        if not value:
-            issues.append(
-                DataQualityIssue("error", file_name, index, f"{id_column} must not be empty")
-            )
+        if not require_text_value(
+            value,
+            file_name=file_name,
+            row_number=index,
+            field_name=id_column,
+            issues=issues,
+        ):
             continue
         if value in ids:
-            issues.append(
-                DataQualityIssue("error", file_name, index, f"duplicate {id_column} '{value}'")
+            add_issue(
+                issues,
+                code=f"duplicate_{id_column}",
+                source_file=file_name,
+                row_number=index,
+                field=id_column,
+                message=f"duplicate {id_column} '{value}'",
             )
         ids.add(value)
     return ids
@@ -193,25 +225,43 @@ def _location_types(
     for index, row in enumerate(rows, start=2):
         location_id = row["location_id"]
         location_type = row["location_type"]
-        if not location_id:
-            issues.append(
-                DataQualityIssue("error", "locations.csv", index, "location_id must not be empty")
-            )
+        if not require_text_value(
+            location_id,
+            file_name="locations.csv",
+            row_number=index,
+            field_name="location_id",
+            issues=issues,
+        ):
             continue
-        if not location_type:
-            issues.append(
-                DataQualityIssue("error", "locations.csv", index, "location_type must not be empty")
+        if require_text_value(
+            location_type,
+            file_name="locations.csv",
+            row_number=index,
+            field_name="location_type",
+            issues=issues,
+        ) and location_type not in VALID_LOCATION_TYPES:
+            add_issue(
+                issues,
+                code="invalid_location_type",
+                source_file="locations.csv",
+                row_number=index,
+                field="location_type",
+                message=(
+                    "location_type must be one of dock, pick, staging; "
+                    f"got '{location_type}'"
+                ),
             )
         if location_id in locations:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "locations.csv",
-                    index,
-                    f"duplicate location_id '{location_id}'",
-                )
+            add_issue(
+                issues,
+                code="duplicate_location_id",
+                source_file="locations.csv",
+                row_number=index,
+                field="location_id",
+                message=f"duplicate location_id '{location_id}'",
             )
         locations[location_id] = location_type
+    require_location_type_coverage(locations, "locations.csv", issues)
     return locations
 
 
@@ -223,18 +273,54 @@ def _inventory_rows(
 ) -> list[dict[str, Any]]:
     inventory: list[dict[str, Any]] = []
     inventory_ids: set[str] = set()
+    sku_location_pairs: set[tuple[str, str]] = set()
     for index, row in enumerate(rows, start=2):
         inventory_id = row["inventory_id"]
+        require_text_value(
+            inventory_id,
+            file_name="inventory.csv",
+            row_number=index,
+            field_name="inventory_id",
+            issues=issues,
+        )
         if inventory_id in inventory_ids:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "inventory.csv",
-                    index,
-                    f"duplicate inventory_id '{inventory_id}'",
-                )
+            add_issue(
+                issues,
+                code="duplicate_inventory_id",
+                source_file="inventory.csv",
+                row_number=index,
+                field="inventory_id",
+                message=f"duplicate inventory_id '{inventory_id}'",
             )
         inventory_ids.add(inventory_id)
+        require_text_value(
+            row["sku_id"],
+            file_name="inventory.csv",
+            row_number=index,
+            field_name="sku_id",
+            issues=issues,
+        )
+        require_text_value(
+            row["location_id"],
+            file_name="inventory.csv",
+            row_number=index,
+            field_name="location_id",
+            issues=issues,
+        )
+        require_text_value(
+            row["status"],
+            file_name="inventory.csv",
+            row_number=index,
+            field_name="status",
+            issues=issues,
+        )
+        require_text_value(
+            row["quantity"],
+            file_name="inventory.csv",
+            row_number=index,
+            field_name="quantity",
+            issues=issues,
+        )
         require_known(row["sku_id"], skus, "inventory.csv", index, "sku_id", "sku", issues)
         require_known(
             row["location_id"],
@@ -246,14 +332,28 @@ def _inventory_rows(
             issues,
         )
         if row["status"] not in VALID_STATUSES:
-            issues.append(
-                DataQualityIssue(
-                    "error",
-                    "inventory.csv",
-                    index,
-                    f"status must be one of schema enum values; got '{row['status']}'",
-                )
+            add_issue(
+                issues,
+                code="invalid_enum_value",
+                source_file="inventory.csv",
+                row_number=index,
+                field="status",
+                message=f"status must be one of schema enum values; got '{row['status']}'",
             )
+        sku_location_pair = (row["sku_id"], row["location_id"])
+        if sku_location_pair in sku_location_pairs:
+            add_issue(
+                issues,
+                code="duplicate_inventory_sku_location",
+                source_file="inventory.csv",
+                row_number=index,
+                field="sku_id,location_id",
+                message=(
+                    "duplicate inventory sku/location pair "
+                    f"'{row['sku_id']}'/'{row['location_id']}'"
+                ),
+            )
+        sku_location_pairs.add(sku_location_pair)
         quantity = parse_int(
             row["quantity"],
             "inventory.csv",
@@ -285,9 +385,31 @@ def _order_rows(
     order_ids: set[str] = set()
     for index, row in enumerate(rows, start=2):
         order_id = row["order_id"]
+        for field_name in (
+            "order_id",
+            "warehouse_id",
+            "sku_id",
+            "pick_location_id",
+            "staging_location_id",
+            "dock_id",
+            "quantity",
+            "released_at_ms",
+        ):
+            require_text_value(
+                row[field_name],
+                file_name="orders.csv",
+                row_number=index,
+                field_name=field_name,
+                issues=issues,
+            )
         if order_id in order_ids:
-            issues.append(
-                DataQualityIssue("error", "orders.csv", index, f"duplicate order_id '{order_id}'")
+            add_issue(
+                issues,
+                code="duplicate_order_id",
+                source_file="orders.csv",
+                row_number=index,
+                field="order_id",
+                message=f"duplicate order_id '{order_id}'",
             )
         order_ids.add(order_id)
         require_known(row["sku_id"], skus, "orders.csv", index, "sku_id", "sku", issues)

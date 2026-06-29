@@ -15,6 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
 CSV_BASIC = REPO_ROOT / "datasets/ingestion-cases/csv-basic"
 CSV_INVALID = REPO_ROOT / "datasets/ingestion-cases/csv-invalid-negative-quantity"
+CSV_INVALID_MISSING_COLUMN = REPO_ROOT / "datasets/ingestion-cases/csv-invalid-missing-column"
 
 
 def test_csv_fixture_converts_to_schema_valid_scenario(tmp_path: Path) -> None:
@@ -52,10 +53,11 @@ def test_invalid_csv_writes_readable_report(tmp_path: Path) -> None:
     assert exit_code == 1
     assert not (tmp_path / "scenario.json").exists()
     assert "Status: FAIL" in report
-    assert "inventory.csv row 2: quantity must be a positive integer; got -5" in report
-    assert "orders.csv row 2: sku_id references unknown sku 'sku-missing'" in report
-    assert "orders.csv row 2: dock location references unknown location 'dock-missing'" in report
-    assert "orders.csv row 2: released_at_ms must be a non-negative integer; got -1" in report
+    assert "| error | negative_quantity | inventory.csv | 2 | quantity |" in report
+    assert "| error | unknown_sku | orders.csv | 2 | sku_id |" in report
+    assert "| error | unknown_location | orders.csv | 2 | dock_id |" in report
+    assert "| error | negative_time | orders.csv | 2 | released_at_ms |" in report
+    assert "| error | missing_location_type | locations.csv | - | location_type |" in report
 
 
 def test_invalid_csv_source_raises_report_error() -> None:
@@ -64,9 +66,28 @@ def test_invalid_csv_source_raises_report_error() -> None:
     try:
         source.to_scenario()
     except IngestionInputError as error:
-        assert error.report.error_count == 4
+        assert error.report.error_count == 5
+        assert {issue.code for issue in error.report.issues} >= {
+            "negative_quantity",
+            "negative_time",
+            "unknown_location",
+            "unknown_sku",
+        }
     else:
         raise AssertionError("expected invalid CSV input to raise IngestionInputError")
+
+
+def test_csv_missing_column_reports_stable_issue_code(tmp_path: Path) -> None:
+    exit_code = write_csv_scenario_outputs(
+        CSV_INVALID_MISSING_COLUMN / "input",
+        tmp_path,
+        REPO_ROOT,
+    )
+    report = (tmp_path / "data-quality-report.md").read_text(encoding="utf-8")
+
+    assert exit_code == 1
+    assert "missing_required_column" in report
+    assert "| error | missing_required_column | orders.csv | 1 | dock_id |" in report
 
 
 def test_csv_to_scenario_cli_reports_invalid_input(tmp_path: Path) -> None:
@@ -93,6 +114,9 @@ def test_csv_to_scenario_cli_reports_invalid_input(tmp_path: Path) -> None:
     assert "CSV ingestion failed" in completed.stderr
     assert "Traceback" not in completed.stderr
     assert (tmp_path / "data-quality-report.md").is_file()
+    assert "negative_quantity" in (tmp_path / "data-quality-report.md").read_text(
+        encoding="utf-8"
+    )
 
 
 def test_csv_outputs_are_byte_stable(tmp_path: Path) -> None:
