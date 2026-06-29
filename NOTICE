@@ -1,0 +1,11 @@
+AI Warehouse Twin Notice
+
+AI Warehouse Twin is a startup product for real warehouse customers. It is intended to support credible, visual, confidence-scored warehouse simulation evaluation and future optimization workflows.
+
+Current repository visibility does not imply open-source licensing. The project is proprietary unless a separate written agreement states otherwise.
+
+Contracts, generated outputs, sample datasets, artifact golden files, reports, documentation, and scripts in this repository are part of the product handoff surface and are covered by the repository license.
+
+The current MVP baseline includes deterministic simulation artifacts, A/B comparison artifacts, customer Markdown reports, input validation baseline, golden regression checks, smoke tests, and CI guards.
+
+Planned capabilities such as real path movement, Unity visualization, calibration confidence, WMS pilots, and closed-loop optimization recommendations are not licensed separately by their presence in roadmap documentation.
