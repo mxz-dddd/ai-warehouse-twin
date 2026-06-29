@@ -64,6 +64,9 @@ baseline layout positions, NOT simulated movement. They must not be marketed,
 animated, or explained as real people / forklift / goods movement until R2 real
 path movement semantics land.
 
+See `docs/architecture/position-timeline-semantics.md` for the current
+position timeline wording and visualization boundary.
+
 ## How to reproduce legacy results
 
 Use explicit legacy runner flags:
