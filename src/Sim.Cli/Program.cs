@@ -44,13 +44,38 @@ if (args.Length == 5 &&
 
 WarehouseScenario scenario;
 string? artifactOutputPath = null;
+var useUnifiedRunner = false;
 
 if (args.Length == 1 && args[0] == "sample-small-warehouse")
 {
     scenario = WarehouseSampleScenarioFactory.CreateSmallWarehouse();
 }
+else if (args.Length == 3 &&
+         args[0] == "sample-small-warehouse" &&
+         args[1] == "--runner")
+{
+    if (!TryParseRunnerMode(args[2], out useUnifiedRunner, out var errorMessage))
+    {
+        Console.Error.WriteLine(errorMessage);
+        return 1;
+    }
+
+    scenario = WarehouseSampleScenarioFactory.CreateSmallWarehouse();
+}
 else if (args.Length == 2 && args[0] == "run-file")
 {
+    scenario = WarehouseScenarioJsonLoader.Load(args[1]);
+}
+else if (args.Length == 4 &&
+         args[0] == "run-file" &&
+         args[2] == "--runner")
+{
+    if (!TryParseRunnerMode(args[3], out useUnifiedRunner, out var errorMessage))
+    {
+        Console.Error.WriteLine(errorMessage);
+        return 1;
+    }
+
     scenario = WarehouseScenarioJsonLoader.Load(args[1]);
 }
 else if (args.Length == 4 && args[0] == "export-artifact" && args[2] == "-o")
@@ -62,7 +87,9 @@ else
 {
     Console.Error.WriteLine("Usage:");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- sample-small-warehouse");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- sample-small-warehouse --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
@@ -86,10 +113,14 @@ if (artifactOutputPath is not null)
     return 0;
 }
 
-var result = runner.Run(scenario);
+var result = useUnifiedRunner
+    ? runner.RunWithUnifiedAdapter(scenario)
+    : runner.Run(scenario);
 
 Console.WriteLine(JsonSerializer.Serialize(
-    ToPayload(result),
+    useUnifiedRunner
+        ? ToPayloadWithRunnerMode(result, runnerMode: "unified")
+        : ToPayload(result),
     new JsonSerializerOptions
     {
         WriteIndented = true
@@ -101,6 +132,36 @@ static object ToPayload(WarehouseRunResult result)
 {
     return new
     {
+        scenario_id = result.ScenarioId,
+        seed = result.Seed,
+        started_at_ms = result.StartedAtMs,
+        finished_at_ms = result.FinishedAtMs,
+        completed_receipts = result.CompletedReceipts,
+        completed_outbound_orders = result.CompletedOutboundOrders,
+        completed_each_pick_orders = result.CompletedEachPickOrders,
+        total_quantity_available = result.TotalQuantityAvailable,
+        total_quantity_shipped = result.TotalQuantityShipped,
+        total_quantity_picked = result.TotalQuantityPicked,
+        final_world_time_ms = result.FinalWorldState.TimeMs,
+        event_log_text = result.EventLogText,
+        kpi_summary = new
+        {
+            total_duration_ms = result.KpiSummary.TotalDurationMs,
+            total_completed_work_items = result.KpiSummary.TotalCompletedWorkItems,
+            event_log_line_count = result.KpiSummary.EventLogLineCount,
+            receipt_throughput_per_hour = RoundKpi(result.KpiSummary.ReceiptThroughputPerHour),
+            outbound_order_throughput_per_hour = RoundKpi(result.KpiSummary.OutboundOrderThroughputPerHour),
+            each_pick_order_throughput_per_hour = RoundKpi(result.KpiSummary.EachPickOrderThroughputPerHour),
+            total_work_item_throughput_per_hour = RoundKpi(result.KpiSummary.TotalWorkItemThroughputPerHour)
+        }
+    };
+}
+
+static object ToPayloadWithRunnerMode(WarehouseRunResult result, string runnerMode)
+{
+    return new
+    {
+        runner_mode = runnerMode,
         scenario_id = result.ScenarioId,
         seed = result.Seed,
         started_at_ms = result.StartedAtMs,
@@ -245,4 +306,29 @@ static string NormalizeMarkdown(string value)
 static decimal RoundKpi(decimal value)
 {
     return Math.Round(value, 3, MidpointRounding.AwayFromZero);
+}
+
+static bool TryParseRunnerMode(
+    string value,
+    out bool useUnifiedRunner,
+    out string errorMessage)
+{
+    if (string.Equals(value, "legacy", StringComparison.OrdinalIgnoreCase))
+    {
+        useUnifiedRunner = false;
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    if (string.Equals(value, "unified", StringComparison.OrdinalIgnoreCase))
+    {
+        useUnifiedRunner = true;
+        errorMessage = string.Empty;
+        return true;
+    }
+
+    useUnifiedRunner = false;
+    errorMessage =
+        $"Unknown runner mode '{value}'. Allowed values: legacy, unified.";
+    return false;
 }
