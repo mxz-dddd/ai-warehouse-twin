@@ -73,6 +73,100 @@ public sealed class WarehouseScenarioRunnerUnifiedTests
         Assert.Empty(result.FinalInventorySnapshot);
     }
 
+    [Fact]
+    public void WarehouseScenarioRunner_RunWithUnifiedAdapter_RunsSampleScenario()
+    {
+        var result = new WarehouseScenarioRunner().RunWithUnifiedAdapter(
+            WarehouseSampleScenarioFactory.CreateSmallWarehouse());
+
+        Assert.Equal("sample-small-warehouse", result.ScenarioId);
+        Assert.Equal(20240627, result.Seed);
+        Assert.Equal(10, result.StartedAtMs);
+        Assert.Equal(410, result.FinishedAtMs);
+        Assert.Equal(1, result.CompletedReceipts);
+        Assert.Equal(1, result.CompletedOutboundOrders);
+        Assert.Equal(1, result.CompletedEachPickOrders);
+        Assert.DoesNotContain('\r', result.EventLogText);
+    }
+
+    [Fact]
+    public void WarehouseScenarioRunner_RunWithUnifiedAdapter_MatchesLegacyCoreCountsAndQuantities()
+    {
+        var scenario = WarehouseSampleScenarioFactory.CreateSmallWarehouse();
+        var runner = new WarehouseScenarioRunner();
+
+        var legacy = runner.Run(scenario);
+        var unified = runner.RunWithUnifiedAdapter(scenario);
+
+        Assert.Equal(legacy.CompletedReceipts, unified.CompletedReceipts);
+        Assert.Equal(legacy.CompletedOutboundOrders, unified.CompletedOutboundOrders);
+        Assert.Equal(legacy.CompletedEachPickOrders, unified.CompletedEachPickOrders);
+        Assert.Equal(legacy.TotalQuantityAvailable, unified.TotalQuantityAvailable);
+        Assert.Equal(legacy.TotalQuantityShipped, unified.TotalQuantityShipped);
+        Assert.Equal(legacy.TotalQuantityPicked, unified.TotalQuantityPicked);
+    }
+
+    [Fact]
+    public void WarehouseScenarioRunner_RunWithUnifiedAdapter_ProducesFinalInventorySnapshot()
+    {
+        var scenario = WarehouseSampleScenarioFactory.CreateSmallWarehouse();
+        var runner = new WarehouseScenarioRunner();
+
+        var legacy = runner.Run(scenario);
+        var unified = runner.RunWithUnifiedAdapter(scenario);
+
+        Assert.Empty(legacy.FinalInventorySnapshot);
+        Assert.Equal(3, unified.FinalInventorySnapshot.Count);
+        Assert.Equal(7m, unified.FinalInventorySnapshot["sku-inbound-1"]);
+        Assert.Equal(0m, unified.FinalInventorySnapshot["sku-outbound-1"]);
+        Assert.Equal(0m, unified.FinalInventorySnapshot["sku-each-1"]);
+    }
+
+    [Fact]
+    public void WarehouseScenarioRunner_Run_DefaultPath_RemainsLegacyAfterUnifiedAdapterPathAdded()
+    {
+        var result = new WarehouseScenarioRunner().Run(
+            WarehouseSampleScenarioFactory.CreateSmallWarehouse());
+
+        Assert.Equal(220, result.FinishedAtMs);
+        Assert.Equal(10, result.KpiSummary.EventLogLineCount);
+        Assert.Contains("inbound|", result.EventLogText);
+        Assert.Contains("outbound|", result.EventLogText);
+        Assert.Contains("each_pick|", result.EventLogText);
+        Assert.Empty(result.FinalInventorySnapshot);
+    }
+
+    [Fact]
+    public void WarehouseScenarioRunner_RunWithTrace_RemainsLegacyTracePathAfterUnifiedAdapterPathAdded()
+    {
+        var scenario = WarehouseSampleScenarioFactory.CreateSmallWarehouse();
+        var runner = new WarehouseScenarioRunner();
+
+        var legacy = runner.Run(scenario);
+        var traced = runner.RunWithTrace(scenario);
+
+        Assert.Equal(legacy.EventLogText, traced.RunResult.EventLogText);
+        Assert.Equal(legacy.KpiSummary, traced.RunResult.KpiSummary);
+        Assert.Empty(traced.RunResult.FinalInventorySnapshot);
+        AssertStages(traced.ResourceLeaseTimeline, "inbound", "dock", "forklift");
+        AssertStages(traced.ResourceLeaseTimeline, "outbound", "dock", "worker");
+        AssertStages(traced.ResourceLeaseTimeline, "each_pick", "station", "worker");
+    }
+
+    [Fact]
+    public void WarehouseScenarioRunner_RunWithUnifiedAdapter_DocumentsCoarseOperationMappingGap()
+    {
+        var result = new WarehouseScenarioRunner().RunWithUnifiedAdapter(
+            WarehouseSampleScenarioFactory.CreateSmallWarehouse());
+
+        Assert.Equal(13, result.KpiSummary.EventLogLineCount);
+        Assert.Contains("owner=inbound:inbound:receipt-1", result.EventLogText);
+        Assert.Contains("owner=outbound:outbound:order-1", result.EventLogText);
+        Assert.Contains("owner=each_pick:each_pick:each-order-1", result.EventLogText);
+        Assert.DoesNotContain("forklift", result.EventLogText);
+        Assert.DoesNotContain("worker", result.EventLogText);
+    }
+
     private static WarehouseUnifiedScenario UnifiedScenario()
     {
         return new WarehouseUnifiedScenario(
@@ -119,5 +213,19 @@ public sealed class WarehouseScenarioRunnerUnifiedTests
             durationMs,
             skuId: "SKU-A",
             inventoryDelta);
+    }
+
+    private static void AssertStages(
+        IEnumerable<Sim.Core.Resources.ResourceLeaseTimelineEntry> timeline,
+        string operationType,
+        params string[] expectedStages)
+    {
+        Assert.Equal(
+            expectedStages.Order(StringComparer.Ordinal),
+            timeline
+                .Where(entry => entry.OperationType == operationType)
+                .Select(entry => entry.StageType)
+                .Distinct(StringComparer.Ordinal)
+                .Order(StringComparer.Ordinal));
     }
 }

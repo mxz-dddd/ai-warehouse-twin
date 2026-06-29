@@ -12,6 +12,10 @@ This audit is a baseline for CORE-U2 / CORE-U3. It documents the current impleme
   - `Run(WarehouseScenario)` uses the traditional child-flow aggregation path.
   - `RunWithTrace(WarehouseScenario)` also uses the traditional child-flow aggregation path, with a shared trace collector for lease recording.
   - `RunUnified(WarehouseUnifiedScenario)` is an explicit unified path and is not the default `WarehouseScenario` path.
+  - `RunWithUnifiedAdapter(WarehouseScenario)` was added in CORE-U3a as an explicit opt-in path that converts `WarehouseScenario` through `WarehouseScenarioToUnifiedScenarioAdapter` and then calls `RunUnified(...)`.
+  - Default `Run(...)` remains legacy.
+  - `RunWithTrace(...)` / `export-artifact` remain legacy.
+  - CLI / RunArtifact / compare-files remain unchanged.
 - `WarehouseUnifiedOperationRunner`
   - Exists under `src/Sim.Core/Scenarios/Unified`.
   - Runs `WarehouseUnifiedOperation` records on capacity-one resource timelines grouped by `ResourceId`.
@@ -103,6 +107,8 @@ Existing characterization coverage already documents the current baseline:
   - Freezes that `RunWithTrace(...)` does not change traditional `Run(...)` behavior.
 - `WarehouseScenarioToUnifiedScenarioAdapterTests`
   - Freezes sample conversion, deterministic adapter output, stable resource ids, unified runner compatibility, and the fact that the default runner remains unchanged.
+- `WarehouseScenarioRunnerUnifiedTests` CORE-U3a coverage
+  - Freezes that `RunWithUnifiedAdapter(...)` can run sample-small-warehouse, matches legacy core counts and quantities, produces a final inventory snapshot, leaves default `Run(...)` unchanged, leaves `RunWithTrace(...)` on the legacy trace path, and documents the current coarse operation mapping gap.
 
 ## R1 gap list
 
@@ -121,7 +127,12 @@ Existing characterization coverage already documents the current baseline:
   - The adapter currently uses one coarse unified operation per inbound receipt, outbound order, or each-pick order.
   - Multi-stage legacy details such as separate dock / forklift / worker / station leases are not yet 1:1 mapped into unified operations.
 - CORE-U3: Wire `WarehouseScenarioRunner` behind an explicitly tested internal unified path.
-  - Make the unified path the single authority only after parity and gap tests are green.
+- CORE-U3a: Added `RunWithUnifiedAdapter(...)` as an explicit opt-in unified path behind `WarehouseScenarioRunner`.
+  - Default `Run(...)` remains legacy.
+  - `RunWithTrace(...)` / `export-artifact` remain legacy.
+  - CLI / RunArtifact / compare-files remain unchanged.
+  - CORE-U3b is still required before any default runner switch.
+- CORE-U3b: Make the unified path the single authority only after parity and gap tests are green.
   - Preserve RunArtifact schema and golden files unless a dedicated artifact task authorizes updates.
   - Ensure `run-file`, `export-artifact`, and `compare-files` cannot silently diverge.
 - CORE-U4: Reconcile resource lease trace / position timeline generation with unified operation intervals.
