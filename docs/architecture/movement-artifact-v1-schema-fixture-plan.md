@@ -8,6 +8,10 @@ This document prepares a future CONTRACT- PR but does not approve MovementArtifa
 
 CONTRACT-R2b converts the CONTRACT-R2a proposal into a practical checklist for a later schema implementation PR. It does not add `movement-artifact.v1.schema.json`, update `packages/contracts`, regenerate code, implement movement/path/route generation, or update tracked artifact golden files.
 
+CONTRACT-R2c-preflight records the current contract generation and drift-check
+audit in `docs/architecture/movement-artifact-contract-generation-preflight.md`.
+It remains preflight-only and does not add schema files or generated contracts.
+
 ## Scope
 
 This plan covers:
