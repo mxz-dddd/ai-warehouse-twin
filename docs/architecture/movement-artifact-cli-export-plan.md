@@ -23,6 +23,9 @@ MovementArtifact and sample golden remain validation artifacts until a separate
 Unity implementation PR explicitly consumes and validates MovementArtifact
 input.
 
+TRACKA-R2a adds a readiness gate that confirms the opt-in CLI export,
+MovementArtifact golden, and honesty boundaries remain present.
+
 RunArtifact v1 position_timeline remains baseline layout positions, NOT simulated movement.
 
 ## Current foundation

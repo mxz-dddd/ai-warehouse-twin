@@ -18,6 +18,10 @@ UNITY-R2a defines a separate Unity consumption boundary for MovementArtifact.
 Report consumption and Unity animation remain separate approval surfaces;
 neither should infer movement from RunArtifact v1 position_timeline.
 
+TRACKA-R2a adds a readiness gate that protects the report boundary: report
+movement sections remain separate from MovementArtifact generation and require
+a future approved implementation PR.
+
 RunArtifact v1 `position_timeline` remains baseline layout positions, NOT
 simulated movement. Reports must not infer path, route, travel, congestion,
 walking distance, forklift distance, or animation semantics from RunArtifact v1

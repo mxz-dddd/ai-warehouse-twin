@@ -47,6 +47,9 @@ UNITY-R2a keeps runtime orchestration out of Unity movement semantics. Runtime
 may later pass MovementArtifact references only through separately approved
 explicit artifact-generation steps.
 
+TRACKA-R2a adds a lightweight readiness gate for Track A R2. Runtime
+orchestration remains unchanged and must not manufacture movement semantics.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

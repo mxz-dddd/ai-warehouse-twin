@@ -73,6 +73,9 @@ UNITY-R2a defines Unity consumption boundaries for MovementArtifact v1. It does
 not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1,
 CLI behavior, reports, Unity code, ingestion, or runtime orchestration.
 
+TRACKA-R2a adds a Track A R2 readiness audit and release gate without changing
+MovementArtifact v1 schema or existing artifacts.
+
 ## Scope
 
 This proposal covers:

@@ -26,6 +26,7 @@ bash scripts/smoke-comparison-artifact.sh
 bash scripts/smoke-customer-report.sh
 bash scripts/smoke-movement-artifact-loader.sh
 bash scripts/smoke-movement-artifact-export.sh
+bash scripts/check-track-a-r2-readiness.sh
 
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
