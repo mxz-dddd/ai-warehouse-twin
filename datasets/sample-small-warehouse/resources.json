@@ -2,13 +2,15 @@
   "workers": [
     {
       "id": "worker-1",
-      "role": "picker"
+      "role": "picker",
+      "home_node_id": "node-pick-station"
     }
   ],
   "forklifts": [
     {
       "id": "forklift-1",
-      "capacity_kg": 1000
+      "capacity_kg": 1000,
+      "home_node_id": "node-dock-in"
     }
   ],
   "docks": [
@@ -17,6 +19,16 @@
     },
     {
       "id": "dock-out-1"
+    }
+  ],
+  "resources": [
+    {
+      "resource_id": "forklift-1",
+      "home_node_id": "node-dock-in"
+    },
+    {
+      "resource_id": "worker-1",
+      "home_node_id": "node-pick-station"
     }
   ]
 }

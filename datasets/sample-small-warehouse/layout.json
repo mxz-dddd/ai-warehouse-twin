@@ -62,41 +62,169 @@
   ],
   "path_nodes": [
     {
-      "id": "node-dock-in-1",
+      "node_id": "node-dock-in",
       "x": 0,
-      "y": 0
+      "y": 4000,
+      "node_type": "dock"
     },
     {
-      "id": "node-a1",
-      "x": 1000,
-      "y": 1000
+      "node_id": "node-aisle-w",
+      "x": 2500,
+      "y": 4000,
+      "node_type": "aisle"
     },
     {
-      "id": "node-a2",
-      "x": 3000,
-      "y": 1000
-    },
-    {
-      "id": "node-dock-out-1",
+      "node_id": "node-pick-station",
       "x": 5000,
-      "y": 0
+      "y": 4000,
+      "node_type": "station"
+    },
+    {
+      "node_id": "node-aisle-e",
+      "x": 7000,
+      "y": 4000,
+      "node_type": "aisle"
+    },
+    {
+      "node_id": "node-dock-out",
+      "x": 9000,
+      "y": 4000,
+      "node_type": "dock"
+    },
+    {
+      "node_id": "node-staging",
+      "x": 8000,
+      "y": 1000,
+      "node_type": "staging"
+    },
+    {
+      "node_id": "node-loc-ra-1",
+      "x": 2500,
+      "y": 7000,
+      "node_type": "location"
+    },
+    {
+      "node_id": "node-loc-ra-2",
+      "x": 5000,
+      "y": 7000,
+      "node_type": "location"
+    },
+    {
+      "node_id": "node-loc-ra-3",
+      "x": 7000,
+      "y": 7000,
+      "node_type": "location"
+    },
+    {
+      "node_id": "node-loc-rb-1",
+      "x": 2500,
+      "y": 1000,
+      "node_type": "location"
+    },
+    {
+      "node_id": "node-loc-rb-2",
+      "x": 5000,
+      "y": 1000,
+      "node_type": "location"
+    },
+    {
+      "node_id": "node-loc-rb-3",
+      "x": 7000,
+      "y": 1000,
+      "node_type": "location"
     }
   ],
   "path_edges": [
     {
-      "from": "node-dock-in-1",
-      "to": "node-a1",
-      "distance_mm": 1414
+      "edge_id": "edge-dockin-aislew",
+      "from_node_id": "node-dock-in",
+      "to_node_id": "node-aisle-w",
+      "distance_mm": 2500,
+      "bidirectional": true
     },
     {
-      "from": "node-a1",
-      "to": "node-a2",
-      "distance_mm": 2000
+      "edge_id": "edge-aislew-pickstn",
+      "from_node_id": "node-aisle-w",
+      "to_node_id": "node-pick-station",
+      "distance_mm": 2500,
+      "bidirectional": true
     },
     {
-      "from": "node-a2",
-      "to": "node-dock-out-1",
-      "distance_mm": 2236
+      "edge_id": "edge-pickstn-aislee",
+      "from_node_id": "node-pick-station",
+      "to_node_id": "node-aisle-e",
+      "distance_mm": 2000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-aislee-dockout",
+      "from_node_id": "node-aisle-e",
+      "to_node_id": "node-dock-out",
+      "distance_mm": 2000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-aislee-staging",
+      "from_node_id": "node-aisle-e",
+      "to_node_id": "node-staging",
+      "distance_mm": 3162,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-aislew-ra1",
+      "from_node_id": "node-aisle-w",
+      "to_node_id": "node-loc-ra-1",
+      "distance_mm": 3000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-ra1-ra2",
+      "from_node_id": "node-loc-ra-1",
+      "to_node_id": "node-loc-ra-2",
+      "distance_mm": 2500,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-ra2-ra3",
+      "from_node_id": "node-loc-ra-2",
+      "to_node_id": "node-loc-ra-3",
+      "distance_mm": 2000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-ra3-aislee",
+      "from_node_id": "node-loc-ra-3",
+      "to_node_id": "node-aisle-e",
+      "distance_mm": 3000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-aislew-rb1",
+      "from_node_id": "node-aisle-w",
+      "to_node_id": "node-loc-rb-1",
+      "distance_mm": 3000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-rb1-rb2",
+      "from_node_id": "node-loc-rb-1",
+      "to_node_id": "node-loc-rb-2",
+      "distance_mm": 2500,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-rb2-rb3",
+      "from_node_id": "node-loc-rb-2",
+      "to_node_id": "node-loc-rb-3",
+      "distance_mm": 2000,
+      "bidirectional": true
+    },
+    {
+      "edge_id": "edge-rb3-aislee",
+      "from_node_id": "node-loc-rb-3",
+      "to_node_id": "node-aisle-e",
+      "distance_mm": 3000,
+      "bidirectional": true
     }
   ]
 }

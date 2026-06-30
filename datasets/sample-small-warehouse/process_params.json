@@ -2,6 +2,8 @@
   "seed": 12345,
   "walking_speed_mm_per_sec": 1200,
   "forklift_speed_mm_per_sec": 2500,
+  "forklift_speed_mm_per_ms": 2.0,
+  "worker_speed_mm_per_ms": 1.2,
   "service_time_seconds": {
     "pick": 20,
     "load": 30,
