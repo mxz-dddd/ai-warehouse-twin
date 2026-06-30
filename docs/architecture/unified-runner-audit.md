@@ -273,6 +273,11 @@ entries describe the state at the time of that task and are superseded by
   - Documents future MovementArtifact generator attachment points and non-goals.
   - Does not implement runtime MovementArtifact generation, CLI export, reports, Unity animation, golden artifacts, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2b: Added minimal in-memory deterministic MovementArtifact generator.
+  - Generates a MovementArtifact object from explicit generator inputs only.
+  - Does not add CLI export, golden artifacts, report movement sections, Unity animation, or Track C ingestion changes.
+  - Does not infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
