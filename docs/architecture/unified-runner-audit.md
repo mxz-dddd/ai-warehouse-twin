@@ -269,6 +269,10 @@ entries describe the state at the time of that task and are superseded by
   - Adds script-level smoke coverage for the minimal Sim.Report MovementArtifact loader.
   - Does not implement runtime MovementArtifact generation, full movement validation, golden artifacts, Unity animation, report movement sections, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2a: Added MovementArtifact runtime boundary planning.
+  - Documents future MovementArtifact generator attachment points and non-goals.
+  - Does not implement runtime MovementArtifact generation, CLI export, reports, Unity animation, golden artifacts, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
