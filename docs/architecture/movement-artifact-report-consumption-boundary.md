@@ -14,6 +14,10 @@ MovementArtifact loader boundary. This document builds on that foundation by
 defining the reporting boundary before any renderer or customer report section
 is implemented.
 
+UNITY-R2a defines a separate Unity consumption boundary for MovementArtifact.
+Report consumption and Unity animation remain separate approval surfaces;
+neither should infer movement from RunArtifact v1 position_timeline.
+
 RunArtifact v1 `position_timeline` remains baseline layout positions, NOT
 simulated movement. Reports must not infer path, route, travel, congestion,
 walking distance, forklift distance, or animation semantics from RunArtifact v1
