@@ -116,6 +116,11 @@ public sealed class WarehouseUnifiedOperationRunner
                 runFinishedAtMs - runStartedAtMs);
         var bottleneckSummary = WarehouseUnifiedBottleneckSummary.FromResourceKpis(
             resourceKpiSummaryByResourceId);
+        var richKpiSummary = WarehouseUnifiedRichKpiSummary.FromTelemetry(
+            operationTelemetry,
+            runStartedAtMs,
+            runFinishedAtMs,
+            resourceKpiSummaryByResourceId);
         var positionTimeline = BuildPositionTimeline(orderedIntervals, layout);
 
         return new WarehouseUnifiedOperationResult(
@@ -125,6 +130,7 @@ public sealed class WarehouseUnifiedOperationRunner
             customerKpiSummaryByOperationType,
             resourceKpiSummaryByResourceId,
             bottleneckSummary,
+            richKpiSummary,
             positionTimeline,
             ledger.Snapshot(),
             eventLogText);
