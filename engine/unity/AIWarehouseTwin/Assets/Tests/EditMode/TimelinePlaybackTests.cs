@@ -15,7 +15,7 @@ namespace AIWarehouseTwin.Tests
 
             Assert.That(timeline.StartMs, Is.EqualTo(10));
             Assert.That(timeline.EndMs, Is.EqualTo(220));
-            Assert.That(timeline.Events, Has.Count.EqualTo(10));
+            Assert.That(timeline.Events.Count, Is.EqualTo(10));
             Assert.That(timeline.Events[0].AtMs, Is.EqualTo(10));
             Assert.That(timeline.Events[0].Flow, Is.EqualTo("inbound"));
             Assert.That(timeline.Events[9].AtMs, Is.EqualTo(220));
