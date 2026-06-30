@@ -1,0 +1,55 @@
+{
+  "description": "CSV basic outbound fixture.",
+  "outbound": {
+    "dock_count": 1,
+    "inventory": [
+      {
+        "inventory_id": "inv-a",
+        "location_id": "pick-a",
+        "quantity": 100,
+        "sku_id": "sku-a",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-b",
+        "location_id": "pick-b",
+        "quantity": 50,
+        "sku_id": "sku-b",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "dock_id": "dock-1",
+        "order_id": "order-1",
+        "pick_location_id": "pick-a",
+        "quantity": 5,
+        "released_at_ms": 0,
+        "sku_id": "sku-a",
+        "staging_location_id": "outbound-stage-1",
+        "warehouse_id": "warehouse-1"
+      },
+      {
+        "dock_id": "dock-1",
+        "order_id": "order-2",
+        "pick_location_id": "pick-b",
+        "quantity": 3,
+        "released_at_ms": 60,
+        "sku_id": "sku-b",
+        "staging_location_id": "outbound-stage-1",
+        "warehouse_id": "warehouse-1"
+      }
+    ],
+    "process": {
+      "dock_travel_duration_ms": 25,
+      "load_duration_ms": 75,
+      "pick_duration_ms": 50,
+      "stage_duration_ms": 40
+    },
+    "scenario_id": "csv-basic-outbound.outbound",
+    "worker_count": 2
+  },
+  "scenario_id": "csv-basic-outbound",
+  "schema_version": "warehouse-scenario.v0",
+  "seed": 42
+}

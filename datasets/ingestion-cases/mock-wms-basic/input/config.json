@@ -1,0 +1,11 @@
+{
+  "scenario_id": "mock-wms-basic-outbound",
+  "seed": 84,
+  "description": "Mock WMS basic outbound fixture.",
+  "worker_count": 2,
+  "dock_count": 1,
+  "pick_duration_ms": 45,
+  "stage_duration_ms": 35,
+  "dock_travel_duration_ms": 20,
+  "load_duration_ms": 70
+}

@@ -1,0 +1,2 @@
+inventory_id,sku_id,quantity,location_id,status
+inv-a,sku-a,-5,pick-a,available

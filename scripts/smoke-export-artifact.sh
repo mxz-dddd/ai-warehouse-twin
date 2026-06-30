@@ -27,11 +27,19 @@ assert artifact["schema_version"] == "run-artifact.v1"
 assert artifact["artifact_kind"] == "warehouse-simulation-run"
 assert artifact["scenario_id"] == "sample-small-warehouse"
 assert artifact["seed"] == 20240627
-assert kpi["total_duration_ms"] == 210
+assert artifact["started_at_ms"] == 10
+assert artifact["finished_at_ms"] == 410
+assert artifact["final_world_time_ms"] == 410
+assert kpi["total_duration_ms"] == 400
 assert kpi["total_completed_work_items"] == 3
-assert kpi["event_log_line_count"] == 10
+assert kpi["event_log_line_count"] == 13
 assert isinstance(artifact["event_log"], list)
-assert len(artifact["event_log"]) == 10
+assert len(artifact["event_log"]) == 13
+assert [resource["resource_id"] for resource in artifact["layout"]["resources"]] == [
+    "dock-1",
+    "station-1",
+]
+assert len(artifact["position_timeline"]) == 6
 PY
 
 echo "PASS: export artifact smoke"

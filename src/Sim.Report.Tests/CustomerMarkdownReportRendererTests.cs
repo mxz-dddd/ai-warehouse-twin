@@ -113,6 +113,57 @@ public sealed class CustomerMarkdownReportRendererTests
     }
 
     [Fact]
+    public void CustomerReportService_RenderFromFiles_Default_DoesNotIncludeRunnerProvenance()
+    {
+        var report = CustomerReportService.RenderFromFiles(
+            TestPaths.ArtifactPath(),
+            TestPaths.ComparisonArtifactPath());
+
+        Assert.DoesNotContain("## Runner Provenance", report);
+        Assert.DoesNotContain("Run artifact runner:", report);
+        Assert.DoesNotContain("Comparison artifact runner:", report);
+    }
+
+    [Fact]
+    public void CustomerReportService_RenderFromFiles_WithRunnerProvenance_IncludesRunnerProvenanceSection()
+    {
+        var report = CustomerReportService.RenderFromFiles(
+            TestPaths.ArtifactPath(),
+            TestPaths.ComparisonArtifactPath(),
+            new CustomerReportRenderOptions(
+                RunRunnerMode: "unified",
+                ComparisonRunnerMode: "unified"));
+
+        Assert.Contains("## Runner Provenance", report);
+        Assert.Contains("- Run artifact runner: unified", report);
+        Assert.Contains("- Comparison artifact runner: unified", report);
+        Assert.Contains(
+            "- Provenance source: operator-provided render-report flags",
+            report);
+        Assert.DoesNotContain(
+            "Warning: Run artifact and comparison artifact were generated with different runner modes.",
+            report);
+    }
+
+    [Fact]
+    public void CustomerReportService_RenderFromFiles_WithMixedRunnerProvenance_IncludesWarning()
+    {
+        var report = CustomerReportService.RenderFromFiles(
+            TestPaths.ArtifactPath(),
+            TestPaths.ComparisonArtifactPath(),
+            new CustomerReportRenderOptions(
+                RunRunnerMode: "unified",
+                ComparisonRunnerMode: "legacy"));
+
+        Assert.Contains("## Runner Provenance", report);
+        Assert.Contains("- Run artifact runner: unified", report);
+        Assert.Contains("- Comparison artifact runner: legacy", report);
+        Assert.Contains(
+            "Warning: Run artifact and comparison artifact were generated with different runner modes. KPI values may not be directly comparable.",
+            report);
+    }
+
+    [Fact]
     public void CustomerReport_Golden_MatchesRendererOutput()
     {
         var runArtifact = RunArtifactLoader.Load(TestPaths.ArtifactPath());

@@ -16,24 +16,28 @@ import os
 payload = json.loads(os.environ["SMOKE_OUTPUT"])
 
 assert payload["scenario_id"] == "sample-small-warehouse"
+assert payload["runner_mode"] == "unified"
 assert payload["seed"] == 20240627
 assert payload["started_at_ms"] == 10
-assert payload["finished_at_ms"] == 220
+assert payload["finished_at_ms"] == 410
 assert payload["completed_receipts"] == 1
 assert payload["completed_outbound_orders"] == 1
 assert payload["completed_each_pick_orders"] == 1
 assert payload["total_quantity_available"] == 7
 assert payload["total_quantity_shipped"] == 8
 assert payload["total_quantity_picked"] == 9
-assert payload["final_world_time_ms"] == 220
+assert payload["final_world_time_ms"] == 410
+assert payload["kpi_summary"]["total_duration_ms"] == 400
+assert payload["kpi_summary"]["total_completed_work_items"] == 3
+assert payload["kpi_summary"]["event_log_line_count"] == 13
 
 event_log = payload["event_log_text"]
 lines = event_log.splitlines()
 
-assert len(lines) == 10
-assert "inbound|0|10|inbound.receipt_arrived.receipt-1|InboundReceiptArrived" in lines
-assert "outbound|0|20|outbound.order_released.order-1|OutboundOrderReleased" in lines
-assert "each_pick|0|30|each_pick.order_released.each-order-1|EachPickOrderReleased" in lines
+assert len(lines) == 13
+assert "10|resource.requested|resource_id=dock-1|owner=inbound:inbound:receipt-1" in lines
+assert "20|resource.queued|resource_id=dock-1|owner=outbound:outbound:order-1" in lines
+assert "30|resource.acquired|resource_id=station-1|owner=each_pick:each_pick:each-order-1" in lines
 
 print("PASS: sample warehouse CLI smoke")
 PY

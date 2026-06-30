@@ -1,0 +1,314 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/artifacts/movement-artifact.v1.schema.json",
+  "title": "MovementArtifact",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "scenario_id",
+    "seed",
+    "source_run_artifact",
+    "warehouse_graph",
+    "actors",
+    "movement_events",
+    "route_segments",
+    "provenance"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "enum": [
+        "movement-artifact.v1"
+      ]
+    },
+    "artifact_kind": {
+      "type": "string",
+      "enum": [
+        "warehouse-movement"
+      ]
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "source_run_artifact": {
+      "type": "string"
+    },
+    "warehouse_graph": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "node_id",
+              "node_type",
+              "x",
+              "y"
+            ],
+            "properties": {
+              "node_id": {
+                "type": "string"
+              },
+              "node_type": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "edge_id",
+              "from_node_id",
+              "to_node_id",
+              "distance_m",
+              "travel_time_ms",
+              "bidirectional"
+            ],
+            "properties": {
+              "edge_id": {
+                "type": "string"
+              },
+              "from_node_id": {
+                "type": "string"
+              },
+              "to_node_id": {
+                "type": "string"
+              },
+              "distance_m": {
+                "type": "number",
+                "minimum": 0
+              },
+              "travel_time_ms": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "bidirectional": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "actors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "actor_id",
+          "actor_type",
+          "resource_id",
+          "initial_node_id",
+          "capacity",
+          "load_state"
+        ],
+        "properties": {
+          "actor_id": {
+            "type": "string"
+          },
+          "actor_type": {
+            "type": "string",
+            "enum": [
+              "worker",
+              "forklift",
+              "amr",
+              "conveyor",
+              "dock",
+              "station"
+            ]
+          },
+          "resource_id": {
+            "type": "string"
+          },
+          "initial_node_id": {
+            "type": "string"
+          },
+          "capacity": {
+            "type": "number",
+            "minimum": 0
+          },
+          "load_state": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "movement_events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "event_id",
+          "actor_id",
+          "operation_id",
+          "event_type",
+          "at_ms",
+          "node_id",
+          "x",
+          "y",
+          "load_state",
+          "related_resource_id"
+        ],
+        "properties": {
+          "event_id": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "event_type": {
+            "type": "string",
+            "enum": [
+              "movement.started",
+              "movement.arrived",
+              "pickup.started",
+              "pickup.completed",
+              "dropoff.started",
+              "dropoff.completed",
+              "wait.started",
+              "wait.ended"
+            ]
+          },
+          "at_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "node_id": {
+            "type": "string"
+          },
+          "x": {
+            "type": "number"
+          },
+          "y": {
+            "type": "number"
+          },
+          "load_state": {
+            "type": "string"
+          },
+          "related_resource_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "route_segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "segment_id",
+          "actor_id",
+          "operation_id",
+          "from_node_id",
+          "to_node_id",
+          "start_ms",
+          "end_ms",
+          "distance_m",
+          "path_node_ids",
+          "edge_ids",
+          "travel_time_ms"
+        ],
+        "properties": {
+          "segment_id": {
+            "type": "string"
+          },
+          "actor_id": {
+            "type": "string"
+          },
+          "operation_id": {
+            "type": "string"
+          },
+          "from_node_id": {
+            "type": "string"
+          },
+          "to_node_id": {
+            "type": "string"
+          },
+          "start_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "end_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "distance_m": {
+            "type": "number",
+            "minimum": 0
+          },
+          "path_node_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "edge_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "travel_time_ms": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "movement_generator_version",
+        "graph_source",
+        "movement_enabled",
+        "deterministic_generation_policy"
+      ],
+      "properties": {
+        "movement_generator_version": {
+          "type": "string"
+        },
+        "graph_source": {
+          "type": "string"
+        },
+        "movement_enabled": {
+          "type": "boolean"
+        },
+        "deterministic_generation_policy": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

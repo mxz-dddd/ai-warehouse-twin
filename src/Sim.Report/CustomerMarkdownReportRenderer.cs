@@ -15,8 +15,20 @@ public static class CustomerMarkdownReportRenderer
         RunArtifact runArtifact,
         ComparisonArtifact comparisonArtifact)
     {
+        return Render(
+            runArtifact,
+            comparisonArtifact,
+            new CustomerReportRenderOptions());
+    }
+
+    public static string Render(
+        RunArtifact runArtifact,
+        ComparisonArtifact comparisonArtifact,
+        CustomerReportRenderOptions options)
+    {
         ArgumentNullException.ThrowIfNull(runArtifact);
         ArgumentNullException.ThrowIfNull(comparisonArtifact);
+        ArgumentNullException.ThrowIfNull(options);
 
         var baselineMetrics = comparisonArtifact.Baseline.Metrics;
         var sb = new StringBuilder();
@@ -52,6 +64,26 @@ public static class CustomerMarkdownReportRenderer
             comparisonArtifact.Deltas.Where(delta =>
                 KeyMetricNames.Contains(delta.MetricName, StringComparer.Ordinal)));
         Line();
+
+        if (options.HasRunnerProvenance)
+        {
+            Line("## Runner Provenance");
+            Line();
+            Line($"- Run artifact runner: {options.RunRunnerMode}");
+            Line($"- Comparison artifact runner: {options.ComparisonRunnerMode}");
+            Line("- Provenance source: operator-provided render-report flags");
+
+            if (!string.Equals(
+                    options.RunRunnerMode,
+                    options.ComparisonRunnerMode,
+                    StringComparison.Ordinal))
+            {
+                Line();
+                Line("Warning: Run artifact and comparison artifact were generated with different runner modes. KPI values may not be directly comparable.");
+            }
+
+            Line();
+        }
 
         Line("## Notes");
         Line();

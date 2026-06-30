@@ -1,0 +1,2 @@
+order_id,warehouse_id,sku_id,quantity,pick_location_id,staging_location_id,released_at_ms
+order-1,warehouse-1,sku-a,5,pick-a,outbound-stage-1,0

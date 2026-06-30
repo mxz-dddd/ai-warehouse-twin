@@ -1,0 +1,16 @@
+[
+  {
+    "inventory_id": "mock-inv-a",
+    "sku_id": "sku-mock-a",
+    "quantity": 120,
+    "location_id": "mock-pick-a",
+    "status": "available"
+  },
+  {
+    "inventory_id": "mock-inv-b",
+    "sku_id": "sku-mock-b",
+    "quantity": 80,
+    "location_id": "mock-pick-b",
+    "status": "available"
+  }
+]

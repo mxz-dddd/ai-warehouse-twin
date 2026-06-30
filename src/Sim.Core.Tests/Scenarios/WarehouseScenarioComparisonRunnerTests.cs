@@ -1,5 +1,6 @@
 using Sim.Core.Processes.Inbound;
 using Sim.Core.Scenarios;
+using Sim.Core.Scenarios.Json;
 using Xunit;
 
 namespace Sim.Core.Tests.Scenarios;
@@ -80,6 +81,80 @@ public sealed class WarehouseScenarioComparisonRunnerTests
         Assert.Equal(first.CandidateMetrics, second.CandidateMetrics);
     }
 
+    [Fact]
+    public void WarehouseScenarioComparisonRunner_Compare_DefaultPath_RemainsLegacy()
+    {
+        var baseline = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var candidate = WarehouseScenarioJsonLoader.Load(CandidateScenarioPath());
+
+        var result = new WarehouseScenarioComparisonRunner().Compare(
+            baseline,
+            candidate);
+
+        Assert.Equal(220, result.BaselineMetrics.FinishedAtMs);
+        Assert.Equal(210, result.CandidateMetrics.FinishedAtMs);
+        Assert.Equal(3, TotalCompleted(result.BaselineMetrics));
+        Assert.Equal(3, TotalCompleted(result.CandidateMetrics));
+        Assert.InRange(
+            result.BaselineMetrics.TotalWorkItemThroughputPerHour,
+            51_428.570m,
+            51_428.572m);
+        Assert.Equal(
+            -10m,
+            Delta(result, "finished_at_ms").Delta);
+    }
+
+    [Fact]
+    public void WarehouseScenarioComparisonRunner_CompareWithUnifiedAdapter_RunsSampleComparison()
+    {
+        var baseline = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var candidate = WarehouseScenarioJsonLoader.Load(CandidateScenarioPath());
+
+        var result = new WarehouseScenarioComparisonRunner()
+            .CompareWithUnifiedAdapter(baseline, candidate);
+
+        Assert.Equal("sample-small-warehouse", result.BaselineScenarioId);
+        Assert.Equal("sample-small-warehouse-candidate", result.CandidateScenarioId);
+        Assert.Equal(3, TotalCompleted(result.BaselineMetrics));
+        Assert.Equal(3, TotalCompleted(result.CandidateMetrics));
+        Assert.True(result.BaselineMetrics.FinishedAtMs > 0);
+        Assert.True(result.CandidateMetrics.FinishedAtMs > 0);
+        Assert.NotEmpty(result.Deltas);
+    }
+
+    [Fact]
+    public void WarehouseScenarioComparisonRunner_CompareWithUnifiedAdapter_DiffersFromLegacyTimingButKeepsCounts()
+    {
+        var baseline = WarehouseScenarioJsonLoader.Load(SampleScenarioPath());
+        var candidate = WarehouseScenarioJsonLoader.Load(CandidateScenarioPath());
+        var runner = new WarehouseScenarioComparisonRunner();
+
+        var legacy = runner.Compare(baseline, candidate);
+        var unified = runner.CompareWithUnifiedAdapter(baseline, candidate);
+
+        Assert.NotEqual(
+            legacy.BaselineMetrics.FinishedAtMs,
+            unified.BaselineMetrics.FinishedAtMs);
+        Assert.NotEqual(
+            legacy.CandidateMetrics.FinishedAtMs,
+            unified.CandidateMetrics.FinishedAtMs);
+        Assert.NotEqual(
+            legacy.BaselineMetrics.TotalWorkItemThroughputPerHour,
+            unified.BaselineMetrics.TotalWorkItemThroughputPerHour);
+        Assert.Equal(
+            TotalCompleted(legacy.BaselineMetrics),
+            TotalCompleted(unified.BaselineMetrics));
+        Assert.Equal(
+            TotalCompleted(legacy.CandidateMetrics),
+            TotalCompleted(unified.CandidateMetrics));
+        Assert.Equal(
+            legacy.BaselineMetrics.TotalQuantityReceived,
+            unified.BaselineMetrics.TotalQuantityReceived);
+        Assert.Equal(
+            legacy.CandidateMetrics.TotalQuantityPicked,
+            unified.CandidateMetrics.TotalQuantityPicked);
+    }
+
     private static WarehouseScenarioComparisonDelta Delta(
         WarehouseScenarioComparisonResult result,
         string metricName)
@@ -87,6 +162,47 @@ public sealed class WarehouseScenarioComparisonRunnerTests
         return Assert.Single(
             result.Deltas,
             delta => delta.MetricName == metricName);
+    }
+
+    private static int TotalCompleted(WarehouseScenarioComparisonMetrics metrics)
+    {
+        return metrics.CompletedReceipts +
+               metrics.CompletedOutboundOrders +
+               metrics.CompletedEachPickOrders;
+    }
+
+    private static string SampleScenarioPath()
+    {
+        return DatasetPath("scenario.json");
+    }
+
+    private static string CandidateScenarioPath()
+    {
+        return DatasetPath("scenario-candidate.json");
+    }
+
+    private static string DatasetPath(string fileName)
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+
+        while (directory is not null)
+        {
+            var candidate = Path.Combine(
+                directory.FullName,
+                "datasets",
+                "sample-small-warehouse",
+                fileName);
+
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new FileNotFoundException(
+            $"Cannot find datasets/sample-small-warehouse/{fileName} from test output directory.");
     }
 
     private static WarehouseScenario Scenario(

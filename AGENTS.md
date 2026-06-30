@@ -16,7 +16,7 @@ This repository is a monorepo for AI Warehouse Twin, a startup product for real 
 - Every simulation run must use an explicit seed, and results must be reproducible.
 - WMS writes and equipment control require explicit approval, auditability, and idempotency.
 - Clearly separate implemented capabilities from planned capabilities such as real path movement, Unity visualization, calibration confidence, WMS pilots, and closed-loop optimization recommendations.
-- Until R2 real path movement is implemented, RunArtifact position timeline must be described as baseline layout positions, NOT simulated movement. Do not build customer-facing movement animation or claims on it.
+- Until R2 movement semantics are implemented and reviewed, `position_timeline` must only be described as operation handoff points at baseline layout positions, NOT simulated movement. Do not build or approve movement animation, route claims, distance claims, or path-optimization claims from the current v1 position timeline. See `docs/architecture/position-timeline-semantics.md`.
 - Do not claim calibration, confidence grading, error intervals, or closed-loop optimization recommendations as implemented until the corresponding R5/R7 tasks land with tests, artifacts, and CI guards.
 
 ## Engineering Rules
@@ -30,3 +30,7 @@ This repository is a monorepo for AI Warehouse Twin, a startup product for real 
 - This repository is proprietary. Do not add open-source license text, reuse third-party code, or copy external assets unless the license and commercial-use rights are explicitly reviewed.
 - Do not mark the project as open source in README/docs/issues/PRs.
 - Public visibility does not grant usage rights; preserve LICENSE and NOTICE wording unless a dedicated legal/licensing task changes it.
+
+## Golden update governance
+
+Tracked golden artifacts must not be updated casually. Any PR that changes tracked golden files must follow `docs/architecture/golden-update-policy.md`. Golden updates require explicit diff evidence, customer-visible impact notes, regeneration commands, and reviewer approval. Do not update golden files just to make tests pass.

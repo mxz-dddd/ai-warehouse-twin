@@ -1,0 +1,9 @@
+[
+  {
+    "inventory_id": "mock-inv-a",
+    "sku_id": "sku-mock-a",
+    "quantity": -2,
+    "location_id": "missing-location",
+    "status": "available"
+  }
+]
