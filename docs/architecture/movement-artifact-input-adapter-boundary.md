@@ -188,6 +188,8 @@ CORE-R2f adds internal adapter-generator-loader end-to-end tests. The tests prov
 
 CLI-R2a adds a planning-only export-movement-artifact CLI surface. It documents how a future CLI command may call the input adapter and generator, but it does not implement the command, write files, add golden artifacts, modify reports, animate Unity, modify Track C ingestion, or modify runtime orchestration.
 
+CLI-R2b uses MovementArtifactInputAdapter as the only approved path from scenario/layout/resource inputs into MovementArtifactGenerationRequest for CLI export.
+
 ## Proposed first adapter slice
 
 Recommended next task:

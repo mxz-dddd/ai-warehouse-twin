@@ -1,10 +1,17 @@
 using System.Text.Json;
 using Sim.Contracts.Artifacts;
+using Sim.Core.Movement;
 using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Unified;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
 using Sim.Report;
+
+if (args.Length > 0 &&
+    args[0] == "export-movement-artifact")
+{
+    return ExportMovementArtifact(args);
+}
 
 if (args.Length == 5 &&
     args[0] == "render-report" &&
@@ -179,6 +186,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- run-file <scenario-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-movement-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
@@ -219,6 +227,146 @@ Console.WriteLine(JsonSerializer.Serialize(
     }));
 
 return 0;
+
+static int ExportMovementArtifact(string[] args)
+{
+    if (args.Length < 2)
+    {
+        Console.Error.WriteLine(
+            "Usage: dotnet run --project src/Sim.Cli -- export-movement-artifact <scenario-json-path> -o <output-json-path>");
+        return 1;
+    }
+
+    var scenarioPath = args[1];
+    string? outputPath = null;
+    string? runId = null;
+    var sourceRunArtifact = "not-provided";
+    var graphSource = "cli-r2b-scenario-layout";
+    var generatorVersion = "cli-r2b";
+
+    for (var i = 2; i < args.Length; i++)
+    {
+        var argument = args[i];
+        if (argument is "-o" or "--output")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out outputPath))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        if (argument == "--run-id")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out runId))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        if (argument == "--source-run-artifact")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out sourceRunArtifact))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        if (argument == "--graph-source")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out graphSource))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        if (argument == "--generator-version")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out generatorVersion))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        Console.Error.WriteLine(
+            $"Unknown export-movement-artifact option '{argument}'.");
+        return 1;
+    }
+
+    if (string.IsNullOrWhiteSpace(outputPath))
+    {
+        Console.Error.WriteLine(
+            "export-movement-artifact requires -o or --output.");
+        return 1;
+    }
+
+    try
+    {
+        var scenario = WarehouseScenarioJsonLoader.Load(scenarioPath);
+        var request = MovementArtifactInputAdapter.FromScenario(
+            scenario,
+            new MovementArtifactInputAdapterOptions(
+                sourceRunArtifact,
+                graphSource,
+                generatorVersion,
+                runId));
+        var movementArtifactJson = JsonSerializer.Serialize(
+            MovementArtifactGenerator.Generate(request),
+            ArtifactJsonOptions());
+
+        File.WriteAllText(
+            outputPath,
+            NormalizeLineEndings(movementArtifactJson) + "\n");
+
+        Console.WriteLine($"Exported movement artifact: {outputPath}");
+        return 0;
+    }
+    catch (Exception exception) when (
+        exception is ArgumentException or
+        InvalidOperationException or
+        IOException or
+        UnauthorizedAccessException)
+    {
+        Console.Error.WriteLine(
+            $"Failed to export movement artifact: {exception.Message}");
+        return 1;
+    }
+}
+
+static bool TryReadOptionValue(
+    string[] args,
+    ref int index,
+    string optionName,
+    out string value)
+{
+    if (index + 1 >= args.Length)
+    {
+        Console.Error.WriteLine($"{optionName} requires a value.");
+        value = string.Empty;
+        return false;
+    }
+
+    var candidate = args[index + 1];
+    if (string.IsNullOrWhiteSpace(candidate))
+    {
+        Console.Error.WriteLine($"{optionName} requires a non-empty value.");
+        value = string.Empty;
+        return false;
+    }
+
+    index++;
+    value = candidate;
+    return true;
+}
 
 static object ToPayload(WarehouseRunResult result)
 {

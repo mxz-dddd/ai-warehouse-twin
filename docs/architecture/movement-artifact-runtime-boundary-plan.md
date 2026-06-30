@@ -39,6 +39,8 @@ policy is approved.
 
 CLI-R2a documents the future CLI export boundary for MovementArtifact. The command remains opt-in and non-customer-default; default RunArtifact/ComparisonArtifact/report behavior remains unchanged.
 
+CLI-R2b adds an opt-in CLI export command only. Runtime orchestration remains unchanged and must not manufacture movement semantics.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

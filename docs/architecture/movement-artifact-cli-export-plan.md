@@ -9,6 +9,8 @@ It does not modify Sim.Cli, Sim.Core, Sim.Report, Unity, ingestion, runtime serv
 
 This plan defines a future opt-in CLI surface for exporting MovementArtifact v1 JSON after the current internal adapter-generator-loader boundary has been proven. It preserves the current customer-facing artifact and report behavior while making the next CLI step reviewable and reversible.
 
+CLI-R2b implements the first opt-in `export-movement-artifact` command. The command writes only the explicit output path requested by `-o/--output`. It does not change `export-artifact`, `compare-files`, `render-report`, golden artifacts, reports, Unity, Track C ingestion, or runtime orchestration.
+
 RunArtifact v1 position_timeline remains baseline layout positions, NOT simulated movement.
 
 ## Current foundation

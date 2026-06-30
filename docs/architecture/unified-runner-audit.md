@@ -303,6 +303,13 @@ entries describe the state at the time of that task and are superseded by
   - Does not implement CLI behavior, write files, add golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CLI-R2b: Added opt-in MovementArtifact CLI export command.
+  - Exports MovementArtifact v1 JSON only when `export-movement-artifact` is explicitly invoked with `-o/--output`.
+  - Uses scenario input through `MovementArtifactInputAdapter` and `MovementArtifactGenerator`.
+  - Does not change `export-artifact`, `compare-files`, or `render-report`.
+  - Does not add or update golden artifacts, report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
