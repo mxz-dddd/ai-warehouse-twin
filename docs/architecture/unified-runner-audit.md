@@ -288,6 +288,11 @@ entries describe the state at the time of that task and are superseded by
   - Explicitly forbids using RunArtifact v1 `position_timeline` as route/path/movement input.
   - Does not add adapter production code, CLI export, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2e: Added deterministic fixture-scale MovementArtifact input adapter.
+  - Produces MovementArtifactGenerationRequest from explicit scenario/layout/resource inputs and a documented fixture-scale policy.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
