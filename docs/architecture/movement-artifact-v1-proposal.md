@@ -64,6 +64,11 @@ CLI-R2b adds an opt-in MovementArtifact export command without changing Movement
 
 GOLDEN-R2a adds the first MovementArtifact v1 golden baseline for sample-small-warehouse. It does not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, reports, Unity, ingestion, or runtime orchestration.
 
+REPORT-R2a-consumption-plan documents how reports may eventually consume
+MovementArtifact v1 as an explicit optional input. It does not implement report
+rendering, add customer movement sections, change report golden files, or make
+MovementArtifact customer-facing by default.
+
 ## Scope
 
 This proposal covers:
@@ -72,6 +77,7 @@ This proposal covers:
 - Future R2 movement handoff.
 - Future Unity path animation input.
 - Future report movement provenance.
+- Future report consumption boundary.
 - Future validation / golden strategy.
 
 The product reason is to preserve the current deterministic RunArtifact v1 handoff while creating a separate, reviewable surface for real movement semantics once R2 path and movement work begins.

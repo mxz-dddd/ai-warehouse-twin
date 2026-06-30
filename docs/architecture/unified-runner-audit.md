@@ -317,6 +317,12 @@ entries describe the state at the time of that task and are superseded by
   - Does not add report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- REPORT-R2a-consumption-plan: Added MovementArtifact report consumption boundary planning.
+  - Documents that future reports may consume MovementArtifact only as an explicit optional input.
+  - Keeps current `render-report` output and report golden files unchanged.
+  - Does not add report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
