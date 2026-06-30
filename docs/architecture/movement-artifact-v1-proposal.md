@@ -50,6 +50,10 @@ work must map only explicit scenario/layout/operation inputs into
 MovementArtifactGenerationRequest and must not infer movement from RunArtifact
 v1 position_timeline.
 
+CORE-R2e adds a deterministic fixture-scale input adapter that produces
+MovementArtifactGenerationRequest from explicit scenario/layout/resource inputs
+only. It does not infer movement from RunArtifact v1 position_timeline.
+
 ## Scope
 
 This proposal covers:

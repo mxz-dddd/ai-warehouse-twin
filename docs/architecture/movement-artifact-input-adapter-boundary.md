@@ -182,6 +182,8 @@ This PR does not implement this adapter.
 
 Keeping the adapter near `MovementArtifactGenerator` makes the boundary explicit: the adapter creates generator input; the generator converts explicit input to the contract object; CLI/report/runtime/Unity remain separate consumers or callers.
 
+CORE-R2e adds the first deterministic fixture-scale MovementArtifact input adapter. The adapter creates MovementArtifactGenerationRequest objects from explicit scenario/layout/resource inputs and a documented fixture-scale graph policy. It does not read RunArtifact v1 position_timeline, implement real route optimization, add CLI export, write files, update golden artifacts, render report movement sections, animate Unity movement, modify Track C ingestion, or modify runtime orchestration.
+
 ## Proposed first adapter slice
 
 Recommended next task:

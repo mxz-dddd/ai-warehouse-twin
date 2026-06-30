@@ -28,6 +28,11 @@ route/path/movement source. It does not implement adapter code, CLI export,
 file writing, golden artifacts, report movement sections, Unity animation,
 Track C ingestion changes, or runtime orchestration changes.
 
+CORE-R2e introduces an in-memory input adapter boundary for MovementArtifact
+generation. The adapter remains internal and non-customer-facing; CLI export,
+golden artifacts, reports, Unity, ingestion, and runtime orchestration remain
+future work.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.
