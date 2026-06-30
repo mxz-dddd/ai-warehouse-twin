@@ -41,6 +41,8 @@ CLI-R2a documents the future CLI export boundary for MovementArtifact. The comma
 
 CLI-R2b adds an opt-in CLI export command only. Runtime orchestration remains unchanged and must not manufacture movement semantics.
 
+GOLDEN-R2a adds a MovementArtifact validation golden only. Runtime orchestration remains unchanged and must not manufacture movement semantics.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

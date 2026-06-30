@@ -62,6 +62,8 @@ CLI-R2a plans an opt-in MovementArtifact export command. It does not change Move
 
 CLI-R2b adds an opt-in MovementArtifact export command without changing MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, default CLI behavior, reports, Unity, ingestion, or runtime orchestration.
 
+GOLDEN-R2a adds the first MovementArtifact v1 golden baseline for sample-small-warehouse. It does not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, reports, Unity, ingestion, or runtime orchestration.
+
 ## Scope
 
 This proposal covers:

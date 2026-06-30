@@ -310,6 +310,13 @@ entries describe the state at the time of that task and are superseded by
   - Does not add or update golden artifacts, report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- GOLDEN-R2a: Added first controlled MovementArtifact golden baseline.
+  - Adds `datasets/sample-small-warehouse/artifacts/movement-artifact.v1.json`.
+  - Adds a smoke check that regenerates the artifact through opt-in `export-movement-artifact` and compares bytes against the golden.
+  - Does not change `export-artifact`, `compare-files`, or `render-report`.
+  - Does not add report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
