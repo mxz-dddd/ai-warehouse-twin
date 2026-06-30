@@ -190,6 +190,8 @@ CLI-R2a adds a planning-only export-movement-artifact CLI surface. It documents 
 
 CLI-R2b uses MovementArtifactInputAdapter as the only approved path from scenario/layout/resource inputs into MovementArtifactGenerationRequest for CLI export.
 
+GOLDEN-R2a records the current fixture-scale adapter output as a controlled sample golden. The golden remains a validation baseline, not a claim of optimized or real-world movement.
+
 ## Proposed first adapter slice
 
 Recommended next task:

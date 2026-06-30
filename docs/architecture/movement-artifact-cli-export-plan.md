@@ -11,6 +11,8 @@ This plan defines a future opt-in CLI surface for exporting MovementArtifact v1 
 
 CLI-R2b implements the first opt-in `export-movement-artifact` command. The command writes only the explicit output path requested by `-o/--output`. It does not change `export-artifact`, `compare-files`, `render-report`, golden artifacts, reports, Unity, Track C ingestion, or runtime orchestration.
 
+GOLDEN-R2a adds the first controlled MovementArtifact golden at `datasets/sample-small-warehouse/artifacts/movement-artifact.v1.json`. The golden is generated only through the opt-in `export-movement-artifact` command with explicit deterministic options. It is checked by `smoke-movement-artifact-export.sh` and `check-all.sh`. This does not make MovementArtifact customer-facing by default and does not change `export-artifact`, `compare-files`, `render-report`, reports, Unity, Track C ingestion, or runtime orchestration.
+
 RunArtifact v1 position_timeline remains baseline layout positions, NOT simulated movement.
 
 ## Current foundation
