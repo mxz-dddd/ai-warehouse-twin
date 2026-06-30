@@ -1,0 +1,195 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/artifacts/comparison-artifact.v1.schema.json",
+  "title": "ComparisonArtifact",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "baseline",
+    "candidate",
+    "deltas"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "comparison_artifact.v1 remains accepted for existing artifacts; comparison_artifact.v1.r3 identifies the additive CONTRACT-R3 seam-freeze shape.",
+      "type": "string",
+      "enum": [
+        "comparison_artifact.v1",
+        "comparison_artifact.v1.r3"
+      ]
+    },
+    "baseline": {
+      "$ref": "#/$defs/scenario_summary"
+    },
+    "candidate": {
+      "$ref": "#/$defs/scenario_summary"
+    },
+    "deltas": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/delta"
+      }
+    },
+    "kpi_deltas": {
+      "description": "Optional CONTRACT-R3 KPI deltas keyed by KPI name.",
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/kpi_delta"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "improvement_pct": {
+      "description": "Optional improvement percent by KPI name. Positive values mean the candidate improves over baseline. For lower_is_better=true metrics such as cycle, wait, and distance, decreases are positive improvements; for higher_is_better metrics such as throughput, increases are positive improvements.",
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "scenario_summary": {
+      "type": "object",
+      "required": [
+        "scenario_id",
+        "metrics"
+      ],
+      "properties": {
+        "scenario_id": {
+          "type": "string"
+        },
+        "metrics": {
+          "$ref": "#/$defs/metrics"
+        }
+      },
+      "additionalProperties": false
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "finished_at_ms",
+        "completed_receipts",
+        "completed_outbound_orders",
+        "completed_each_pick_orders",
+        "total_quantity_received",
+        "total_quantity_shipped",
+        "total_quantity_picked",
+        "inbound_receipt_throughput_per_hour",
+        "outbound_order_throughput_per_hour",
+        "each_pick_order_throughput_per_hour",
+        "total_work_item_throughput_per_hour"
+      ],
+      "properties": {
+        "finished_at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_receipts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_outbound_orders": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "completed_each_pick_orders": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_quantity_received": {
+          "type": "number"
+        },
+        "total_quantity_shipped": {
+          "type": "number"
+        },
+        "total_quantity_picked": {
+          "type": "number"
+        },
+        "inbound_receipt_throughput_per_hour": {
+          "type": "number"
+        },
+        "outbound_order_throughput_per_hour": {
+          "type": "number"
+        },
+        "each_pick_order_throughput_per_hour": {
+          "type": "number"
+        },
+        "total_work_item_throughput_per_hour": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "delta": {
+      "type": "object",
+      "required": [
+        "metric_name",
+        "baseline_value",
+        "candidate_value",
+        "delta",
+        "direction"
+      ],
+      "properties": {
+        "metric_name": {
+          "type": "string"
+        },
+        "baseline_value": {
+          "type": "number"
+        },
+        "candidate_value": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "number"
+        },
+        "delta_percent": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "direction": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "kpi_delta": {
+      "type": "object",
+      "required": [
+        "baseline_value",
+        "candidate_value",
+        "delta",
+        "lower_is_better"
+      ],
+      "properties": {
+        "baseline_value": {
+          "type": "number"
+        },
+        "candidate_value": {
+          "type": "number"
+        },
+        "delta": {
+          "type": "number"
+        },
+        "lower_is_better": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

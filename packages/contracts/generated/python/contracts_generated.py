@@ -5,6 +5,15 @@ from typing import Any
 
 
 @dataclass(frozen=True)
+class ComparisonArtifact:
+    schema_version: str
+    baseline: dict[str, Any]
+    candidate: dict[str, Any]
+    deltas: list[Any]
+    kpi_deltas: dict[str, Any]
+    improvement_pct: dict[str, Any]
+
+@dataclass(frozen=True)
 class MovementArtifact:
     schema_version: str
     artifact_kind: str
@@ -17,6 +26,21 @@ class MovementArtifact:
     movement_events: list[Any]
     route_segments: list[Any]
     provenance: dict[str, Any]
+
+@dataclass(frozen=True)
+class RunArtifact:
+    schema_version: str
+    artifact_kind: str
+    scenario_id: str
+    seed: int
+    started_at_ms: int
+    finished_at_ms: int
+    final_world_time_ms: int
+    kpi_summary: dict[str, Any]
+    layout: dict[str, Any]
+    warehouse_graph: dict[str, Any]
+    position_timeline: list[Any]
+    event_log: list[Any]
 
 @dataclass(frozen=True)
 class CalibrationRequest:
