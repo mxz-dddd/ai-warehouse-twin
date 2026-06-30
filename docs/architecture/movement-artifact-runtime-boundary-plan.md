@@ -9,6 +9,12 @@ It does not implement runtime MovementArtifact generation, movement/path/route
 logic, CLI export commands, report sections, Unity animation, golden artifacts,
 or Track C ingestion changes.
 
+CORE-R2b adds the first minimal in-memory deterministic MovementArtifact
+generator in Sim.Core. It creates a MovementArtifact object from explicit
+generator inputs only. It does not add CLI export, write files, update golden
+artifacts, render report movement sections, animate Unity movement, modify
+Track C ingestion, or infer movement from RunArtifact v1 position_timeline.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

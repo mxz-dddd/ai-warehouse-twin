@@ -36,6 +36,11 @@ CORE-R2a adds a runtime boundary plan for a future MovementArtifact generator.
 It is planning-only and does not implement runtime generation, CLI export,
 reports, Unity animation, golden artifacts, or Track C ingestion changes.
 
+CORE-R2b introduces an in-memory deterministic generator boundary for
+MovementArtifact v1. The generator is not yet customer-facing and does not
+change RunArtifact v1, ComparisonArtifact v1, CLI behavior, reports, Unity, or
+ingestion.
+
 ## Scope
 
 This proposal covers:
