@@ -27,6 +27,11 @@ only loads MovementArtifact JSON and checks schema identity; it does not
 generate movement artifacts, validate full movement semantics, update reports,
 add Unity animation, or create golden artifacts.
 
+REPORT-R2b adds a smoke script for the minimal MovementArtifact loader boundary.
+It only runs loader tests against contract fixtures; it does not generate
+MovementArtifact runtime output, add report movement sections, create golden
+artifacts, or animate movement.
+
 ## Scope
 
 This proposal covers:

@@ -265,6 +265,10 @@ entries describe the state at the time of that task and are superseded by
   - Loads generated MovementArtifact contract JSON and checks schema identity.
   - Does not implement runtime MovementArtifact generation, full movement validation, golden artifacts, Unity animation, report movement sections, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- REPORT-R2b: Added MovementArtifact loader smoke coverage.
+  - Adds script-level smoke coverage for the minimal Sim.Report MovementArtifact loader.
+  - Does not implement runtime MovementArtifact generation, full movement validation, golden artifacts, Unity animation, report movement sections, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
