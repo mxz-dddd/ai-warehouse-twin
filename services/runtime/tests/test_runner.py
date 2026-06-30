@@ -23,6 +23,9 @@ def test_dry_run_outputs_are_byte_stable(tmp_path: Path) -> None:
     assert (first / "artifact-index.json").read_bytes() == (
         second / "artifact-index.json"
     ).read_bytes()
+    assert (first / "run-manifest.json").read_bytes() == (
+        second / "run-manifest.json"
+    ).read_bytes()
 
 
 def test_dry_run_outputs_do_not_contain_local_noise(tmp_path: Path) -> None:
@@ -32,7 +35,7 @@ def test_dry_run_outputs_do_not_contain_local_noise(tmp_path: Path) -> None:
 
     run_dry(scenario, output_dir)
 
-    for output_file in ("runtime-result.json", "artifact-index.json"):
+    for output_file in ("runtime-result.json", "artifact-index.json", "run-manifest.json"):
         text = (output_dir / output_file).read_text(encoding="utf-8")
         assert str(tmp_path) not in text
         assert "scenario.json" in text or output_file == "artifact-index.json"
@@ -42,3 +45,8 @@ def test_dry_run_outputs_do_not_contain_local_noise(tmp_path: Path) -> None:
     result = json.loads((output_dir / "runtime-result.json").read_text(encoding="utf-8"))
     assert result["status"] == "succeeded"
     assert result["scenario_name"] == "scenario.json"
+
+    manifest = json.loads((output_dir / "run-manifest.json").read_text(encoding="utf-8"))
+    assert manifest["run_id"] == result["job_id"]
+    assert manifest["runner"]["mode"] == "dry-run"
+    assert manifest["artifact_index_path"] == "artifact-index.json"

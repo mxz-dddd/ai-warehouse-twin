@@ -51,6 +51,9 @@ def test_write_simcli_plan_outputs_are_byte_stable(tmp_path: Path) -> None:
     assert (first / "artifact-index.json").read_bytes() == (
         second / "artifact-index.json"
     ).read_bytes()
+    assert (first / "run-manifest.json").read_bytes() == (
+        second / "run-manifest.json"
+    ).read_bytes()
 
 
 def test_simcli_plan_output_has_no_local_noise(tmp_path: Path) -> None:
@@ -67,3 +70,10 @@ def test_simcli_plan_output_has_no_local_noise(tmp_path: Path) -> None:
     assert not re.search(r"\d{4}-\d{2}-\d{2}", plan_text)
     assert not re.search(r"\b[0-9a-f]{32,}\b", plan_text)
     assert plan["command"]["executable"] == "dotnet"
+
+    manifest_text = (output_dir / "run-manifest.json").read_text(encoding="utf-8")
+    manifest = json.loads(manifest_text)
+    assert str(tmp_path) not in manifest_text
+    assert not re.search(r"\d{4}-\d{2}-\d{2}", manifest_text)
+    assert not re.search(r"\b[0-9a-f]{32,}\b", manifest_text)
+    assert manifest["runner"] == {"mode": "dry-plan", "name": "simcli"}
