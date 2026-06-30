@@ -32,6 +32,10 @@ It only runs loader tests against contract fixtures; it does not generate
 MovementArtifact runtime output, add report movement sections, create golden
 artifacts, or animate movement.
 
+CORE-R2a adds a runtime boundary plan for a future MovementArtifact generator.
+It is planning-only and does not implement runtime generation, CLI export,
+reports, Unity animation, golden artifacts, or Track C ingestion changes.
+
 ## Scope
 
 This proposal covers:
