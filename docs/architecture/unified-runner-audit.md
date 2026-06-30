@@ -329,6 +329,13 @@ entries describe the state at the time of that task and are superseded by
   - Does not change `export-artifact`, `compare-files`, `render-report`, MovementArtifact golden artifacts, report movement sections, runtime orchestration behavior, or Track C ingestion behavior.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- TRACKA-R2a: Added Track A R2 readiness audit and release gate.
+  - Adds `docs/architecture/track-a-r2-readiness-audit.md`.
+  - Adds `scripts/check-track-a-r2-readiness.sh` and invokes it from `scripts/check-all.sh`.
+  - Checks that MovementArtifact schema, loader, generator, adapter, CLI export, golden baseline, report boundary, Unity boundary, and honesty language remain present.
+  - Does not implement new product behavior.
+  - Does not change `export-artifact`, `compare-files`, `render-report`, MovementArtifact golden artifacts, report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

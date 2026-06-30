@@ -14,6 +14,10 @@ simulated movement.
 The current sample MovementArtifact is a deterministic fixture-scale validation
 baseline, not a claim of optimized or real-world movement.
 
+TRACKA-R2a adds a readiness gate that protects the Unity boundary: Unity
+movement animation remains separate from MovementArtifact generation and
+requires a future approved implementation PR.
+
 ## Current foundation
 
 Track A currently has:
