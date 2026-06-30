@@ -60,6 +60,8 @@ MovementArtifact v1 schema or customer-facing artifacts.
 
 CLI-R2a plans an opt-in MovementArtifact export command. It does not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, default CLI behavior, reports, Unity, ingestion, or runtime orchestration.
 
+CLI-R2b adds an opt-in MovementArtifact export command without changing MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, default CLI behavior, reports, Unity, ingestion, or runtime orchestration.
+
 ## Scope
 
 This proposal covers:
