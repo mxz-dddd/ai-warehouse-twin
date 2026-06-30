@@ -336,6 +336,11 @@ entries describe the state at the time of that task and are superseded by
   - Does not implement new product behavior.
   - Does not change `export-artifact`, `compare-files`, `render-report`, MovementArtifact golden artifacts, report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- TRACKA-R2b: Added final Track A R2 closeout audit.
+  - Records completed MovementArtifact R2 scope, acceptance evidence, boundaries, known limitations, rollback rules, and out-of-scope follow-up work.
+  - Does not implement new product behavior.
+  - Does not change production code, schemas, generated contracts, golden artifacts, CLI behavior, report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

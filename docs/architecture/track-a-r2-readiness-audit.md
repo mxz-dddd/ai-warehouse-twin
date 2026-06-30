@@ -4,6 +4,10 @@
 
 TRACKA-R2a adds the Track A R2 readiness audit and release gate.
 
+TRACKA-R2b adds the final Track A R2 closeout audit. The readiness gate remains
+the executable release guard, while the closeout audit records the completed
+scope, known limitations, acceptance evidence, and out-of-scope follow-up work.
+
 It does not implement new product behavior.
 It does not modify MovementArtifact schema, generated contracts, production
 generator, production adapter, CLI semantics, reports, Unity, Track C
