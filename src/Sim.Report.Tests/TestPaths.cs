@@ -42,6 +42,18 @@ internal static class TestPaths
             RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "customer-report.v1.md");
     }
 
+    public static string MovementArtifactPath()
+    {
+        return Path.Combine(
+            RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "movement-artifact.v1.json");
+    }
+
+    public static string MovementProvenanceGoldenPath()
+    {
+        return Path.Combine(
+            RepoRoot(), "datasets", "sample-small-warehouse", "artifacts", "movement-artifact.v1.provenance.md");
+    }
+
     public static string NormalizeNewlines(string value)
     {
         return value.Replace("\r\n", "\n").Replace("\r", "\n");
