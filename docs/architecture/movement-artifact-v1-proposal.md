@@ -45,6 +45,11 @@ CORE-R2c verifies generator output compatibility with the existing
 MovementArtifact loader. This remains an internal test boundary and does not
 make MovementArtifact customer-facing.
 
+CORE-R2d documents the MovementArtifact input adapter boundary. Future adapter
+work must map only explicit scenario/layout/operation inputs into
+MovementArtifactGenerationRequest and must not infer movement from RunArtifact
+v1 position_timeline.
+
 ## Scope
 
 This proposal covers:

@@ -22,6 +22,12 @@ tracked files, update golden artifacts, render report movement sections,
 animate Unity movement, modify Track C ingestion, or modify runtime
 orchestration.
 
+CORE-R2d adds an input adapter boundary plan. It documents candidate input
+sources and explicitly forbids using RunArtifact v1 position_timeline as a
+route/path/movement source. It does not implement adapter code, CLI export,
+file writing, golden artifacts, report movement sections, Unity animation,
+Track C ingestion changes, or runtime orchestration changes.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

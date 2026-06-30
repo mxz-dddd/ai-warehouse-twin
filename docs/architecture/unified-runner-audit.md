@@ -283,6 +283,11 @@ entries describe the state at the time of that task and are superseded by
   - Does not add CLI export, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
   - Does not infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2d: Added MovementArtifact input adapter boundary plan.
+  - Documents allowed future input sources for MovementArtifactGenerationRequest.
+  - Explicitly forbids using RunArtifact v1 `position_timeline` as route/path/movement input.
+  - Does not add adapter production code, CLI export, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
