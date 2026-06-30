@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import TextIO
 
 from runtime_service.runner import ARTIFACT_INDEX_FILE, RUNTIME_RESULT_FILE, run_dry
+from runtime_service.simcli import SIMCLI_PLAN_FILE, write_simcli_plan
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -35,6 +36,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     run_dry_parser.set_defaults(handler=_run_dry)
 
+    plan_simcli_parser = subcommands.add_parser(
+        "plan-simcli",
+        help="Write a deterministic Sim.Cli command plan without executing dotnet.",
+    )
+    plan_simcli_parser.add_argument(
+        "--scenario",
+        required=True,
+        type=Path,
+        help="Scenario JSON file to include in the Sim.Cli command plan.",
+    )
+    plan_simcli_parser.add_argument(
+        "--output",
+        required=True,
+        type=Path,
+        help="Output directory for simcli-plan.json and artifact-index.json.",
+    )
+    plan_simcli_parser.set_defaults(handler=_plan_simcli)
+
     return parser
 
 
@@ -59,5 +78,14 @@ def _run_dry(args: argparse.Namespace, stdout: TextIO) -> int:
     print(f"job_id: {result.job_id}", file=stdout)
     print(f"status: {result.status.value}", file=stdout)
     print(f"wrote: {RUNTIME_RESULT_FILE}", file=stdout)
+    print(f"wrote: {ARTIFACT_INDEX_FILE}", file=stdout)
+    return 0
+
+
+def _plan_simcli(args: argparse.Namespace, stdout: TextIO) -> int:
+    plan = write_simcli_plan(scenario_path=args.scenario, output_dir=args.output)
+    print(f"mode: {plan.mode}", file=stdout)
+    print(f"command: {plan.command.executable}", file=stdout)
+    print(f"wrote: {SIMCLI_PLAN_FILE}", file=stdout)
     print(f"wrote: {ARTIFACT_INDEX_FILE}", file=stdout)
     return 0
