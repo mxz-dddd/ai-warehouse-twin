@@ -11,7 +11,10 @@ public sealed record WarehouseUnifiedResourceKpiSummary
         long totalBusyDurationMs,
         decimal utilization,
         long firstStartedAtMs,
-        long lastFinishedAtMs)
+        long lastFinishedAtMs,
+        long totalWaitingTimeMs = 0,
+        decimal averageWaitingTimeMs = 0m,
+        string resourceType = "unknown")
     {
         if (string.IsNullOrWhiteSpace(resourceId))
         {
@@ -43,12 +46,33 @@ public sealed record WarehouseUnifiedResourceKpiSummary
                 $"Unified resource KPI last finish must be after first start. FirstStartedAtMs: {firstStartedAtMs}, LastFinishedAtMs: {lastFinishedAtMs}.");
         }
 
+        if (totalWaitingTimeMs < 0)
+        {
+            throw new DomainRuleViolationException(
+                $"Unified resource KPI total waiting time cannot be negative. TotalWaitingTimeMs: {totalWaitingTimeMs}.");
+        }
+
+        if (averageWaitingTimeMs < 0m)
+        {
+            throw new DomainRuleViolationException(
+                $"Unified resource KPI average waiting time cannot be negative. AverageWaitingTimeMs: {averageWaitingTimeMs}.");
+        }
+
+        if (string.IsNullOrWhiteSpace(resourceType))
+        {
+            throw new DomainRuleViolationException(
+                "Unified resource KPI resource type cannot be empty.");
+        }
+
         ResourceId = resourceId;
         OperationCount = operationCount;
         TotalBusyDurationMs = totalBusyDurationMs;
         Utilization = utilization;
         FirstStartedAtMs = firstStartedAtMs;
         LastFinishedAtMs = lastFinishedAtMs;
+        TotalWaitingTimeMs = totalWaitingTimeMs;
+        AverageWaitingTimeMs = averageWaitingTimeMs;
+        ResourceType = resourceType;
     }
 
     public string ResourceId { get; }
@@ -62,6 +86,12 @@ public sealed record WarehouseUnifiedResourceKpiSummary
     public long FirstStartedAtMs { get; }
 
     public long LastFinishedAtMs { get; }
+
+    public long TotalWaitingTimeMs { get; }
+
+    public decimal AverageWaitingTimeMs { get; }
+
+    public string ResourceType { get; }
 
     public static IReadOnlyDictionary<string, WarehouseUnifiedResourceKpiSummary> ByResourceId(
         IReadOnlyList<WarehouseUnifiedOperationTelemetry> telemetry,
@@ -84,6 +114,7 @@ public sealed record WarehouseUnifiedResourceKpiSummary
         {
             var items = group.ToArray();
             var totalBusyDurationMs = items.Sum(item => item.DurationMs);
+            var totalWaitingTimeMs = items.Sum(item => item.WaitingTimeMs);
 
             summaries[group.Key] = new WarehouseUnifiedResourceKpiSummary(
                 group.Key,
@@ -91,7 +122,9 @@ public sealed record WarehouseUnifiedResourceKpiSummary
                 totalBusyDurationMs,
                 totalBusyDurationMs / (decimal)runWindowDurationMs,
                 items.Min(item => item.StartedAtMs),
-                items.Max(item => item.FinishedAtMs));
+                items.Max(item => item.FinishedAtMs),
+                totalWaitingTimeMs,
+                totalWaitingTimeMs / (decimal)items.Length);
         }
 
         return new ReadOnlyDictionary<string, WarehouseUnifiedResourceKpiSummary>(
