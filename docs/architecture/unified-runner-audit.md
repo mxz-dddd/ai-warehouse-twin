@@ -278,6 +278,11 @@ entries describe the state at the time of that task and are superseded by
   - Does not add CLI export, golden artifacts, report movement sections, Unity animation, or Track C ingestion changes.
   - Does not infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2c: Added MovementArtifact generator/loader compatibility tests.
+  - Verifies generated in-memory MovementArtifact output serializes to JSON and can be read by the existing Sim.Report loader.
+  - Does not add CLI export, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
+  - Does not infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

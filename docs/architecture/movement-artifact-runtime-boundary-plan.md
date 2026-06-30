@@ -15,6 +15,13 @@ generator inputs only. It does not add CLI export, write files, update golden
 artifacts, render report movement sections, animate Unity movement, modify
 Track C ingestion, or infer movement from RunArtifact v1 position_timeline.
 
+CORE-R2c adds generator/loader compatibility tests proving the in-memory
+MovementArtifact generator output can serialize to JSON and be read by the
+existing Sim.Report MovementArtifact loader. It does not add CLI export, write
+tracked files, update golden artifacts, render report movement sections,
+animate Unity movement, modify Track C ingestion, or modify runtime
+orchestration.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

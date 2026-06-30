@@ -18,5 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Sim.Core/Sim.Core.csproj" />
+    <ProjectReference Include="../Sim.Report/Sim.Report.csproj" />
   </ItemGroup>
 </Project>
