@@ -33,6 +33,10 @@ generation. The adapter remains internal and non-customer-facing; CLI export,
 golden artifacts, reports, Unity, ingestion, and runtime orchestration remain
 future work.
 
+CORE-R2f verifies the internal adapter-generator-loader boundary end to end.
+MovementArtifact remains non-customer-facing until a separate CLI/golden/report/Unity
+policy is approved.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

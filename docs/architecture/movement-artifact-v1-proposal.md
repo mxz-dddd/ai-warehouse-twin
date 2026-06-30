@@ -54,6 +54,10 @@ CORE-R2e adds a deterministic fixture-scale input adapter that produces
 MovementArtifactGenerationRequest from explicit scenario/layout/resource inputs
 only. It does not infer movement from RunArtifact v1 position_timeline.
 
+CORE-R2f adds an internal end-to-end compatibility test from scenario adapter
+to generator to loader. It remains test-only and does not change
+MovementArtifact v1 schema or customer-facing artifacts.
+
 ## Scope
 
 This proposal covers:

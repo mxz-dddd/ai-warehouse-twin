@@ -184,6 +184,8 @@ Keeping the adapter near `MovementArtifactGenerator` makes the boundary explicit
 
 CORE-R2e adds the first deterministic fixture-scale MovementArtifact input adapter. The adapter creates MovementArtifactGenerationRequest objects from explicit scenario/layout/resource inputs and a documented fixture-scale graph policy. It does not read RunArtifact v1 position_timeline, implement real route optimization, add CLI export, write files, update golden artifacts, render report movement sections, animate Unity movement, modify Track C ingestion, or modify runtime orchestration.
 
+CORE-R2f adds internal adapter-generator-loader end-to-end tests. The tests prove that a scenario can be converted to MovementArtifactGenerationRequest, generated into an in-memory MovementArtifact, serialized to JSON, and loaded by the existing Sim.Report MovementArtifact loader. This does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, Track C ingestion changes, or runtime orchestration changes.
+
 ## Proposed first adapter slice
 
 Recommended next task:

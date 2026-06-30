@@ -293,6 +293,11 @@ entries describe the state at the time of that task and are superseded by
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CORE-R2f: Added MovementArtifact adapter-generator-loader end-to-end tests.
+  - Verifies scenario input can be adapted to MovementArtifactGenerationRequest, generated in memory, serialized to JSON, and loaded by the existing Sim.Report MovementArtifact loader.
+  - Does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
