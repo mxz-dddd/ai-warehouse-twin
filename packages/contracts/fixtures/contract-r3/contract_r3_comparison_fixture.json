@@ -1,0 +1,86 @@
+{
+  "schema_version": "comparison_artifact.v1.r3",
+  "baseline": {
+    "scenario_id": "contract-r3-baseline-run",
+    "metrics": {
+      "finished_at_ms": 180000,
+      "completed_receipts": 4,
+      "completed_outbound_orders": 6,
+      "completed_each_pick_orders": 2,
+      "total_quantity_received": 48,
+      "total_quantity_shipped": 36,
+      "total_quantity_picked": 12,
+      "inbound_receipt_throughput_per_hour": 80.0,
+      "outbound_order_throughput_per_hour": 120.0,
+      "each_pick_order_throughput_per_hour": 40.0,
+      "total_work_item_throughput_per_hour": 240.0
+    }
+  },
+  "candidate": {
+    "scenario_id": "contract-r3-optimized-run",
+    "metrics": {
+      "finished_at_ms": 150000,
+      "completed_receipts": 4,
+      "completed_outbound_orders": 7,
+      "completed_each_pick_orders": 3,
+      "total_quantity_received": 48,
+      "total_quantity_shipped": 42,
+      "total_quantity_picked": 18,
+      "inbound_receipt_throughput_per_hour": 96.0,
+      "outbound_order_throughput_per_hour": 168.0,
+      "each_pick_order_throughput_per_hour": 72.0,
+      "total_work_item_throughput_per_hour": 336.0
+    }
+  },
+  "deltas": [
+    {
+      "metric_name": "order_cycle_p50_ms",
+      "baseline_value": 120000,
+      "candidate_value": 90000,
+      "delta": -30000,
+      "delta_percent": 25.0,
+      "direction": "improved_decrease"
+    },
+    {
+      "metric_name": "avg_wait_ms",
+      "baseline_value": 24000,
+      "candidate_value": 18000,
+      "delta": -6000,
+      "delta_percent": 25.0,
+      "direction": "improved_decrease"
+    },
+    {
+      "metric_name": "total_work_item_throughput_per_hour",
+      "baseline_value": 240.0,
+      "candidate_value": 336.0,
+      "delta": 96.0,
+      "delta_percent": 40.0,
+      "direction": "improved_increase"
+    }
+  ],
+  "kpi_deltas": {
+    "order_cycle_p50_ms": {
+      "baseline_value": 120000,
+      "candidate_value": 90000,
+      "delta": -30000,
+      "lower_is_better": true
+    },
+    "avg_wait_ms": {
+      "baseline_value": 24000,
+      "candidate_value": 18000,
+      "delta": -6000,
+      "lower_is_better": true
+    },
+    "total_work_item_throughput_per_hour": {
+      "baseline_value": 240.0,
+      "candidate_value": 336.0,
+      "delta": 96.0,
+      "lower_is_better": false
+    }
+  },
+  "improvement_pct": {
+    "order_cycle_p50_ms": 25.0,
+    "avg_wait_ms": 25.0,
+    "total_work_item_throughput_per_hour": 40.0
+  }
+}

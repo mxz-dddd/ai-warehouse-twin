@@ -4,6 +4,15 @@ using System.Collections.Generic;
 
 namespace WarehouseTwin.Contracts;
 
+public sealed record ComparisonArtifact(
+    string schema_version,
+    object baseline,
+    object candidate,
+    IReadOnlyList<object> deltas,
+    object kpi_deltas,
+    object improvement_pct
+);
+
 public sealed record MovementArtifact(
     string schema_version,
     string artifact_kind,
@@ -16,6 +25,21 @@ public sealed record MovementArtifact(
     IReadOnlyList<object> movement_events,
     IReadOnlyList<object> route_segments,
     object provenance
+);
+
+public sealed record RunArtifact(
+    string schema_version,
+    string artifact_kind,
+    string scenario_id,
+    long seed,
+    long started_at_ms,
+    long finished_at_ms,
+    long final_world_time_ms,
+    object kpi_summary,
+    object layout,
+    object warehouse_graph,
+    IReadOnlyList<object> position_timeline,
+    IReadOnlyList<object> event_log
 );
 
 public sealed record CalibrationRequest(

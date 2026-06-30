@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Sim.Contracts.Artifacts;
 
 public sealed record ComparisonArtifact
@@ -8,7 +10,9 @@ public sealed record ComparisonArtifact
         string schemaVersion,
         ComparisonArtifactScenarioSummary baseline,
         ComparisonArtifactScenarioSummary candidate,
-        IReadOnlyList<ComparisonArtifactDelta> deltas)
+        IReadOnlyList<ComparisonArtifactDelta> deltas,
+        IReadOnlyDictionary<string, ComparisonArtifactKpiDelta>? kpiDeltas = null,
+        IReadOnlyDictionary<string, decimal>? improvementPct = null)
     {
         if (string.IsNullOrWhiteSpace(schemaVersion))
         {
@@ -21,6 +25,16 @@ public sealed record ComparisonArtifact
         Baseline = baseline ?? throw new ArgumentNullException(nameof(baseline));
         Candidate = candidate ?? throw new ArgumentNullException(nameof(candidate));
         Deltas = deltas?.ToArray() ?? throw new ArgumentNullException(nameof(deltas));
+        KpiDeltas = kpiDeltas is null
+            ? null
+            : new Dictionary<string, ComparisonArtifactKpiDelta>(
+                kpiDeltas,
+                StringComparer.Ordinal);
+        ImprovementPct = improvementPct is null
+            ? null
+            : new Dictionary<string, decimal>(
+                improvementPct,
+                StringComparer.Ordinal);
     }
 
     public string SchemaVersion { get; }
@@ -30,4 +44,10 @@ public sealed record ComparisonArtifact
     public ComparisonArtifactScenarioSummary Candidate { get; }
 
     public IReadOnlyList<ComparisonArtifactDelta> Deltas { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, ComparisonArtifactKpiDelta>? KpiDeltas { get; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyDictionary<string, decimal>? ImprovementPct { get; }
 }

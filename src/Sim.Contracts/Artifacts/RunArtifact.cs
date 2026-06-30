@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Sim.Contracts.Artifacts;
 
 public sealed record RunArtifact
@@ -22,6 +24,9 @@ public sealed record RunArtifact
     public required RunArtifactKpiSummary KpiSummary { get; init; }
 
     public RunArtifactLayout Layout { get; init; } = RunArtifactLayout.Empty;
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public RunArtifactWarehouseGraph? WarehouseGraph { get; init; }
 
     public IReadOnlyList<RunArtifactPositionTimelineEntry> PositionTimeline { get; init; } =
         Array.Empty<RunArtifactPositionTimelineEntry>();

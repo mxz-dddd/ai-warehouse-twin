@@ -1,0 +1,320 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://warehouse-twin.local/contracts/artifacts/run-artifact.v1.schema.json",
+  "title": "RunArtifact",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "artifact_kind",
+    "scenario_id",
+    "seed",
+    "started_at_ms",
+    "finished_at_ms",
+    "final_world_time_ms",
+    "kpi_summary",
+    "event_log"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "run-artifact.v1 remains accepted for existing artifacts; run-artifact.v1.r3 identifies the additive CONTRACT-R3 seam-freeze shape.",
+      "type": "string",
+      "enum": [
+        "run-artifact.v1",
+        "run-artifact.v1.r3"
+      ]
+    },
+    "artifact_kind": {
+      "type": "string",
+      "enum": [
+        "warehouse-simulation-run"
+      ]
+    },
+    "scenario_id": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "started_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "finished_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "final_world_time_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "kpi_summary": {
+      "$ref": "#/$defs/kpi_summary"
+    },
+    "layout": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/layout"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "warehouse_graph": {
+      "description": "Optional CONTRACT-R3 static warehouse graph for visualization. Shape is intentionally compatible with MovementArtifact v1 warehouse_graph. Coordinates x/y are millimeters; edge distance_m remains meters to match MovementArtifact v1.",
+      "anyOf": [
+        {
+          "$ref": "movement-artifact.v1.schema.json#/properties/warehouse_graph"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "position_timeline": {
+      "description": "Baseline layout positions for deterministic artifact consumers; not simulated movement.",
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/position_timeline_entry"
+      }
+    },
+    "event_log": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "kpi_summary": {
+      "type": "object",
+      "required": [
+        "total_duration_ms",
+        "total_completed_work_items",
+        "event_log_line_count",
+        "receipt_throughput_per_hour",
+        "outbound_order_throughput_per_hour",
+        "each_pick_order_throughput_per_hour",
+        "total_work_item_throughput_per_hour"
+      ],
+      "properties": {
+        "total_duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "total_completed_work_items": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event_log_line_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "receipt_throughput_per_hour": {
+          "type": "number"
+        },
+        "outbound_order_throughput_per_hour": {
+          "type": "number"
+        },
+        "each_pick_order_throughput_per_hour": {
+          "type": "number"
+        },
+        "total_work_item_throughput_per_hour": {
+          "type": "number"
+        },
+        "order_cycle_p50_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Optional order cycle p50 in milliseconds."
+        },
+        "order_cycle_p90_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Optional order cycle p90 in milliseconds."
+        },
+        "order_cycle_p95_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Optional order cycle p95 in milliseconds."
+        },
+        "avg_wait_ms": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Optional average wait in milliseconds."
+        },
+        "resource_utilization": {
+          "description": "Optional resource utilization percent by resource id, 0-100.",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 100
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "bottlenecks": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/bottleneck"
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "travel_distance_m_by_actor_type": {
+          "description": "Optional travel distance in meters by actor type.",
+          "anyOf": [
+            {
+              "type": "object",
+              "additionalProperties": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "bottleneck": {
+      "type": "object",
+      "required": [
+        "rank",
+        "resource_id",
+        "resource_type",
+        "avg_wait_ms",
+        "total_wait_ms",
+        "utilization"
+      ],
+      "properties": {
+        "rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "resource_id": {
+          "type": "string"
+        },
+        "resource_type": {
+          "type": "string"
+        },
+        "avg_wait_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "total_wait_ms": {
+          "type": "number",
+          "minimum": 0
+        },
+        "utilization": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      },
+      "additionalProperties": false
+    },
+    "layout": {
+      "type": "object",
+      "properties": {
+        "resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/layout_resource"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "layout_resource": {
+      "type": "object",
+      "required": [
+        "resource_id",
+        "node_id",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "resource_id": {
+          "type": "string"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    },
+    "position_timeline_entry": {
+      "type": "object",
+      "required": [
+        "operation_id",
+        "operation_type",
+        "stage_type",
+        "resource_id",
+        "at_ms",
+        "event_type",
+        "node_id",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "operation_id": {
+          "type": "string"
+        },
+        "operation_type": {
+          "type": "string"
+        },
+        "stage_type": {
+          "type": "string"
+        },
+        "resource_id": {
+          "type": "string"
+        },
+        "at_ms": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "event_type": {
+          "type": "string"
+        },
+        "node_id": {
+          "type": "string"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
