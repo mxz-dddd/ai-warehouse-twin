@@ -1,0 +1,155 @@
+{
+  "schema_version": "run-artifact.v1.r3",
+  "artifact_kind": "warehouse-simulation-run",
+  "scenario_id": "contract-r3-demo-fixture",
+  "seed": 20260701,
+  "started_at_ms": 0,
+  "finished_at_ms": 180000,
+  "final_world_time_ms": 180000,
+  "kpi_summary": {
+    "total_duration_ms": 180000,
+    "total_completed_work_items": 12,
+    "event_log_line_count": 4,
+    "receipt_throughput_per_hour": 24.0,
+    "outbound_order_throughput_per_hour": 36.0,
+    "each_pick_order_throughput_per_hour": 180.0,
+    "total_work_item_throughput_per_hour": 240.0,
+    "order_cycle_p50_ms": 95000,
+    "order_cycle_p90_ms": 142000,
+    "order_cycle_p95_ms": 158000,
+    "avg_wait_ms": 18500,
+    "resource_utilization": {
+      "forklift-1": 67.5,
+      "worker-1": 54.25,
+      "dock-1": 42.0
+    },
+    "bottlenecks": [
+      {
+        "rank": 1,
+        "resource_id": "forklift-1",
+        "resource_type": "forklift",
+        "avg_wait_ms": 22000,
+        "total_wait_ms": 66000,
+        "utilization": 67.5
+      },
+      {
+        "rank": 2,
+        "resource_id": "dock-1",
+        "resource_type": "dock",
+        "avg_wait_ms": 11000,
+        "total_wait_ms": 33000,
+        "utilization": 42.0
+      }
+    ],
+    "travel_distance_m_by_actor_type": {
+      "forklift": 84.5,
+      "worker": 36.25
+    }
+  },
+  "layout": {
+    "resources": [
+      {
+        "resource_id": "dock-1",
+        "node_id": "node-dock-in",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "resource_id": "forklift-1",
+        "node_id": "node-aisle-west",
+        "x": 2500,
+        "y": 0
+      },
+      {
+        "resource_id": "worker-1",
+        "node_id": "node-pick-face-a",
+        "x": 5200,
+        "y": 1600
+      }
+    ]
+  },
+  "warehouse_graph": {
+    "nodes": [
+      {
+        "node_id": "node-dock-in",
+        "node_type": "dock",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "node_id": "node-aisle-west",
+        "node_type": "aisle",
+        "x": 2500,
+        "y": 0
+      },
+      {
+        "node_id": "node-pick-face-a",
+        "node_type": "pick_face",
+        "x": 5200,
+        "y": 1600
+      },
+      {
+        "node_id": "node-pack-out",
+        "node_type": "pack_station",
+        "x": 7600,
+        "y": 1600
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "edge-dock-aisle-west",
+        "from_node_id": "node-dock-in",
+        "to_node_id": "node-aisle-west",
+        "distance_m": 2.5,
+        "travel_time_ms": 1200,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aisle-west-pick-face-a",
+        "from_node_id": "node-aisle-west",
+        "to_node_id": "node-pick-face-a",
+        "distance_m": 3.2,
+        "travel_time_ms": 1600,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-pick-face-a-pack-out",
+        "from_node_id": "node-pick-face-a",
+        "to_node_id": "node-pack-out",
+        "distance_m": 2.4,
+        "travel_time_ms": 1100,
+        "bidirectional": true
+      }
+    ]
+  },
+  "position_timeline": [
+    {
+      "operation_id": "fixture-op-1",
+      "operation_type": "outbound",
+      "stage_type": "baseline_layout",
+      "resource_id": "forklift-1",
+      "at_ms": 0,
+      "event_type": "start",
+      "node_id": "node-dock-in",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "operation_id": "fixture-op-1",
+      "operation_type": "outbound",
+      "stage_type": "baseline_layout",
+      "resource_id": "forklift-1",
+      "at_ms": 180000,
+      "event_type": "finish",
+      "node_id": "node-pack-out",
+      "x": 7600,
+      "y": 1600
+    }
+  ],
+  "event_log": [
+    "fixture.metadata|coordinate_unit=mm|graph_source=deterministic_modeled_fixture|evidence_level=fixture_only",
+    "fixture.metadata|not_sensor_calibrated=true|not_real_trajectory=true",
+    "fixture.kpi|rich_kpi_fields_populated_for_contract_r3_mock_consumers=true",
+    "fixture.boundary|position_timeline_is_baseline_layout_not_simulated_movement"
+  ]
+}

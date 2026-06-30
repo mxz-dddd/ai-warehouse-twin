@@ -1,0 +1,152 @@
+{
+  "schema_version": "movement-artifact.v1",
+  "artifact_kind": "warehouse-movement",
+  "scenario_id": "contract-r3-demo-fixture",
+  "run_id": "contract-r3-run-fixture",
+  "seed": 20260701,
+  "source_run_artifact": "contract_r3_run_fixture.json",
+  "warehouse_graph": {
+    "nodes": [
+      {
+        "node_id": "node-dock-in",
+        "node_type": "dock",
+        "x": 0,
+        "y": 0
+      },
+      {
+        "node_id": "node-aisle-west",
+        "node_type": "aisle",
+        "x": 2500,
+        "y": 0
+      },
+      {
+        "node_id": "node-pick-face-a",
+        "node_type": "pick_face",
+        "x": 5200,
+        "y": 1600
+      }
+    ],
+    "edges": [
+      {
+        "edge_id": "edge-dock-aisle-west",
+        "from_node_id": "node-dock-in",
+        "to_node_id": "node-aisle-west",
+        "distance_m": 2.5,
+        "travel_time_ms": 1200,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aisle-west-pick-face-a",
+        "from_node_id": "node-aisle-west",
+        "to_node_id": "node-pick-face-a",
+        "distance_m": 3.2,
+        "travel_time_ms": 1600,
+        "bidirectional": true
+      }
+    ]
+  },
+  "actors": [
+    {
+      "actor_id": "forklift-1",
+      "actor_type": "forklift",
+      "resource_id": "forklift-1",
+      "initial_node_id": "node-dock-in",
+      "capacity": 1,
+      "load_state": "empty"
+    }
+  ],
+  "movement_events": [
+    {
+      "event_id": "evt-r3-forklift-start-001",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "event_type": "movement.started",
+      "at_ms": 0,
+      "node_id": "node-dock-in",
+      "x": 0,
+      "y": 0,
+      "load_state": "empty",
+      "related_resource_id": "dock-1"
+    },
+    {
+      "event_id": "evt-r3-forklift-arrive-001",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "event_type": "movement.arrived",
+      "at_ms": 1200,
+      "node_id": "node-aisle-west",
+      "x": 2500,
+      "y": 0,
+      "load_state": "empty",
+      "related_resource_id": "forklift-1"
+    },
+    {
+      "event_id": "evt-r3-forklift-start-002",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "event_type": "movement.started",
+      "at_ms": 1200,
+      "node_id": "node-aisle-west",
+      "x": 2500,
+      "y": 0,
+      "load_state": "loaded",
+      "related_resource_id": "forklift-1"
+    },
+    {
+      "event_id": "evt-r3-forklift-arrive-002",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "event_type": "movement.arrived",
+      "at_ms": 2800,
+      "node_id": "node-pick-face-a",
+      "x": 5200,
+      "y": 1600,
+      "load_state": "loaded",
+      "related_resource_id": "pick-face-a"
+    }
+  ],
+  "route_segments": [
+    {
+      "segment_id": "seg-r3-forklift-001",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "from_node_id": "node-dock-in",
+      "to_node_id": "node-aisle-west",
+      "start_ms": 0,
+      "end_ms": 1200,
+      "distance_m": 2.5,
+      "path_node_ids": [
+        "node-dock-in",
+        "node-aisle-west"
+      ],
+      "edge_ids": [
+        "edge-dock-aisle-west"
+      ],
+      "travel_time_ms": 1200
+    },
+    {
+      "segment_id": "seg-r3-forklift-002",
+      "actor_id": "forklift-1",
+      "operation_id": "fixture-op-1",
+      "from_node_id": "node-aisle-west",
+      "to_node_id": "node-pick-face-a",
+      "start_ms": 1200,
+      "end_ms": 2800,
+      "distance_m": 3.2,
+      "path_node_ids": [
+        "node-aisle-west",
+        "node-pick-face-a"
+      ],
+      "edge_ids": [
+        "edge-aisle-west-pick-face-a"
+      ],
+      "travel_time_ms": 1600
+    }
+  ],
+  "provenance": {
+    "movement_generator_version": "contract-r3-fixture",
+    "graph_source": "deterministic modeled fixture; not calibrated real trajectory",
+    "movement_enabled": true,
+    "deterministic_generation_policy": "evidence_level=fixture_only; source=contract_r3_movement_fixture"
+  }
+}
