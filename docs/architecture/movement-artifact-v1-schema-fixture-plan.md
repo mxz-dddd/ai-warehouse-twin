@@ -22,6 +22,9 @@ MovementArtifact generation.
 REPORT-R2a reuses the valid MovementArtifact contract fixture for loader
 boundary tests. The fixture remains test-only and is not a golden artifact.
 
+REPORT-R2b adds loader smoke coverage using the test-only MovementArtifact
+contract fixture. The fixture remains test-only and is not a golden artifact.
+
 ## Scope
 
 This plan covers:
