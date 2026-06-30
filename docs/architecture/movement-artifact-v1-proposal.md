@@ -58,6 +58,8 @@ CORE-R2f adds an internal end-to-end compatibility test from scenario adapter
 to generator to loader. It remains test-only and does not change
 MovementArtifact v1 schema or customer-facing artifacts.
 
+CLI-R2a plans an opt-in MovementArtifact export command. It does not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1, default CLI behavior, reports, Unity, ingestion, or runtime orchestration.
+
 ## Scope
 
 This proposal covers:

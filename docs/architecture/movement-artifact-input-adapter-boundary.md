@@ -186,6 +186,8 @@ CORE-R2e adds the first deterministic fixture-scale MovementArtifact input adapt
 
 CORE-R2f adds internal adapter-generator-loader end-to-end tests. The tests prove that a scenario can be converted to MovementArtifactGenerationRequest, generated into an in-memory MovementArtifact, serialized to JSON, and loaded by the existing Sim.Report MovementArtifact loader. This does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, Track C ingestion changes, or runtime orchestration changes.
 
+CLI-R2a adds a planning-only export-movement-artifact CLI surface. It documents how a future CLI command may call the input adapter and generator, but it does not implement the command, write files, add golden artifacts, modify reports, animate Unity, modify Track C ingestion, or modify runtime orchestration.
+
 ## Proposed first adapter slice
 
 Recommended next task:

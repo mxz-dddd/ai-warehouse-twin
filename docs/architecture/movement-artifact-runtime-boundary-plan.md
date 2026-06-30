@@ -37,6 +37,8 @@ CORE-R2f verifies the internal adapter-generator-loader boundary end to end.
 MovementArtifact remains non-customer-facing until a separate CLI/golden/report/Unity
 policy is approved.
 
+CLI-R2a documents the future CLI export boundary for MovementArtifact. The command remains opt-in and non-customer-default; default RunArtifact/ComparisonArtifact/report behavior remains unchanged.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

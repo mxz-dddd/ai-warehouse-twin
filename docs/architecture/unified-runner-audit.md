@@ -298,6 +298,11 @@ entries describe the state at the time of that task and are superseded by
   - Does not add CLI export, file writing, golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- CLI-R2a: Added MovementArtifact CLI export surface plan.
+  - Documents a future opt-in `export-movement-artifact` command.
+  - Does not implement CLI behavior, write files, add golden artifacts, report movement sections, Unity animation, runtime orchestration changes, or Track C ingestion changes.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 
