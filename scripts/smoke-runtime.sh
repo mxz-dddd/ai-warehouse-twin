@@ -21,12 +21,16 @@ scenario_path="$repo_root/datasets/validation-cases/valid/outbound-only.json"
   "$python_cmd" -m runtime_service run-dry \
     --scenario "$scenario_path" \
     --output "$tmpdir/run-1" >/dev/null
+  "$python_cmd" -m runtime_service inspect-run \
+    --run-dir "$tmpdir/run-1" >/dev/null
   "$python_cmd" -m runtime_service run-dry \
     --scenario "$scenario_path" \
     --output "$tmpdir/run-2" >/dev/null
   "$python_cmd" -m runtime_service plan-simcli \
     --scenario "$scenario_path" \
     --output "$tmpdir/plan-1" >/dev/null
+  "$python_cmd" -m runtime_service inspect-run \
+    --run-dir "$tmpdir/plan-1" >/dev/null
   "$python_cmd" -m runtime_service plan-simcli \
     --scenario "$scenario_path" \
     --output "$tmpdir/plan-2" >/dev/null
@@ -34,17 +38,23 @@ scenario_path="$repo_root/datasets/validation-cases/valid/outbound-only.json"
 
 test -f "$tmpdir/run-1/runtime-result.json"
 test -f "$tmpdir/run-1/artifact-index.json"
+test -f "$tmpdir/run-1/run-manifest.json"
 test -f "$tmpdir/run-2/runtime-result.json"
 test -f "$tmpdir/run-2/artifact-index.json"
+test -f "$tmpdir/run-2/run-manifest.json"
 test -f "$tmpdir/plan-1/simcli-plan.json"
 test -f "$tmpdir/plan-1/artifact-index.json"
+test -f "$tmpdir/plan-1/run-manifest.json"
 test -f "$tmpdir/plan-2/simcli-plan.json"
 test -f "$tmpdir/plan-2/artifact-index.json"
+test -f "$tmpdir/plan-2/run-manifest.json"
 
 cmp "$tmpdir/run-1/runtime-result.json" "$tmpdir/run-2/runtime-result.json"
 cmp "$tmpdir/run-1/artifact-index.json" "$tmpdir/run-2/artifact-index.json"
+cmp "$tmpdir/run-1/run-manifest.json" "$tmpdir/run-2/run-manifest.json"
 cmp "$tmpdir/plan-1/simcli-plan.json" "$tmpdir/plan-2/simcli-plan.json"
 cmp "$tmpdir/plan-1/artifact-index.json" "$tmpdir/plan-2/artifact-index.json"
+cmp "$tmpdir/plan-1/run-manifest.json" "$tmpdir/plan-2/run-manifest.json"
 
 if grep -R -E "$repo_root|$tmpdir|[0-9]{4}-[0-9]{2}-[0-9]{2}|T[0-9]{2}:[0-9]{2}|[0-9a-f]{32,}" \
   "$tmpdir/run-1" "$tmpdir/run-2" "$tmpdir/plan-1" "$tmpdir/plan-2" >/dev/null; then

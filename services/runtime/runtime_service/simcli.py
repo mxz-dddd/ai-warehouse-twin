@@ -8,8 +8,14 @@ from pathlib import Path
 
 from runtime_service.artifacts import ArtifactRegistry
 from runtime_service.external import CommandSpec
+from runtime_service.manifest import RUN_MANIFEST_FILE, build_run_manifest
+from runtime_service.models import RunStatus
+from runtime_service.runner import ARTIFACT_INDEX_FILE
+from runtime_service.store import write_manifest_to_dir
 
 SIMCLI_PLAN_FILE = "simcli-plan.json"
+SIMCLI_RUNNER_NAME = "simcli"
+SIMCLI_DRY_PLAN_MODE = "dry-plan"
 
 
 @dataclass(frozen=True)
@@ -77,7 +83,7 @@ def write_simcli_plan(
     *,
     scenario_path: Path,
     output_dir: Path,
-    mode: str = "dry-plan",
+    mode: str = SIMCLI_DRY_PLAN_MODE,
     planner: SimCliPlanner | None = None,
 ) -> SimCliPlan:
     if not scenario_path.is_file():
@@ -89,10 +95,21 @@ def write_simcli_plan(
         mode=mode,
     )
     _write_json(output_dir / SIMCLI_PLAN_FILE, plan.to_json_dict())
+    manifest = build_run_manifest(
+        scenario_path=scenario_path,
+        runner_name=SIMCLI_RUNNER_NAME,
+        runner_mode=mode,
+        status=RunStatus.SUCCEEDED,
+        artifact_index_path=ARTIFACT_INDEX_FILE,
+        output_files=(SIMCLI_PLAN_FILE, ARTIFACT_INDEX_FILE, RUN_MANIFEST_FILE),
+    )
+    write_manifest_to_dir(output_dir, manifest)
 
     registry = ArtifactRegistry(output_dir)
     registry.register("simcli-plan", "simcli-plan", SIMCLI_PLAN_FILE)
-    _write_json(output_dir / "artifact-index.json", registry.to_json_dict())
+    registry.register("run-manifest", "run-manifest", RUN_MANIFEST_FILE)
+    registry.register("artifact-index", "artifact-index", ARTIFACT_INDEX_FILE)
+    _write_json(output_dir / ARTIFACT_INDEX_FILE, registry.to_json_dict())
     return plan
 
 
