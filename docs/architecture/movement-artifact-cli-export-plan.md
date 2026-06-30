@@ -18,6 +18,11 @@ export. The MovementArtifact golden can be loaded and smoked, but current
 `render-report` output remains unchanged until a dedicated report implementation
 PR approves wording, provenance, customer impact, golden updates, and rollback.
 
+UNITY-R2a keeps opt-in CLI export separate from Unity animation. The exported
+MovementArtifact and sample golden remain validation artifacts until a separate
+Unity implementation PR explicitly consumes and validates MovementArtifact
+input.
+
 RunArtifact v1 position_timeline remains baseline layout positions, NOT simulated movement.
 
 ## Current foundation

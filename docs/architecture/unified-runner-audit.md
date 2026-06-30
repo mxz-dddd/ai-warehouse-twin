@@ -323,6 +323,12 @@ entries describe the state at the time of that task and are superseded by
   - Does not add report movement sections, Unity animation, runtime orchestration behavior, or Track C ingestion behavior.
   - Does not read or infer movement from RunArtifact v1 `position_timeline`.
   - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
+- UNITY-R2a: Added MovementArtifact Unity consumption boundary plan.
+  - Defines approved data sources, forbidden data sources, animation semantics, UI wording, validation requirements, and rollback rules for any future Unity movement playback.
+  - Does not implement Unity movement animation.
+  - Does not change `export-artifact`, `compare-files`, `render-report`, MovementArtifact golden artifacts, report movement sections, runtime orchestration behavior, or Track C ingestion behavior.
+  - Does not read or infer movement from RunArtifact v1 `position_timeline`.
+  - Keeps RunArtifact v1 `position_timeline` as baseline layout positions, NOT simulated movement.
 
 ## Boundaries
 

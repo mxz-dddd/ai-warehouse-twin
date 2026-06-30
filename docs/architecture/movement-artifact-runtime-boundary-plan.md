@@ -43,6 +43,10 @@ CLI-R2b adds an opt-in CLI export command only. Runtime orchestration remains un
 
 GOLDEN-R2a adds a MovementArtifact validation golden only. Runtime orchestration remains unchanged and must not manufacture movement semantics.
 
+UNITY-R2a keeps runtime orchestration out of Unity movement semantics. Runtime
+may later pass MovementArtifact references only through separately approved
+explicit artifact-generation steps.
+
 Current RunArtifact v1 `position_timeline` remains baseline layout positions,
 NOT simulated movement. It must not be presented as real movement, travel,
 trajectory, route, or animation data.

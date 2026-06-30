@@ -69,6 +69,10 @@ MovementArtifact v1 as an explicit optional input. It does not implement report
 rendering, add customer movement sections, change report golden files, or make
 MovementArtifact customer-facing by default.
 
+UNITY-R2a defines Unity consumption boundaries for MovementArtifact v1. It does
+not change MovementArtifact v1 schema, RunArtifact v1, ComparisonArtifact v1,
+CLI behavior, reports, Unity code, ingestion, or runtime orchestration.
+
 ## Scope
 
 This proposal covers:
@@ -78,6 +82,7 @@ This proposal covers:
 - Future Unity path animation input.
 - Future report movement provenance.
 - Future report consumption boundary.
+- Future Unity consumption boundary.
 - Future validation / golden strategy.
 
 The product reason is to preserve the current deterministic RunArtifact v1 handoff while creating a separate, reviewable surface for real movement semantics once R2 path and movement work begins.
