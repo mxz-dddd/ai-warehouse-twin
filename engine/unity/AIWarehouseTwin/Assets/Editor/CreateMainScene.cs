@@ -9,21 +9,30 @@ public static class CreateMainScene
     public static void Create()
     {
         var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+        // UIDocument GameObject
         var uiDocGo = new GameObject("UIDocument");
-        uiDocGo.AddComponent<UIDocument>();
+        var uiDoc = uiDocGo.AddComponent<UIDocument>();
+        // Bind UXML asset
+        var uxml = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(
+            "Assets/UI/RunArtifactPlayerView.uxml");
+        if (uxml == null)
+            throw new System.Exception(
+                "RunArtifactPlayerView.uxml not found at Assets/UI/RunArtifactPlayerView.uxml");
+        uiDoc.visualTreeAsset = uxml;
+        // Player GameObject
         var playerGo = new GameObject("Player");
         var view = playerGo.AddComponent<AIWarehouseTwin.UI.RunArtifactPlayerView>();
-        // Wire UIDocument via SerializedObject
-        var so = new UnityEditor.SerializedObject(view);
+        // Wire _document field
+        var so = new SerializedObject(view);
         var prop = so.FindProperty("_document");
-        prop.objectReferenceValue = uiDocGo.GetComponent<UIDocument>();
+        prop.objectReferenceValue = uiDoc;
         so.ApplyModifiedProperties();
+        // Save scene
         System.IO.Directory.CreateDirectory(
             System.IO.Path.Combine(Application.dataPath, "Scenes"));
-        EditorSceneManager.SaveScene(scene,
-            "Assets/Scenes/MainScene.unity");
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/MainScene.unity");
         AssetDatabase.Refresh();
-        Debug.Log("MainScene created.");
+        Debug.Log("MainScene created with UXML binding.");
     }
 }
 #endif
