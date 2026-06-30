@@ -41,6 +41,10 @@ MovementArtifact v1. The generator is not yet customer-facing and does not
 change RunArtifact v1, ComparisonArtifact v1, CLI behavior, reports, Unity, or
 ingestion.
 
+CORE-R2c verifies generator output compatibility with the existing
+MovementArtifact loader. This remains an internal test boundary and does not
+make MovementArtifact customer-facing.
+
 ## Scope
 
 This proposal covers:
