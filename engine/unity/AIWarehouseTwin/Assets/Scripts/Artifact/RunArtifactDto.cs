@@ -14,6 +14,7 @@ namespace AIWarehouseTwin.Artifact
         public long final_world_time_ms;
         public RunArtifactKpiSummaryDto kpi_summary = new RunArtifactKpiSummaryDto();
         public RunArtifactLayoutDto layout = new RunArtifactLayoutDto();
+        public WarehouseGraphDto warehouse_graph = new WarehouseGraphDto();
         public RunArtifactPositionTimelineEntryDto[] position_timeline =
             Array.Empty<RunArtifactPositionTimelineEntryDto>();
         public string[] event_log = Array.Empty<string>();
@@ -29,6 +30,26 @@ namespace AIWarehouseTwin.Artifact
         public double outbound_order_throughput_per_hour;
         public double each_pick_order_throughput_per_hour;
         public double total_work_item_throughput_per_hour;
+        public double? order_cycle_p50_ms;
+        public double? order_cycle_p90_ms;
+        public double? order_cycle_p95_ms;
+        public double? avg_wait_ms;
+        public System.Collections.Generic.Dictionary<string, double> resource_utilization =
+            new System.Collections.Generic.Dictionary<string, double>();
+        public RunArtifactBottleneckDto[] bottlenecks = Array.Empty<RunArtifactBottleneckDto>();
+        public System.Collections.Generic.Dictionary<string, double> travel_distance_m_by_actor_type =
+            new System.Collections.Generic.Dictionary<string, double>();
+    }
+
+    [Serializable]
+    public sealed class RunArtifactBottleneckDto
+    {
+        public int rank;
+        public string resource_id = string.Empty;
+        public string resource_type = string.Empty;
+        public double avg_wait_ms;
+        public double total_wait_ms;
+        public double utilization;
     }
 
     [Serializable]
