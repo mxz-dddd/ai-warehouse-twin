@@ -12,6 +12,8 @@ scope control. It does not start Track B implementation work.
 
 Track B should not depend on local owner paths or private machine layouts.
 Use repository-relative paths in docs, commands, reviews, and handoff notes.
+Do not delete, commit, or clean up local notes or generated Unity import output
+unless the owner explicitly asks.
 
 ## Current State
 
@@ -90,9 +92,13 @@ capabilities. They are not current implemented product capabilities.
 
 Recommended Windows baseline:
 
-- Windows 10 or 11.
-- Git.
+- Windows 11. Windows 10 is acceptable if the required SDK and Unity versions
+  are installed.
+- Git for Windows, including Git Bash.
+- PowerShell.
 - .NET SDK 8.0 matching repository `global.json`.
+  - Current required SDK version is `8.0.422`.
+  - `rollForward` is `latestFeature`.
 - Unity Hub for Windows.
 - Unity Editor `6000.3.0f1`.
 - One editor: VS Code, Rider, or Cursor.
@@ -123,6 +129,43 @@ xcode-select --install
   - Windows, Android, iOS, and WebGL build support are not required unless a
     later task explicitly asks for them.
 - One editor: VS Code, Rider, or Cursor.
+- Optional but useful: Homebrew.
+
+## Known Environment Notes
+
+### Windows .NET and Git Bash
+
+`scripts/check-all.sh` may default `DOTNET_ROOT` to `$HOME/.dotnet`. On Windows
+this can point to a directory without the runtime and fail with `hostfxr.dll`
+errors. Use:
+
+```powershell
+$env:DOTNET_ROOT = "C:/Program Files/dotnet"
+$env:PATH = "C:/Program Files/dotnet;$env:PATH"
+```
+
+Then run Git Bash scripts via:
+
+```powershell
+& "C:\Program Files\Git\bin\bash.exe" scripts/check-all.sh
+& "C:\Program Files\Git\bin\bash.exe" scripts/check-consumer-no-core.sh
+```
+
+### macOS .NET and Unity
+
+`bash scripts/check-all.sh` should normally work directly from the repository
+root. If multiple .NET SDKs are installed, confirm the selected SDK with:
+
+```bash
+dotnet --version
+dotnet --list-sdks
+```
+
+The usual Unity Editor path installed by Unity Hub is:
+
+```text
+/Applications/Unity/Hub/Editor/6000.3.0f1/Unity.app/Contents/MacOS/Unity
+```
 
 ## First Local Setup
 
@@ -130,7 +173,23 @@ xcode-select --install
 
 ```powershell
 git clone https://github.com/mxz-dddd/ai-warehouse-twin.git
-cd ai-warehouse-twin
+cd "C:\path\to\ai-warehouse-twin"
+
+dotnet --version
+dotnet build
+dotnet test
+
+$env:DOTNET_ROOT = "C:/Program Files/dotnet"
+$env:PATH = "C:/Program Files/dotnet;$env:PATH"
+& "C:\Program Files\Git\bin\bash.exe" scripts/check-all.sh
+& "C:\Program Files\Git\bin\bash.exe" scripts/check-consumer-no-core.sh
+```
+
+### macOS
+
+```bash
+git clone https://github.com/mxz-dddd/ai-warehouse-twin.git
+cd /path/to/ai-warehouse-twin
 
 dotnet --version
 dotnet build
@@ -139,17 +198,13 @@ bash scripts/check-all.sh
 bash scripts/check-consumer-no-core.sh
 ```
 
-### macOS
+Expected high-level result:
 
-```bash
-git clone https://github.com/mxz-dddd/ai-warehouse-twin.git
-cd ai-warehouse-twin
-
-dotnet --version
-dotnet build
-dotnet test
-bash scripts/check-all.sh
-bash scripts/check-consumer-no-core.sh
+```text
+build: 0 warnings, 0 errors
+tests: all passed
+check-all: PASS: full local validation
+check-consumer-no-core: PASS
 ```
 
 ## Unity Verification
@@ -200,6 +255,10 @@ APP-040b2 does not include:
 - Layout editor.
 - Real movement claims.
 
+If Unity EditMode fails because of the local Unity installation, fix the
+environment first. Do not work around environment failure by hand-writing
+complex Unity scene YAML.
+
 This handoff is only Track B environment readiness. It does not mean Track B
 development has started. Before the owner gives an explicit implementation
 handoff instruction, do not implement new Unity features, modify core/runtime/
@@ -218,6 +277,24 @@ git switch -c app/<task-id>
 
 If the current owner uses detached worktree mode, ask the owner before taking
 over shared `main` or changing worktree ownership assumptions.
+
+Rules:
+
+- One task per branch.
+- Keep diffs scoped to the task.
+- Do not force push unless explicitly approved.
+- Prefer merge from `origin/main` into a PR branch if the reviewer asks for sync
+  and force push is not approved.
+- Before commit, show staged file list.
+- Do not stage local notes, generated noise, or unrelated Unity import output.
+
+Every PR should include:
+
+- What changed.
+- What did not change.
+- Validation commands and actual results.
+- Any Unity tests not run and why.
+- Any known limitations.
 
 ## Useful Files to Read First
 
