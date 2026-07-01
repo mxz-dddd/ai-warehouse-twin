@@ -1,0 +1,485 @@
+{
+  "schema_version": "abc-slotting-config.v1",
+  "config_id": "medium-warehouse-abc-slotting-demo-v1",
+  "source_scenario": {
+    "scenario_id": "medium-warehouse",
+    "path": "datasets/medium-warehouse/scenario.json",
+    "sha256": "7b540d3772badc81c369bcb24d915a21c53a3e6b0cff5a47924a74e67e8fe4bb"
+  },
+  "heuristic": {
+    "name": "r3-phase1-demo-abc-slotting",
+    "version": "a5a-demo-v1",
+    "sku_frequency_basis": "sum outbound and each-pick order quantity by sku_id",
+    "sku_sort": "order by total_ordered_quantity desc, order_line_count desc, sku_id asc",
+    "location_priority_basis": "rank pick locations by shortest modeled distance to the A-zone pick-path anchor",
+    "location_sort": "distance_m asc, location_id asc, node_id asc",
+    "demo_statement": "This is a deterministic demo ABC slotting heuristic for R3 Phase-1. It is not a globally optimal slotting solution. It does not include A/B comparison or improvement claims.",
+    "not_globally_optimal": true
+  },
+  "anchor": {
+    "node_id": "aisle-a-main",
+    "anchor_type": "pick_path",
+    "selection_reason": "Selected from medium-warehouse slotting_notes: high-velocity SKUs in zone-b-pick are intentionally non-optimal, so the A-zone pick path is the deterministic demo anchor."
+  },
+  "sku_ranking": [
+    {
+      "rank": 1,
+      "sku_id": "SKU-HF-001",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-01"
+    },
+    {
+      "rank": 2,
+      "sku_id": "SKU-HF-002",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-02"
+    },
+    {
+      "rank": 3,
+      "sku_id": "SKU-HF-003",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-03"
+    },
+    {
+      "rank": 4,
+      "sku_id": "SKU-HF-004",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-04"
+    },
+    {
+      "rank": 5,
+      "sku_id": "SKU-HF-005",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-05"
+    },
+    {
+      "rank": 6,
+      "sku_id": "SKU-HF-006",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-a-06"
+    },
+    {
+      "rank": 7,
+      "sku_id": "SKU-HF-007",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-b-05"
+    },
+    {
+      "rank": 8,
+      "sku_id": "SKU-HF-008",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-b-06"
+    },
+    {
+      "rank": 9,
+      "sku_id": "SKU-HF-009",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-b-07"
+    },
+    {
+      "rank": 10,
+      "sku_id": "SKU-HF-010",
+      "total_ordered_quantity": 90,
+      "order_line_count": 6,
+      "velocity_class": "high",
+      "current_location_id": "pick-b-08"
+    },
+    {
+      "rank": 11,
+      "sku_id": "SKU-MF-011",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-01"
+    },
+    {
+      "rank": 12,
+      "sku_id": "SKU-MF-012",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-02"
+    },
+    {
+      "rank": 13,
+      "sku_id": "SKU-MF-013",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-03"
+    },
+    {
+      "rank": 14,
+      "sku_id": "SKU-MF-014",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-04"
+    },
+    {
+      "rank": 15,
+      "sku_id": "SKU-MF-015",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-05"
+    },
+    {
+      "rank": 16,
+      "sku_id": "SKU-MF-016",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-a-06"
+    },
+    {
+      "rank": 17,
+      "sku_id": "SKU-MF-017",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-b-01"
+    },
+    {
+      "rank": 18,
+      "sku_id": "SKU-MF-018",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-b-02"
+    },
+    {
+      "rank": 19,
+      "sku_id": "SKU-MF-019",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-b-03"
+    },
+    {
+      "rank": 20,
+      "sku_id": "SKU-MF-020",
+      "total_ordered_quantity": 16,
+      "order_line_count": 2,
+      "velocity_class": "medium",
+      "current_location_id": "pick-b-04"
+    }
+  ],
+  "location_ranking": [
+    {
+      "rank": 1,
+      "location_id": "pick-a-03",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 1.726,
+      "local_offset_m": 1.726,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 2,
+      "location_id": "pick-a-02",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 1.803,
+      "local_offset_m": 1.803,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 3,
+      "location_id": "pick-a-04",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 2.081,
+      "local_offset_m": 2.081,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 4,
+      "location_id": "pick-a-01",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 2.267,
+      "local_offset_m": 2.267,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 5,
+      "location_id": "pick-a-05",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 2.702,
+      "local_offset_m": 2.702,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 6,
+      "location_id": "pick-a-06",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 3.448,
+      "local_offset_m": 3.448,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 7,
+      "location_id": "pick-a-07",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 4.254,
+      "local_offset_m": 4.254,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 8,
+      "location_id": "pick-a-08",
+      "node_id": "aisle-a-main",
+      "zone_id": "zone-a-pick",
+      "distance_to_anchor_m": 5.092,
+      "local_offset_m": 5.092,
+      "route_distance_m": 0
+    },
+    {
+      "rank": 9,
+      "location_id": "pick-b-03",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 13.726,
+      "local_offset_m": 1.726,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 10,
+      "location_id": "pick-b-02",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 13.803,
+      "local_offset_m": 1.803,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 11,
+      "location_id": "pick-b-04",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 14.081,
+      "local_offset_m": 2.081,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 12,
+      "location_id": "pick-b-01",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 14.267,
+      "local_offset_m": 2.267,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 13,
+      "location_id": "pick-b-05",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 14.702,
+      "local_offset_m": 2.702,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 14,
+      "location_id": "pick-b-06",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 15.448,
+      "local_offset_m": 3.448,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 15,
+      "location_id": "pick-b-07",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 16.254,
+      "local_offset_m": 4.254,
+      "route_distance_m": 12
+    },
+    {
+      "rank": 16,
+      "location_id": "pick-b-08",
+      "node_id": "aisle-b-main",
+      "zone_id": "zone-b-pick",
+      "distance_to_anchor_m": 17.092,
+      "local_offset_m": 5.092,
+      "route_distance_m": 12
+    }
+  ],
+  "assignments": [
+    {
+      "rank": 1,
+      "sku_id": "SKU-HF-001",
+      "from_location_id": "pick-a-01",
+      "target_location_id": "pick-a-03",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 1.726,
+      "action": "move"
+    },
+    {
+      "rank": 2,
+      "sku_id": "SKU-HF-002",
+      "from_location_id": "pick-a-02",
+      "target_location_id": "pick-a-02",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 1.803,
+      "action": "keep"
+    },
+    {
+      "rank": 3,
+      "sku_id": "SKU-HF-003",
+      "from_location_id": "pick-a-03",
+      "target_location_id": "pick-a-04",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 2.081,
+      "action": "move"
+    },
+    {
+      "rank": 4,
+      "sku_id": "SKU-HF-004",
+      "from_location_id": "pick-a-04",
+      "target_location_id": "pick-a-01",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 2.267,
+      "action": "move"
+    },
+    {
+      "rank": 5,
+      "sku_id": "SKU-HF-005",
+      "from_location_id": "pick-a-05",
+      "target_location_id": "pick-a-05",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 2.702,
+      "action": "keep"
+    },
+    {
+      "rank": 6,
+      "sku_id": "SKU-HF-006",
+      "from_location_id": "pick-a-06",
+      "target_location_id": "pick-a-06",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 3.448,
+      "action": "keep"
+    },
+    {
+      "rank": 7,
+      "sku_id": "SKU-HF-007",
+      "from_location_id": "pick-b-05",
+      "target_location_id": "pick-a-07",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 4.254,
+      "action": "move"
+    },
+    {
+      "rank": 8,
+      "sku_id": "SKU-HF-008",
+      "from_location_id": "pick-b-06",
+      "target_location_id": "pick-a-08",
+      "target_node_id": "aisle-a-main",
+      "target_distance_to_anchor_m": 5.092,
+      "action": "move"
+    },
+    {
+      "rank": 9,
+      "sku_id": "SKU-HF-009",
+      "from_location_id": "pick-b-07",
+      "target_location_id": "pick-b-03",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 13.726,
+      "action": "move"
+    },
+    {
+      "rank": 10,
+      "sku_id": "SKU-HF-010",
+      "from_location_id": "pick-b-08",
+      "target_location_id": "pick-b-02",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 13.803,
+      "action": "move"
+    },
+    {
+      "rank": 11,
+      "sku_id": "SKU-MF-011",
+      "from_location_id": "pick-a-01",
+      "target_location_id": "pick-b-04",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 14.081,
+      "action": "move"
+    },
+    {
+      "rank": 12,
+      "sku_id": "SKU-MF-012",
+      "from_location_id": "pick-a-02",
+      "target_location_id": "pick-b-01",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 14.267,
+      "action": "move"
+    },
+    {
+      "rank": 13,
+      "sku_id": "SKU-MF-013",
+      "from_location_id": "pick-a-03",
+      "target_location_id": "pick-b-05",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 14.702,
+      "action": "move"
+    },
+    {
+      "rank": 14,
+      "sku_id": "SKU-MF-014",
+      "from_location_id": "pick-a-04",
+      "target_location_id": "pick-b-06",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 15.448,
+      "action": "move"
+    },
+    {
+      "rank": 15,
+      "sku_id": "SKU-MF-015",
+      "from_location_id": "pick-a-05",
+      "target_location_id": "pick-b-07",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 16.254,
+      "action": "move"
+    },
+    {
+      "rank": 16,
+      "sku_id": "SKU-MF-016",
+      "from_location_id": "pick-a-06",
+      "target_location_id": "pick-b-08",
+      "target_node_id": "aisle-b-main",
+      "target_distance_to_anchor_m": 17.092,
+      "action": "move"
+    }
+  ],
+  "unassigned_ranked_skus": [
+    "SKU-MF-017",
+    "SKU-MF-018",
+    "SKU-MF-019",
+    "SKU-MF-020"
+  ],
+  "deterministic_policy": "Deterministic output is produced by stable sorting on numeric scores and ordinal id tie-breakers."
+}
