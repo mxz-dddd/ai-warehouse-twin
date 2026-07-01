@@ -469,16 +469,7 @@ static RunArtifact ToRunArtifact(
         StartedAtMs = result.StartedAtMs,
         FinishedAtMs = result.FinishedAtMs,
         FinalWorldTimeMs = result.FinalWorldState.TimeMs,
-        KpiSummary = new RunArtifactKpiSummary
-        {
-            TotalDurationMs = kpi.TotalDurationMs,
-            TotalCompletedWorkItems = kpi.TotalCompletedWorkItems,
-            EventLogLineCount = kpi.EventLogLineCount,
-            ReceiptThroughputPerHour = RoundKpi(kpi.ReceiptThroughputPerHour),
-            OutboundOrderThroughputPerHour = RoundKpi(kpi.OutboundOrderThroughputPerHour),
-            EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
-            TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
-        },
+        KpiSummary = ToRunArtifactKpiSummary(kpi),
         Layout = new RunArtifactLayout
         {
             Resources = traceResult.Layout.Resources
@@ -529,16 +520,7 @@ static RunArtifact ToRunArtifactFromUnifiedResult(
         StartedAtMs = result.StartedAtMs,
         FinishedAtMs = result.FinishedAtMs,
         FinalWorldTimeMs = result.FinalWorldState.TimeMs,
-        KpiSummary = new RunArtifactKpiSummary
-        {
-            TotalDurationMs = kpi.TotalDurationMs,
-            TotalCompletedWorkItems = kpi.TotalCompletedWorkItems,
-            EventLogLineCount = kpi.EventLogLineCount,
-            ReceiptThroughputPerHour = RoundKpi(kpi.ReceiptThroughputPerHour),
-            OutboundOrderThroughputPerHour = RoundKpi(kpi.OutboundOrderThroughputPerHour),
-            EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
-            TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
-        },
+        KpiSummary = ToRunArtifactKpiSummary(kpi, unifiedResult.RichKpiSummary),
         Layout = new RunArtifactLayout
         {
             Resources = unifiedResult.PositionTimeline
@@ -670,6 +652,84 @@ static RunArtifactWarehouseGraph ToRunArtifactWarehouseGraph(PathGraph graph)
 static decimal MmToMeters(long distanceMm)
 {
     return distanceMm / 1000m;
+}
+
+static RunArtifactKpiSummary ToRunArtifactKpiSummary(
+    WarehouseKpiSummary kpi,
+    WarehouseUnifiedRichKpiSummary? richKpi = null)
+{
+    var summary = new RunArtifactKpiSummary
+    {
+        TotalDurationMs = kpi.TotalDurationMs,
+        TotalCompletedWorkItems = kpi.TotalCompletedWorkItems,
+        EventLogLineCount = kpi.EventLogLineCount,
+        ReceiptThroughputPerHour = RoundKpi(kpi.ReceiptThroughputPerHour),
+        OutboundOrderThroughputPerHour = RoundKpi(kpi.OutboundOrderThroughputPerHour),
+        EachPickOrderThroughputPerHour = RoundKpi(kpi.EachPickOrderThroughputPerHour),
+        TotalWorkItemThroughputPerHour = RoundKpi(kpi.TotalWorkItemThroughputPerHour)
+    };
+
+    if (richKpi is null)
+    {
+        return summary;
+    }
+
+    return summary with
+    {
+        OrderCycleP50Ms = ToDecimal(richKpi.OrderCycleP50Ms),
+        OrderCycleP90Ms = ToDecimal(richKpi.OrderCycleP90Ms),
+        OrderCycleP95Ms = ToDecimal(richKpi.OrderCycleP95Ms),
+        AvgWaitMs = RoundOptionalKpi(richKpi.AverageWaitMs),
+        ResourceUtilization = ToPercentByKey(richKpi.ResourceUtilization),
+        Bottlenecks = richKpi.Bottlenecks
+            .Select(bottleneck => new RunArtifactKpiBottleneck
+            {
+                Rank = bottleneck.Rank,
+                ResourceId = bottleneck.ResourceId,
+                ResourceType = bottleneck.ResourceType,
+                AvgWaitMs = RoundKpi(bottleneck.AverageWaitingTimeMs),
+                TotalWaitMs = bottleneck.TotalWaitingTimeMs,
+                Utilization = RoundKpi(bottleneck.Utilization * 100m)
+            })
+            .ToArray(),
+        TravelDistanceMByActorType = ToSortedDictionary(richKpi.TravelDistanceMByActorType)
+    };
+}
+
+static decimal? ToDecimal(long? value)
+{
+    return value is null ? null : value.Value;
+}
+
+static IReadOnlyDictionary<string, decimal> ToPercentByKey(
+    IReadOnlyDictionary<string, decimal> ratios)
+{
+    var result = new SortedDictionary<string, decimal>(StringComparer.Ordinal);
+
+    foreach (var entry in ratios.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+    {
+        result[entry.Key] = RoundKpi(entry.Value * 100m);
+    }
+
+    return result;
+}
+
+static IReadOnlyDictionary<string, decimal> ToSortedDictionary(
+    IReadOnlyDictionary<string, decimal> values)
+{
+    var result = new SortedDictionary<string, decimal>(StringComparer.Ordinal);
+
+    foreach (var entry in values.OrderBy(entry => entry.Key, StringComparer.Ordinal))
+    {
+        result[entry.Key] = entry.Value;
+    }
+
+    return result;
+}
+
+static decimal? RoundOptionalKpi(decimal? value)
+{
+    return value is null ? null : RoundKpi(value.Value);
 }
 
 static string ToArtifactOperationType(
