@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Sim.Core.Domain;
 
 namespace Sim.Core.Spatial;
@@ -30,18 +31,21 @@ public static class LayoutGraphLoader
 
     private static PathGraph Load(LayoutGraphDocument document)
     {
-        if (document.Nodes is null || document.Nodes.Count == 0)
+        var nodes = ToCanonicalNodes(document);
+        var edges = ToCanonicalEdges(document);
+
+        if (nodes.Count == 0)
         {
             throw new DomainRuleViolationException("LayoutGraph document requires at least one node.");
         }
 
-        if (document.Edges is null || document.Edges.Count == 0)
+        if (edges.Count == 0)
         {
             throw new DomainRuleViolationException("LayoutGraph document requires at least one edge.");
         }
 
         var nodeIds = new HashSet<string>(IdComparer);
-        var nodes = document.Nodes
+        var pathNodes = nodes
             .OrderBy(node => node.NodeId, IdComparer)
             .Select(node =>
             {
@@ -61,7 +65,7 @@ public static class LayoutGraphLoader
             .ToArray();
 
         var edgeIds = new HashSet<string>(IdComparer);
-        var edges = document.Edges
+        var pathEdges = edges
             .OrderBy(edge => edge.EdgeId, IdComparer)
             .Select(edge =>
             {
@@ -84,7 +88,46 @@ public static class LayoutGraphLoader
             })
             .ToArray();
 
-        return new PathGraph(nodes, edges);
+        return new PathGraph(pathNodes, pathEdges);
+    }
+
+    private static IReadOnlyList<LayoutGraphNodeDocument> ToCanonicalNodes(
+        LayoutGraphDocument document)
+    {
+        if (document.Nodes is not null)
+        {
+            return document.Nodes;
+        }
+
+        return document.PathNodes?
+            .Select(node => new LayoutGraphNodeDocument
+            {
+                NodeId = node.NodeId,
+                NodeType = node.NodeType,
+                XMm = node.X,
+                YMm = node.Y,
+            })
+            .ToArray() ?? [];
+    }
+
+    private static IReadOnlyList<LayoutGraphEdgeDocument> ToCanonicalEdges(
+        LayoutGraphDocument document)
+    {
+        if (document.Edges is not null)
+        {
+            return document.Edges;
+        }
+
+        return document.PathEdges?
+            .Select(edge => new LayoutGraphEdgeDocument
+            {
+                EdgeId = edge.EdgeId,
+                FromNodeId = edge.FromNodeId,
+                ToNodeId = edge.ToNodeId,
+                DistanceMm = edge.DistanceMm,
+                Bidirectional = edge.Bidirectional,
+            })
+            .ToArray() ?? [];
     }
 
     private static void ValidateNode(LayoutGraphNodeDocument node)
@@ -163,6 +206,12 @@ public static class LayoutGraphLoader
         public IReadOnlyList<LayoutGraphNodeDocument>? Nodes { get; init; }
 
         public IReadOnlyList<LayoutGraphEdgeDocument>? Edges { get; init; }
+
+        [JsonPropertyName("path_nodes")]
+        public IReadOnlyList<WarehousePathNodeDocument>? PathNodes { get; init; }
+
+        [JsonPropertyName("path_edges")]
+        public IReadOnlyList<WarehousePathEdgeDocument>? PathEdges { get; init; }
     }
 
     private sealed record LayoutGraphNodeDocument
@@ -186,6 +235,39 @@ public static class LayoutGraphLoader
 
         public long? DistanceMm { get; init; }
 
+        public bool? Bidirectional { get; init; }
+    }
+
+    private sealed record WarehousePathNodeDocument
+    {
+        [JsonPropertyName("node_id")]
+        public string? NodeId { get; init; }
+
+        [JsonPropertyName("node_type")]
+        public string? NodeType { get; init; }
+
+        [JsonPropertyName("x")]
+        public long? X { get; init; }
+
+        [JsonPropertyName("y")]
+        public long? Y { get; init; }
+    }
+
+    private sealed record WarehousePathEdgeDocument
+    {
+        [JsonPropertyName("edge_id")]
+        public string? EdgeId { get; init; }
+
+        [JsonPropertyName("from_node_id")]
+        public string? FromNodeId { get; init; }
+
+        [JsonPropertyName("to_node_id")]
+        public string? ToNodeId { get; init; }
+
+        [JsonPropertyName("distance_mm")]
+        public long? DistanceMm { get; init; }
+
+        [JsonPropertyName("bidirectional")]
         public bool? Bidirectional { get; init; }
     }
 }
