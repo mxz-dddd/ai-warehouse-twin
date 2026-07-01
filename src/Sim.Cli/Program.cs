@@ -358,6 +358,7 @@ static int ExportMovementArtifact(string[] args)
 static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPath)
 {
     PathGraph? graph = null;
+    var resourceHomeNodeIds = new SortedDictionary<string, string>(StringComparer.Ordinal);
     using (var document = JsonDocument.Parse(File.ReadAllText(scenarioJsonPath)))
     {
         var root = document.RootElement;
@@ -365,6 +366,11 @@ static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPa
             TryGetLayoutGraphElement(root, out var layoutGraphElement))
         {
             graph = LayoutGraphLoader.Load(layoutGraphElement.GetRawText());
+        }
+
+        if (root.ValueKind == JsonValueKind.Object)
+        {
+            AddScenarioResourceHomeNodeIds(root, resourceHomeNodeIds);
         }
     }
 
@@ -383,11 +389,30 @@ static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPa
         return null;
     }
 
-    var resourceHomeNodeIds = scenarioDirectory is null
-        ? new SortedDictionary<string, string>(StringComparer.Ordinal)
-        : TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json"));
+    if (scenarioDirectory is not null)
+    {
+        foreach (var entry in TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json")))
+        {
+            resourceHomeNodeIds[entry.Key] = entry.Value;
+        }
+    }
 
     return new MovementLayoutBinding(graph, resourceHomeNodeIds);
+}
+
+static void AddScenarioResourceHomeNodeIds(
+    JsonElement root,
+    IDictionary<string, string> homeNodeIds)
+{
+    if (!root.TryGetProperty("resources", out var resources) ||
+        resources.ValueKind != JsonValueKind.Object)
+    {
+        return;
+    }
+
+    AddHomeNodeIds(resources, "resources", "resource_id", homeNodeIds);
+    AddHomeNodeIds(resources, "workers", "id", homeNodeIds);
+    AddHomeNodeIds(resources, "forklifts", "id", homeNodeIds);
 }
 
 static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
@@ -709,11 +734,21 @@ static bool TryGetLayoutGraphElement(JsonElement root, out JsonElement layoutGra
 
 static bool HasLayoutGraphShape(JsonElement element)
 {
-    return element.ValueKind == JsonValueKind.Object &&
-           element.TryGetProperty("nodes", out var nodes) &&
-           nodes.ValueKind == JsonValueKind.Array &&
-           element.TryGetProperty("edges", out var edges) &&
-           edges.ValueKind == JsonValueKind.Array;
+    if (element.ValueKind != JsonValueKind.Object)
+    {
+        return false;
+    }
+
+    return (HasArrayProperty(element, "nodes") &&
+            HasArrayProperty(element, "edges")) ||
+           (HasArrayProperty(element, "path_nodes") &&
+            HasArrayProperty(element, "path_edges"));
+}
+
+static bool HasArrayProperty(JsonElement element, string propertyName)
+{
+    return element.TryGetProperty(propertyName, out var property) &&
+           property.ValueKind == JsonValueKind.Array;
 }
 
 static RunArtifactWarehouseGraph ToRunArtifactWarehouseGraph(PathGraph graph)
