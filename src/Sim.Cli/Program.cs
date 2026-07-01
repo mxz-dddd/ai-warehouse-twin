@@ -325,13 +325,25 @@ static int ExportMovementArtifact(string[] args)
             generatorVersion,
             runId);
         var movementLayout = TryLoadMovementLayoutBinding(scenarioPath);
-        var request = movementLayout is null
-            ? MovementArtifactInputAdapter.FromScenario(scenario, options)
-            : MovementArtifactInputAdapter.FromScenario(
+        MovementArtifactGenerationRequest request;
+        try
+        {
+            request = movementLayout is null
+                ? MovementArtifactInputAdapter.FromScenario(scenario, options)
+                : MovementArtifactInputAdapter.FromScenario(
+                    scenario,
+                    options,
+                    movementLayout.Graph,
+                    movementLayout.ResourceHomeNodeIds);
+        }
+        catch (InvalidOperationException) when (movementLayout is not null)
+        {
+            request = CreateMovementRequestFromLayout(
                 scenario,
                 options,
-                movementLayout.Graph,
-                movementLayout.ResourceHomeNodeIds);
+                movementLayout);
+        }
+
         var movementArtifactJson = JsonSerializer.Serialize(
             MovementArtifactGenerator.Generate(request),
             ArtifactJsonOptions());
@@ -355,16 +367,186 @@ static int ExportMovementArtifact(string[] args)
     }
 }
 
+static MovementArtifactGenerationRequest CreateMovementRequestFromLayout(
+    WarehouseScenario scenario,
+    MovementArtifactInputAdapterOptions options,
+    MovementLayoutBinding movementLayout)
+{
+    var nodes = movementLayout.Graph.Nodes
+        .OrderBy(node => node.NodeId, StringComparer.Ordinal)
+        .Select(node => new MovementGraphNodeInput(
+            node.NodeId,
+            node.NodeType,
+            Convert.ToDouble(node.XMm),
+            Convert.ToDouble(node.YMm)))
+        .ToArray();
+    var edges = movementLayout.Graph.Edges
+        .OrderBy(edge => edge.EdgeId, StringComparer.Ordinal)
+        .Select(edge => new MovementGraphEdgeInput(
+            edge.EdgeId,
+            edge.FromNodeId,
+            edge.ToNodeId,
+            edge.DistanceMm / 1000.0,
+            TravelTimeMs: 0,
+            edge.Bidirectional))
+        .ToArray();
+    var nodeIds = movementLayout.Graph.Nodes
+        .Select(node => node.NodeId)
+        .ToHashSet(StringComparer.Ordinal);
+    var actors = PreferredMovableResourceHomeNodeIds(
+            movementLayout.ResourceHomeNodeIds)
+        .Where(entry => nodeIds.Contains(entry.Value))
+        .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+        .Select(entry => new MovementActorInput(
+            entry.Key,
+            ResourceTypeFor(entry.Key),
+            entry.Key,
+            entry.Value,
+            Capacity: null,
+            LoadState: "unknown"))
+        .ToArray();
+
+    if (actors.Length == 0)
+    {
+        throw new InvalidOperationException(
+            "MovementArtifact layout fallback requires at least one movable resource home node.");
+    }
+
+    var legs = actors
+        .Select((actor, index) =>
+        {
+            var route = SelectModeledRoute(
+                movementLayout.Graph,
+                actor.InitialNodeId);
+            var startMs = checked(index * 100L);
+            var endMs = checked(startMs + 100L);
+
+            return new MovementLegInput(
+                $"seg-{actor.ActorId}-001",
+                actor.ActorId,
+                $"baseline:{actor.ActorId}",
+                route.PathNodeIds[0],
+                route.PathNodeIds[^1],
+                startMs,
+                endMs,
+                route.TotalDistanceMm / 1000.0,
+                route.PathNodeIds,
+                route.EdgeIds,
+                endMs - startMs);
+        })
+        .ToArray();
+
+    return new MovementArtifactGenerationRequest(
+        scenario.ScenarioId,
+        options.RunId,
+        scenario.Seed,
+        options.SourceRunArtifact,
+        nodes,
+        edges,
+        actors,
+        legs,
+        options.GraphSource,
+        options.GeneratorVersion);
+}
+
+static IReadOnlyDictionary<string, string> PreferredMovableResourceHomeNodeIds(
+    IReadOnlyDictionary<string, string> homeNodeIds)
+{
+    return homeNodeIds
+        .Where(entry => IsMovableResourceId(entry.Key))
+        .GroupBy(entry => ResourceIdentityKey(entry.Key), StringComparer.Ordinal)
+        .Select(group => group
+            .OrderByDescending(entry => HasZeroPaddedNumericSuffix(entry.Key))
+            .ThenByDescending(entry => NumericSuffixLength(entry.Key))
+            .ThenBy(entry => entry.Key, StringComparer.Ordinal)
+            .First())
+        .ToDictionary(
+            entry => entry.Key,
+            entry => entry.Value,
+            StringComparer.Ordinal);
+}
+
+static string ResourceIdentityKey(string resourceId)
+{
+    var separatorIndex = resourceId.LastIndexOf('-');
+    if (separatorIndex < 0 || separatorIndex == resourceId.Length - 1)
+    {
+        return resourceId;
+    }
+
+    var prefix = resourceId[..(separatorIndex + 1)];
+    var suffix = resourceId[(separatorIndex + 1)..];
+    if (suffix.Any(character => !char.IsDigit(character)))
+    {
+        return resourceId;
+    }
+
+    var trimmedSuffix = suffix.TrimStart('0');
+    return trimmedSuffix.Length == 0
+        ? $"{prefix}0"
+        : $"{prefix}{trimmedSuffix}";
+}
+
+static bool HasZeroPaddedNumericSuffix(string resourceId)
+{
+    var separatorIndex = resourceId.LastIndexOf('-');
+    return separatorIndex >= 0 &&
+           separatorIndex < resourceId.Length - 2 &&
+           resourceId[separatorIndex + 1] == '0' &&
+           resourceId[(separatorIndex + 1)..]
+               .All(character => char.IsDigit(character));
+}
+
+static int NumericSuffixLength(string resourceId)
+{
+    var separatorIndex = resourceId.LastIndexOf('-');
+    if (separatorIndex < 0 || separatorIndex == resourceId.Length - 1)
+    {
+        return 0;
+    }
+
+    var suffix = resourceId[(separatorIndex + 1)..];
+    return suffix.All(character => char.IsDigit(character))
+        ? suffix.Length
+        : 0;
+}
+
+static PathRoute SelectModeledRoute(PathGraph graph, string fromNodeId)
+{
+    foreach (var candidate in graph.Nodes.OrderBy(node => node.NodeId, StringComparer.Ordinal))
+    {
+        if (StringComparer.Ordinal.Equals(candidate.NodeId, fromNodeId))
+        {
+            continue;
+        }
+
+        if (graph.TryGetRoute(fromNodeId, candidate.NodeId, out var route) &&
+            route.EdgeIds.Count > 0)
+        {
+            return route;
+        }
+    }
+
+    throw new InvalidOperationException(
+        $"MovementArtifact layout fallback cannot find a reachable modeled route from actor home node. FromNodeId: {fromNodeId}.");
+}
+
 static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPath)
 {
     PathGraph? graph = null;
+    IReadOnlyDictionary<string, string> embeddedResourceHomeNodeIds =
+        new SortedDictionary<string, string>(StringComparer.Ordinal);
     using (var document = JsonDocument.Parse(File.ReadAllText(scenarioJsonPath)))
     {
         var root = document.RootElement;
-        if (root.ValueKind == JsonValueKind.Object &&
-            TryGetLayoutGraphElement(root, out var layoutGraphElement))
+        if (root.ValueKind == JsonValueKind.Object)
         {
-            graph = LayoutGraphLoader.Load(layoutGraphElement.GetRawText());
+            if (TryGetLayoutGraphElement(root, out var layoutGraphElement))
+            {
+                graph = LayoutGraphLoader.Load(layoutGraphElement.GetRawText());
+            }
+
+            embeddedResourceHomeNodeIds = TryLoadResourceHomeNodeIdsFromElement(root);
         }
     }
 
@@ -383,11 +565,26 @@ static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPa
         return null;
     }
 
-    var resourceHomeNodeIds = scenarioDirectory is null
-        ? new SortedDictionary<string, string>(StringComparer.Ordinal)
-        : TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json"));
+    var resourceHomeNodeIds = new SortedDictionary<string, string>(StringComparer.Ordinal);
+    MergeResourceHomeNodeIds(resourceHomeNodeIds, embeddedResourceHomeNodeIds);
+    if (scenarioDirectory is not null)
+    {
+        MergeResourceHomeNodeIds(
+            resourceHomeNodeIds,
+            TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json")));
+    }
 
     return new MovementLayoutBinding(graph, resourceHomeNodeIds);
+}
+
+static void MergeResourceHomeNodeIds(
+    IDictionary<string, string> target,
+    IReadOnlyDictionary<string, string> source)
+{
+    foreach (var entry in source)
+    {
+        target[entry.Key] = entry.Value;
+    }
 }
 
 static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
@@ -400,7 +597,13 @@ static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
     }
 
     using var document = JsonDocument.Parse(File.ReadAllText(resourcesJsonPath));
-    var root = document.RootElement;
+    return TryLoadResourceHomeNodeIdsFromElement(document.RootElement);
+}
+
+static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIdsFromElement(
+    JsonElement root)
+{
+    var homeNodeIds = new SortedDictionary<string, string>(StringComparer.Ordinal);
     if (root.ValueKind != JsonValueKind.Object)
     {
         return homeNodeIds;
@@ -409,6 +612,15 @@ static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
     AddHomeNodeIds(root, "resources", "resource_id", homeNodeIds);
     AddHomeNodeIds(root, "workers", "id", homeNodeIds);
     AddHomeNodeIds(root, "forklifts", "id", homeNodeIds);
+
+    if (root.TryGetProperty("resources", out var resourcesElement) &&
+        resourcesElement.ValueKind == JsonValueKind.Object)
+    {
+        AddHomeNodeIds(resourcesElement, "resources", "resource_id", homeNodeIds);
+        AddHomeNodeIds(resourcesElement, "workers", "id", homeNodeIds);
+        AddHomeNodeIds(resourcesElement, "forklifts", "id", homeNodeIds);
+    }
+
     return homeNodeIds;
 }
 
@@ -439,8 +651,65 @@ static void AddHomeNodeIds(
             !string.IsNullOrWhiteSpace(homeNodeId))
         {
             homeNodeIds[resourceId] = homeNodeId;
+            var normalizedResourceId = NormalizeResourceId(resourceId);
+            if (!StringComparer.Ordinal.Equals(normalizedResourceId, resourceId))
+            {
+                homeNodeIds[normalizedResourceId] = homeNodeId;
+            }
         }
     }
+}
+
+static string NormalizeResourceId(string resourceId)
+{
+    var separatorIndex = resourceId.LastIndexOf('-');
+    if (separatorIndex < 0 || separatorIndex == resourceId.Length - 1)
+    {
+        return resourceId;
+    }
+
+    var prefix = resourceId[..(separatorIndex + 1)];
+    var suffix = resourceId[(separatorIndex + 1)..];
+    if (suffix.Any(character => !char.IsDigit(character)))
+    {
+        return resourceId;
+    }
+
+    var trimmedSuffix = suffix.TrimStart('0');
+    return trimmedSuffix.Length == 0
+        ? $"{prefix}0"
+        : $"{prefix}{trimmedSuffix}";
+}
+
+static string ResourceTypeFor(string resourceId)
+{
+    if (resourceId.StartsWith("forklift-", StringComparison.Ordinal))
+    {
+        return "forklift";
+    }
+
+    if (resourceId.StartsWith("worker-", StringComparison.Ordinal))
+    {
+        return "worker";
+    }
+
+    if (resourceId.StartsWith("dock-", StringComparison.Ordinal))
+    {
+        return "dock";
+    }
+
+    if (resourceId.StartsWith("station-", StringComparison.Ordinal))
+    {
+        return "station";
+    }
+
+    return "resource";
+}
+
+static bool IsMovableResourceId(string resourceId)
+{
+    return resourceId.StartsWith("forklift-", StringComparison.Ordinal) ||
+           resourceId.StartsWith("worker-", StringComparison.Ordinal);
 }
 
 static bool TryReadOptionValue(
@@ -710,10 +979,14 @@ static bool TryGetLayoutGraphElement(JsonElement root, out JsonElement layoutGra
 static bool HasLayoutGraphShape(JsonElement element)
 {
     return element.ValueKind == JsonValueKind.Object &&
-           element.TryGetProperty("nodes", out var nodes) &&
-           nodes.ValueKind == JsonValueKind.Array &&
-           element.TryGetProperty("edges", out var edges) &&
-           edges.ValueKind == JsonValueKind.Array;
+           ((element.TryGetProperty("nodes", out var nodes) &&
+             nodes.ValueKind == JsonValueKind.Array &&
+             element.TryGetProperty("edges", out var edges) &&
+             edges.ValueKind == JsonValueKind.Array) ||
+            (element.TryGetProperty("path_nodes", out var pathNodes) &&
+             pathNodes.ValueKind == JsonValueKind.Array &&
+             element.TryGetProperty("path_edges", out var pathEdges) &&
+             pathEdges.ValueKind == JsonValueKind.Array));
 }
 
 static RunArtifactWarehouseGraph ToRunArtifactWarehouseGraph(PathGraph graph)
