@@ -18,12 +18,12 @@ namespace AIWarehouseTwin.Tests
             {
                 path_nodes = new[]
                 {
-                    new PathNodeDto { node_id = "a", node_type = "dock", x = 0, y = 0 },
-                    new PathNodeDto { node_id = "b", node_type = "aisle", x = 10, y = 10 },
+                    new LayoutPathNodeDto { node_id = "a", node_type = "dock", x = 0, y = 0 },
+                    new LayoutPathNodeDto { node_id = "b", node_type = "aisle", x = 10, y = 10 },
                 },
                 path_edges = new[]
                 {
-                    new PathEdgeDto
+                    new LayoutPathEdgeDto
                     {
                         edge_id = "e1", from_node_id = "a", to_node_id = "b",
                         distance_mm = 1000, bidirectional = true,
@@ -46,8 +46,8 @@ namespace AIWarehouseTwin.Tests
             {
                 path_nodes = new[]
                 {
-                    new PathNodeDto { node_id = "a", x = 0, y = 0 },
-                    new PathNodeDto { node_id = "", x = 5, y = 5 },
+                    new LayoutPathNodeDto { node_id = "a", x = 0, y = 0 },
+                    new LayoutPathNodeDto { node_id = "", x = 5, y = 5 },
                 },
             };
 
@@ -70,7 +70,7 @@ namespace AIWarehouseTwin.Tests
         {
             var graph = LayoutGraphSource.FromDocument(new LayoutDocumentDto
             {
-                path_nodes = new[] { new PathNodeDto { node_id = "a", x = 1, y = 2 } },
+                path_nodes = new[] { new LayoutPathNodeDto { node_id = "a", x = 1, y = 2 } },
             });
 
             Assert.That(graph.TryGetNode("a", out var node), Is.True);
@@ -110,10 +110,10 @@ namespace AIWarehouseTwin.Tests
         {
             var doc = new LayoutDocumentDto
             {
-                path_nodes = new[] { new PathNodeDto { node_id = "a", x = 0, y = 0 } },
+                path_nodes = new[] { new LayoutPathNodeDto { node_id = "a", x = 0, y = 0 } },
                 path_edges = new[]
                 {
-                    new PathEdgeDto { edge_id = "e", from_node_id = "a", to_node_id = "ghost" },
+                    new LayoutPathEdgeDto { edge_id = "e", from_node_id = "a", to_node_id = "ghost" },
                 },
             };
 
@@ -127,7 +127,7 @@ namespace AIWarehouseTwin.Tests
         {
             var graph = LayoutGraphSource.FromDocument(new LayoutDocumentDto
             {
-                path_nodes = new[] { new PathNodeDto { node_id = "a", x = 42, y = 42 } },
+                path_nodes = new[] { new LayoutPathNodeDto { node_id = "a", x = 42, y = 42 } },
             });
 
             var layout = WarehouseGraphRenderer.BuildNodeLayout(graph);
