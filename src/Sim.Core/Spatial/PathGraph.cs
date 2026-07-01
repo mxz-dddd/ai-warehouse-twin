@@ -6,6 +6,8 @@ public sealed class PathGraph
 {
     private static readonly StringComparer IdComparer = StringComparer.Ordinal;
 
+    private readonly IReadOnlyList<PathGraphNode> nodes;
+    private readonly IReadOnlyList<PathGraphEdge> edges;
     private readonly IReadOnlyDictionary<string, PathGraphNode> nodesById;
     private readonly IReadOnlyDictionary<string, IReadOnlyList<AdjacentEdge>> adjacencyByNodeId;
 
@@ -16,6 +18,9 @@ public sealed class PathGraph
 
         var orderedNodes = nodes
             .OrderBy(node => node.NodeId, IdComparer)
+            .ToArray();
+        var orderedEdges = edges
+            .OrderBy(edge => edge.EdgeId, IdComparer)
             .ToArray();
 
         var mutableNodesById = new Dictionary<string, PathGraphNode>(IdComparer);
@@ -36,7 +41,7 @@ public sealed class PathGraph
             IdComparer);
 
         var edgeIds = new HashSet<string>(IdComparer);
-        foreach (var edge in edges.OrderBy(edge => edge.EdgeId, IdComparer))
+        foreach (var edge in orderedEdges)
         {
             ValidateEdge(edge);
 
@@ -75,6 +80,8 @@ public sealed class PathGraph
         }
 
         nodesById = mutableNodesById;
+        this.nodes = orderedNodes;
+        this.edges = orderedEdges;
         adjacencyByNodeId = mutableAdjacency.ToDictionary(
             pair => pair.Key,
             pair => (IReadOnlyList<AdjacentEdge>)pair.Value
@@ -84,6 +91,10 @@ public sealed class PathGraph
                 .ToArray(),
             IdComparer);
     }
+
+    public IReadOnlyList<PathGraphNode> Nodes => nodes;
+
+    public IReadOnlyList<PathGraphEdge> Edges => edges;
 
     public bool TryGetRoute(string fromNodeId, string toNodeId, out PathRoute route)
     {

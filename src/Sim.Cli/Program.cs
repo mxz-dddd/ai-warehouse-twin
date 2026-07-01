@@ -5,6 +5,7 @@ using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Unified;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
+using Sim.Core.Spatial;
 using Sim.Report;
 
 if (args.Length > 0 &&
@@ -124,6 +125,7 @@ if (args.Length == 7 &&
 
 WarehouseScenario scenario;
 string? artifactOutputPath = null;
+string? artifactScenarioPath = null;
 var useUnifiedRunner = true;
 
 if (args.Length == 1 && args[0] == "sample-small-warehouse")
@@ -161,6 +163,7 @@ else if (args.Length == 4 &&
 else if (args.Length == 4 && args[0] == "export-artifact" && args[2] == "-o")
 {
     scenario = WarehouseScenarioJsonLoader.Load(args[1]);
+    artifactScenarioPath = args[1];
     artifactOutputPath = args[3];
 }
 else if (args.Length == 6 &&
@@ -175,6 +178,7 @@ else if (args.Length == 6 &&
     }
 
     scenario = WarehouseScenarioJsonLoader.Load(args[1]);
+    artifactScenarioPath = args[1];
     artifactOutputPath = args[3];
 }
 else
@@ -199,10 +203,13 @@ var runner = new WarehouseScenarioRunner();
 
 if (artifactOutputPath is not null)
 {
+    var warehouseGraph = artifactScenarioPath is null
+        ? null
+        : TryLoadWarehouseGraph(artifactScenarioPath);
     var artifactJson = JsonSerializer.Serialize(
         useUnifiedRunner
-            ? ToUnifiedRunArtifact(scenario, runner)
-            : ToRunArtifact(runner.RunWithTrace(scenario)),
+            ? ToUnifiedRunArtifact(scenario, runner, warehouseGraph)
+            : ToRunArtifact(runner.RunWithTrace(scenario), warehouseGraph),
         ArtifactJsonOptions());
 
     File.WriteAllText(
@@ -312,13 +319,19 @@ static int ExportMovementArtifact(string[] args)
     try
     {
         var scenario = WarehouseScenarioJsonLoader.Load(scenarioPath);
-        var request = MovementArtifactInputAdapter.FromScenario(
-            scenario,
-            new MovementArtifactInputAdapterOptions(
-                sourceRunArtifact,
-                graphSource,
-                generatorVersion,
-                runId));
+        var options = new MovementArtifactInputAdapterOptions(
+            sourceRunArtifact,
+            graphSource,
+            generatorVersion,
+            runId);
+        var movementLayout = TryLoadMovementLayoutBinding(scenarioPath);
+        var request = movementLayout is null
+            ? MovementArtifactInputAdapter.FromScenario(scenario, options)
+            : MovementArtifactInputAdapter.FromScenario(
+                scenario,
+                options,
+                movementLayout.Graph,
+                movementLayout.ResourceHomeNodeIds);
         var movementArtifactJson = JsonSerializer.Serialize(
             MovementArtifactGenerator.Generate(request),
             ArtifactJsonOptions());
@@ -339,6 +352,94 @@ static int ExportMovementArtifact(string[] args)
         Console.Error.WriteLine(
             $"Failed to export movement artifact: {exception.Message}");
         return 1;
+    }
+}
+
+static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPath)
+{
+    PathGraph? graph = null;
+    using (var document = JsonDocument.Parse(File.ReadAllText(scenarioJsonPath)))
+    {
+        var root = document.RootElement;
+        if (root.ValueKind == JsonValueKind.Object &&
+            TryGetLayoutGraphElement(root, out var layoutGraphElement))
+        {
+            graph = LayoutGraphLoader.Load(layoutGraphElement.GetRawText());
+        }
+    }
+
+    var scenarioDirectory = Path.GetDirectoryName(Path.GetFullPath(scenarioJsonPath));
+    if (graph is null && scenarioDirectory is not null)
+    {
+        var siblingLayoutPath = Path.Combine(scenarioDirectory, "layout.json");
+        if (File.Exists(siblingLayoutPath))
+        {
+            graph = LayoutGraphLoader.Load(File.ReadAllText(siblingLayoutPath));
+        }
+    }
+
+    if (graph is null)
+    {
+        return null;
+    }
+
+    var resourceHomeNodeIds = scenarioDirectory is null
+        ? new SortedDictionary<string, string>(StringComparer.Ordinal)
+        : TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json"));
+
+    return new MovementLayoutBinding(graph, resourceHomeNodeIds);
+}
+
+static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
+    string resourcesJsonPath)
+{
+    var homeNodeIds = new SortedDictionary<string, string>(StringComparer.Ordinal);
+    if (!File.Exists(resourcesJsonPath))
+    {
+        return homeNodeIds;
+    }
+
+    using var document = JsonDocument.Parse(File.ReadAllText(resourcesJsonPath));
+    var root = document.RootElement;
+    if (root.ValueKind != JsonValueKind.Object)
+    {
+        return homeNodeIds;
+    }
+
+    AddHomeNodeIds(root, "resources", "resource_id", homeNodeIds);
+    AddHomeNodeIds(root, "workers", "id", homeNodeIds);
+    AddHomeNodeIds(root, "forklifts", "id", homeNodeIds);
+    return homeNodeIds;
+}
+
+static void AddHomeNodeIds(
+    JsonElement root,
+    string propertyName,
+    string idPropertyName,
+    IDictionary<string, string> homeNodeIds)
+{
+    if (!root.TryGetProperty(propertyName, out var resources) ||
+        resources.ValueKind != JsonValueKind.Array)
+    {
+        return;
+    }
+
+    foreach (var resource in resources.EnumerateArray())
+    {
+        if (resource.ValueKind != JsonValueKind.Object ||
+            !resource.TryGetProperty(idPropertyName, out var idElement) ||
+            !resource.TryGetProperty("home_node_id", out var homeNodeElement))
+        {
+            continue;
+        }
+
+        var resourceId = idElement.GetString();
+        var homeNodeId = homeNodeElement.GetString();
+        if (!string.IsNullOrWhiteSpace(resourceId) &&
+            !string.IsNullOrWhiteSpace(homeNodeId))
+        {
+            homeNodeIds[resourceId] = homeNodeId;
+        }
     }
 }
 
@@ -429,7 +530,8 @@ static object ToPayloadWithRunnerMode(WarehouseRunResult result, string runnerMo
 
 static RunArtifact ToUnifiedRunArtifact(
     WarehouseScenario scenario,
-    WarehouseScenarioRunner runner)
+    WarehouseScenarioRunner runner,
+    RunArtifactWarehouseGraph? warehouseGraph)
 {
     var unifiedScenario =
         WarehouseScenarioToUnifiedScenarioAdapter.Convert(scenario);
@@ -441,10 +543,13 @@ static RunArtifact ToUnifiedRunArtifact(
     return ToRunArtifactFromUnifiedResult(
         result,
         unifiedOperationResult,
-        unifiedScenario.Operations);
+        unifiedScenario.Operations,
+        warehouseGraph);
 }
 
-static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
+static RunArtifact ToRunArtifact(
+    WarehouseScenarioTraceResult traceResult,
+    RunArtifactWarehouseGraph? warehouseGraph = null)
 {
     var result = traceResult.RunResult;
     var kpi = result.KpiSummary;
@@ -478,6 +583,7 @@ static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
                     resource.Position.Y))
                 .ToArray()
         },
+        WarehouseGraph = warehouseGraph,
         PositionTimeline = traceResult.PositionTimeline
             .Select(entry => new RunArtifactPositionTimelineEntry(
                 entry.OperationId,
@@ -500,7 +606,8 @@ static RunArtifact ToRunArtifact(WarehouseScenarioTraceResult traceResult)
 static RunArtifact ToRunArtifactFromUnifiedResult(
     WarehouseRunResult result,
     WarehouseUnifiedOperationResult unifiedResult,
-    IReadOnlyList<WarehouseUnifiedOperation> operations)
+    IReadOnlyList<WarehouseUnifiedOperation> operations,
+    RunArtifactWarehouseGraph? warehouseGraph = null)
 {
     var kpi = result.KpiSummary;
     var operationsById = operations.ToDictionary(
@@ -548,6 +655,7 @@ static RunArtifact ToRunArtifactFromUnifiedResult(
                 })
                 .ToArray()
         },
+        WarehouseGraph = warehouseGraph,
         // CORE-U3c preserves RunArtifact v1 and maps the opt-in unified
         // runner's deterministic layout handoff into the existing position
         // timeline contract. These coordinates are baseline layout positions,
@@ -573,6 +681,89 @@ static RunArtifact ToRunArtifactFromUnifiedResult(
             .Where(line => line.Length > 0)
             .ToArray()
     };
+}
+
+static RunArtifactWarehouseGraph? TryLoadWarehouseGraph(string scenarioJsonPath)
+{
+    using var document = JsonDocument.Parse(File.ReadAllText(scenarioJsonPath));
+    var root = document.RootElement;
+    if (root.ValueKind != JsonValueKind.Object)
+    {
+        return null;
+    }
+
+    if (TryGetLayoutGraphElement(root, out var layoutGraphElement))
+    {
+        return ToRunArtifactWarehouseGraph(
+            LayoutGraphLoader.Load(layoutGraphElement.GetRawText()));
+    }
+
+    return null;
+}
+
+static bool TryGetLayoutGraphElement(JsonElement root, out JsonElement layoutGraphElement)
+{
+    if (root.TryGetProperty("layout_graph", out layoutGraphElement) &&
+        HasLayoutGraphShape(layoutGraphElement))
+    {
+        return true;
+    }
+
+    if (root.TryGetProperty("layoutGraph", out layoutGraphElement) &&
+        HasLayoutGraphShape(layoutGraphElement))
+    {
+        return true;
+    }
+
+    if (root.TryGetProperty("layout", out layoutGraphElement) &&
+        HasLayoutGraphShape(layoutGraphElement))
+    {
+        return true;
+    }
+
+    layoutGraphElement = default;
+    return false;
+}
+
+static bool HasLayoutGraphShape(JsonElement element)
+{
+    return element.ValueKind == JsonValueKind.Object &&
+           element.TryGetProperty("nodes", out var nodes) &&
+           nodes.ValueKind == JsonValueKind.Array &&
+           element.TryGetProperty("edges", out var edges) &&
+           edges.ValueKind == JsonValueKind.Array;
+}
+
+static RunArtifactWarehouseGraph ToRunArtifactWarehouseGraph(PathGraph graph)
+{
+    return new RunArtifactWarehouseGraph
+    {
+        Nodes = graph.Nodes
+            .Select(node => new RunArtifactWarehouseGraphNode
+            {
+                NodeId = node.NodeId,
+                NodeType = node.NodeType,
+                X = node.XMm,
+                Y = node.YMm
+            })
+            .ToArray(),
+        Edges = graph.Edges
+            .Select(edge => new RunArtifactWarehouseGraphEdge
+            {
+                EdgeId = edge.EdgeId,
+                FromNodeId = edge.FromNodeId,
+                ToNodeId = edge.ToNodeId,
+                DistanceM = MmToMeters(edge.DistanceMm),
+                TravelTimeMs = 0,
+                Bidirectional = edge.Bidirectional
+            })
+            .ToArray()
+    };
+}
+
+static decimal MmToMeters(long distanceMm)
+{
+    return distanceMm / 1000m;
 }
 
 static string ToArtifactOperationType(
@@ -714,3 +905,7 @@ static bool TryParseRunnerProvenanceMode(
         $"Unknown runner mode '{value}'. Allowed values: legacy, unified, unknown.";
     return false;
 }
+
+internal sealed record MovementLayoutBinding(
+    PathGraph Graph,
+    IReadOnlyDictionary<string, string> ResourceHomeNodeIds);
