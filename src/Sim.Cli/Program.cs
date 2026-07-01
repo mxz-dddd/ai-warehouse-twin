@@ -1,7 +1,9 @@
 using System.Text.Json;
 using Sim.Contracts.Artifacts;
+using Sim.Core.Domain;
 using Sim.Core.Movement;
 using Sim.Core.Scenarios;
+using Sim.Core.Scenarios.Optimization;
 using Sim.Core.Scenarios.Unified;
 using Sim.Core.Scenarios.Json;
 using Sim.Core.Scenarios.Samples;
@@ -12,6 +14,12 @@ if (args.Length > 0 &&
     args[0] == "export-movement-artifact")
 {
     return ExportMovementArtifact(args);
+}
+
+if (args.Length > 0 &&
+    args[0] == "export-medium-ab-comparison")
+{
+    return ExportMediumAbComparison(args);
 }
 
 if (args.Length == 5 &&
@@ -191,6 +199,7 @@ else
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-artifact <scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-movement-artifact <scenario-json-path> -o <output-json-path>");
+    Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- export-medium-ab-comparison <baseline-scenario-json-path> <abc-slotting-config-json-path> --baseline-run-artifact <baseline-run-artifact-json-path> --output-dir <optimized-output-dir>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- compare-files <baseline-scenario-json-path> <candidate-scenario-json-path> -o <output-json-path> --runner <legacy|unified>");
     Console.Error.WriteLine("  dotnet run --project src/Sim.Cli -- render-report <run-artifact-json-path> <comparison-artifact-json-path> -o <output-md-path>");
@@ -345,12 +354,151 @@ static int ExportMovementArtifact(string[] args)
     }
     catch (Exception exception) when (
         exception is ArgumentException or
+        DomainRuleViolationException or
         InvalidOperationException or
         IOException or
         UnauthorizedAccessException)
     {
         Console.Error.WriteLine(
             $"Failed to export movement artifact: {exception.Message}");
+        return 1;
+    }
+}
+
+static int ExportMediumAbComparison(string[] args)
+{
+    if (args.Length < 3)
+    {
+        Console.Error.WriteLine(
+            "Usage: dotnet run --project src/Sim.Cli -- export-medium-ab-comparison <baseline-scenario-json-path> <abc-slotting-config-json-path> --baseline-run-artifact <baseline-run-artifact-json-path> --output-dir <optimized-output-dir>");
+        return 1;
+    }
+
+    var baselineScenarioPath = args[1];
+    var configPath = args[2];
+    string? baselineRunArtifactPath = null;
+    string? outputDir = null;
+
+    for (var i = 3; i < args.Length; i++)
+    {
+        var argument = args[i];
+        if (argument == "--baseline-run-artifact")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out baselineRunArtifactPath))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        if (argument == "--output-dir")
+        {
+            if (!TryReadOptionValue(args, ref i, argument, out outputDir))
+            {
+                return 1;
+            }
+
+            continue;
+        }
+
+        Console.Error.WriteLine(
+            $"Unknown export-medium-ab-comparison option '{argument}'.");
+        return 1;
+    }
+
+    if (string.IsNullOrWhiteSpace(baselineRunArtifactPath))
+    {
+        Console.Error.WriteLine(
+            "export-medium-ab-comparison requires --baseline-run-artifact.");
+        return 1;
+    }
+
+    if (string.IsNullOrWhiteSpace(outputDir))
+    {
+        Console.Error.WriteLine(
+            "export-medium-ab-comparison requires --output-dir.");
+        return 1;
+    }
+
+    try
+    {
+        var artifactsDir = Path.Combine(outputDir, "artifacts");
+        Directory.CreateDirectory(artifactsDir);
+
+        var optimizedScenarioPath = Path.Combine(outputDir, "scenario.json");
+        var optimizedRunArtifactPath = Path.Combine(artifactsDir, "run-artifact.v1.json");
+        var optimizedMovementArtifactPath = Path.Combine(artifactsDir, "movement-artifact.v1.json");
+        var comparisonArtifactPath = Path.Combine(artifactsDir, "comparison-artifact.v1.json");
+
+        var optimizedScenarioJson =
+            MediumWarehouseAbComparison.GenerateOptimizedScenarioJson(
+                File.ReadAllText(baselineScenarioPath),
+                File.ReadAllText(configPath));
+        File.WriteAllText(
+            optimizedScenarioPath,
+            NormalizeLineEndings(optimizedScenarioJson));
+
+        var baselineScenario = WarehouseScenarioJsonLoader.Load(baselineScenarioPath);
+        var optimizedScenario = WarehouseScenarioJsonLoader.Load(optimizedScenarioPath);
+        var runner = new WarehouseScenarioRunner();
+        var optimizedRunArtifactJson = JsonSerializer.Serialize(
+            ToUnifiedRunArtifact(
+                optimizedScenario,
+                runner,
+                TryLoadWarehouseGraph(optimizedScenarioPath)),
+            ArtifactJsonOptions());
+        optimizedRunArtifactJson = NormalizeLineEndings(optimizedRunArtifactJson) + "\n";
+        File.WriteAllText(
+            optimizedRunArtifactPath,
+            optimizedRunArtifactJson);
+
+        var movementOptions = new MovementArtifactInputAdapterOptions(
+            "artifacts/run-artifact.v1.json",
+            "medium-warehouse-optimized-layout",
+            "cli-a5b",
+            MediumWarehouseAbComparison.OptimizedScenarioId);
+        var movementLayout = TryLoadMovementLayoutBinding(optimizedScenarioPath);
+        var movementRequest = movementLayout is null
+            ? MovementArtifactInputAdapter.FromScenario(optimizedScenario, movementOptions)
+            : MovementArtifactInputAdapter.FromScenario(
+                optimizedScenario,
+                movementOptions,
+                movementLayout.Graph,
+                movementLayout.ResourceHomeNodeIds);
+        var movementArtifactJson = JsonSerializer.Serialize(
+            MovementArtifactGenerator.Generate(movementRequest),
+            ArtifactJsonOptions());
+        File.WriteAllText(
+            optimizedMovementArtifactPath,
+            NormalizeLineEndings(movementArtifactJson) + "\n");
+
+        var comparison = new WarehouseScenarioComparisonRunner()
+            .CompareWithUnifiedAdapter(baselineScenario, optimizedScenario);
+        var comparisonArtifactJson =
+            MediumWarehouseAbComparison.BuildComparisonArtifactJson(
+                comparison,
+                File.ReadAllText(baselineRunArtifactPath),
+                optimizedRunArtifactJson);
+        File.WriteAllText(
+            comparisonArtifactPath,
+            NormalizeLineEndings(comparisonArtifactJson));
+
+        Console.WriteLine($"Exported optimized scenario: {optimizedScenarioPath}");
+        Console.WriteLine($"Exported optimized run artifact: {optimizedRunArtifactPath}");
+        Console.WriteLine($"Exported optimized movement artifact: {optimizedMovementArtifactPath}");
+        Console.WriteLine($"Exported comparison artifact: {comparisonArtifactPath}");
+        return 0;
+    }
+    catch (Exception exception) when (
+        exception is ArgumentException or
+        DomainRuleViolationException or
+        InvalidOperationException or
+        IOException or
+        UnauthorizedAccessException)
+    {
+        Console.Error.WriteLine(
+            $"Failed to export medium A/B comparison: {exception.Message}");
         return 1;
     }
 }

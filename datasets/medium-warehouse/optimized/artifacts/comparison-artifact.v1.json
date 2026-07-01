@@ -1,0 +1,197 @@
+{
+  "schema_version": "comparison_artifact.v1",
+  "baseline": {
+    "scenario_id": "medium-warehouse",
+    "metrics": {
+      "finished_at_ms": 18000000,
+      "completed_receipts": 12,
+      "completed_outbound_orders": 40,
+      "completed_each_pick_orders": 40,
+      "total_quantity_received": 768,
+      "total_quantity_shipped": 840,
+      "total_quantity_picked": 220,
+      "inbound_receipt_throughput_per_hour": 2.4,
+      "outbound_order_throughput_per_hour": 8,
+      "each_pick_order_throughput_per_hour": 8,
+      "total_work_item_throughput_per_hour": 18.4
+    }
+  },
+  "candidate": {
+    "scenario_id": "medium-warehouse-optimized-abc-slotting",
+    "metrics": {
+      "finished_at_ms": 18000000,
+      "completed_receipts": 12,
+      "completed_outbound_orders": 40,
+      "completed_each_pick_orders": 40,
+      "total_quantity_received": 768,
+      "total_quantity_shipped": 840,
+      "total_quantity_picked": 220,
+      "inbound_receipt_throughput_per_hour": 2.4,
+      "outbound_order_throughput_per_hour": 8,
+      "each_pick_order_throughput_per_hour": 8,
+      "total_work_item_throughput_per_hour": 18.4
+    }
+  },
+  "deltas": [
+    {
+      "metric_name": "finished_at_ms",
+      "baseline_value": 18000000,
+      "candidate_value": 18000000,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "completed_receipts",
+      "baseline_value": 12,
+      "candidate_value": 12,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "completed_outbound_orders",
+      "baseline_value": 40,
+      "candidate_value": 40,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "completed_each_pick_orders",
+      "baseline_value": 40,
+      "candidate_value": 40,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "total_quantity_received",
+      "baseline_value": 768,
+      "candidate_value": 768,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "total_quantity_shipped",
+      "baseline_value": 840,
+      "candidate_value": 840,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "total_quantity_picked",
+      "baseline_value": 220,
+      "candidate_value": 220,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "inbound_receipt_throughput_per_hour",
+      "baseline_value": 2.4,
+      "candidate_value": 2.4,
+      "delta": 0.0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "outbound_order_throughput_per_hour",
+      "baseline_value": 8,
+      "candidate_value": 8,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "each_pick_order_throughput_per_hour",
+      "baseline_value": 8,
+      "candidate_value": 8,
+      "delta": 0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    },
+    {
+      "metric_name": "total_work_item_throughput_per_hour",
+      "baseline_value": 18.4,
+      "candidate_value": 18.4,
+      "delta": 0.0,
+      "delta_percent": 0,
+      "direction": "unchanged"
+    }
+  ],
+  "kpi_deltas": {
+    "avg_wait_ms": {
+      "baseline_value": 5525869.565,
+      "candidate_value": 5525869.565,
+      "delta": 0.000,
+      "lower_is_better": true
+    },
+    "each_pick_order_throughput_per_hour": {
+      "baseline_value": 8,
+      "candidate_value": 8,
+      "delta": 0,
+      "lower_is_better": false
+    },
+    "order_cycle_p50_ms": {
+      "baseline_value": 4950000,
+      "candidate_value": 4950000,
+      "delta": 0,
+      "lower_is_better": true
+    },
+    "order_cycle_p90_ms": {
+      "baseline_value": 11910000,
+      "candidate_value": 11910000,
+      "delta": 0,
+      "lower_is_better": true
+    },
+    "order_cycle_p95_ms": {
+      "baseline_value": 13560000,
+      "candidate_value": 13560000,
+      "delta": 0,
+      "lower_is_better": true
+    },
+    "outbound_order_throughput_per_hour": {
+      "baseline_value": 8,
+      "candidate_value": 8,
+      "delta": 0,
+      "lower_is_better": false
+    },
+    "total_completed_work_items": {
+      "baseline_value": 92,
+      "candidate_value": 92,
+      "delta": 0,
+      "lower_is_better": false
+    },
+    "total_duration_ms": {
+      "baseline_value": 18000000,
+      "candidate_value": 18000000,
+      "delta": 0,
+      "lower_is_better": true
+    },
+    "total_work_item_throughput_per_hour": {
+      "baseline_value": 18.4,
+      "candidate_value": 18.4,
+      "delta": 0.0,
+      "lower_is_better": false
+    }
+  },
+  "improvement_pct": {
+    "avg_wait_ms": 0,
+    "each_pick_order_throughput_per_hour": 0,
+    "order_cycle_p50_ms": 0,
+    "order_cycle_p90_ms": 0,
+    "order_cycle_p95_ms": 0,
+    "outbound_order_throughput_per_hour": 0,
+    "total_completed_work_items": 0,
+    "total_duration_ms": 0,
+    "total_work_item_throughput_per_hour": 0
+  },
+  "baseline_run_id": "medium-warehouse",
+  "optimized_run_id": "medium-warehouse-optimized-abc-slotting",
+  "optimization_note": "ABC slotting is a deterministic demo heuristic for R3 Phase-1. It is not globally optimal.",
+  "evidence_level": "deterministic_modeled",
+  "evidence_statement": "Results are deterministic modeled simulation artifacts, not calibrated WMS or sensor-ground-truth measurements."
+}
