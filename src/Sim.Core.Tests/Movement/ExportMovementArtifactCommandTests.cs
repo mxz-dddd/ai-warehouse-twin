@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using Sim.Report;
 using Xunit;
 
@@ -35,6 +36,29 @@ public sealed class ExportMovementArtifactCommandTests
         Assert.NotEmpty(artifact.movement_events);
         Assert.NotEmpty(artifact.route_segments);
         Assert.NotNull(artifact.provenance);
+
+        using var document = JsonDocument.Parse(File.ReadAllText(outputPath));
+        var routeSegments = document.RootElement
+            .GetProperty("route_segments")
+            .EnumerateArray()
+            .ToArray();
+        Assert.True(routeSegments.Length > 1);
+        Assert.Equal("node-dock-in", routeSegments[0].GetProperty("from_node_id").GetString());
+        Assert.Equal(
+            routeSegments[0].GetProperty("to_node_id").GetString(),
+            routeSegments[1].GetProperty("from_node_id").GetString());
+        Assert.Equal(
+            routeSegments[0].GetProperty("end_ms").GetInt64(),
+            routeSegments[1].GetProperty("start_ms").GetInt64());
+        Assert.DoesNotContain(routeSegments, segment =>
+            segment.GetProperty("from_node_id").GetString() == "forklift-1" ||
+            segment.GetProperty("to_node_id").GetString() == "dock-1");
+        Assert.Contains(
+            "deterministic modeled movement",
+            document.RootElement
+                .GetProperty("provenance")
+                .GetProperty("deterministic_generation_policy")
+                .GetString());
     }
 
     [Fact]

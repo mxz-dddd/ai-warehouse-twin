@@ -8,37 +8,181 @@
   "warehouse_graph": {
     "nodes": [
       {
-        "node_id": "dock-1",
+        "node_id": "node-aisle-e",
+        "node_type": "aisle",
+        "x": 7000,
+        "y": 4000
+      },
+      {
+        "node_id": "node-aisle-w",
+        "node_type": "aisle",
+        "x": 2500,
+        "y": 4000
+      },
+      {
+        "node_id": "node-dock-in",
         "node_type": "dock",
         "x": 0,
-        "y": 0
+        "y": 4000
       },
       {
-        "node_id": "forklift-1",
-        "node_type": "forklift",
-        "x": 1,
-        "y": 0
+        "node_id": "node-dock-out",
+        "node_type": "dock",
+        "x": 9000,
+        "y": 4000
       },
       {
-        "node_id": "station-1",
+        "node_id": "node-loc-ra-1",
+        "node_type": "location",
+        "x": 2500,
+        "y": 7000
+      },
+      {
+        "node_id": "node-loc-ra-2",
+        "node_type": "location",
+        "x": 5000,
+        "y": 7000
+      },
+      {
+        "node_id": "node-loc-ra-3",
+        "node_type": "location",
+        "x": 7000,
+        "y": 7000
+      },
+      {
+        "node_id": "node-loc-rb-1",
+        "node_type": "location",
+        "x": 2500,
+        "y": 1000
+      },
+      {
+        "node_id": "node-loc-rb-2",
+        "node_type": "location",
+        "x": 5000,
+        "y": 1000
+      },
+      {
+        "node_id": "node-loc-rb-3",
+        "node_type": "location",
+        "x": 7000,
+        "y": 1000
+      },
+      {
+        "node_id": "node-pick-station",
         "node_type": "station",
-        "x": 2,
-        "y": 0
+        "x": 5000,
+        "y": 4000
       },
       {
-        "node_id": "worker-1",
-        "node_type": "worker",
-        "x": 3,
-        "y": 0
+        "node_id": "node-staging",
+        "node_type": "staging",
+        "x": 8000,
+        "y": 1000
       }
     ],
     "edges": [
       {
-        "edge_id": "edge-forklift-1-dock-1",
-        "from_node_id": "forklift-1",
-        "to_node_id": "dock-1",
-        "distance_m": 1,
-        "travel_time_ms": 100,
+        "edge_id": "edge-aislee-dockout",
+        "from_node_id": "node-aisle-e",
+        "to_node_id": "node-dock-out",
+        "distance_m": 2,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aislee-staging",
+        "from_node_id": "node-aisle-e",
+        "to_node_id": "node-staging",
+        "distance_m": 3.162,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aislew-pickstn",
+        "from_node_id": "node-aisle-w",
+        "to_node_id": "node-pick-station",
+        "distance_m": 2.5,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aislew-ra1",
+        "from_node_id": "node-aisle-w",
+        "to_node_id": "node-loc-ra-1",
+        "distance_m": 3,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-aislew-rb1",
+        "from_node_id": "node-aisle-w",
+        "to_node_id": "node-loc-rb-1",
+        "distance_m": 3,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-dockin-aislew",
+        "from_node_id": "node-dock-in",
+        "to_node_id": "node-aisle-w",
+        "distance_m": 2.5,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-pickstn-aislee",
+        "from_node_id": "node-pick-station",
+        "to_node_id": "node-aisle-e",
+        "distance_m": 2,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-ra1-ra2",
+        "from_node_id": "node-loc-ra-1",
+        "to_node_id": "node-loc-ra-2",
+        "distance_m": 2.5,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-ra2-ra3",
+        "from_node_id": "node-loc-ra-2",
+        "to_node_id": "node-loc-ra-3",
+        "distance_m": 2,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-ra3-aislee",
+        "from_node_id": "node-loc-ra-3",
+        "to_node_id": "node-aisle-e",
+        "distance_m": 3,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-rb1-rb2",
+        "from_node_id": "node-loc-rb-1",
+        "to_node_id": "node-loc-rb-2",
+        "distance_m": 2.5,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-rb2-rb3",
+        "from_node_id": "node-loc-rb-2",
+        "to_node_id": "node-loc-rb-3",
+        "distance_m": 2,
+        "travel_time_ms": 0,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-rb3-aislee",
+        "from_node_id": "node-loc-rb-3",
+        "to_node_id": "node-aisle-e",
+        "distance_m": 3,
+        "travel_time_ms": 0,
         "bidirectional": true
       }
     ]
@@ -48,7 +192,7 @@
       "actor_id": "forklift-1",
       "actor_type": "forklift",
       "resource_id": "forklift-1",
-      "initial_node_id": "forklift-1",
+      "initial_node_id": "node-dock-in",
       "capacity": null,
       "load_state": "unknown"
     },
@@ -56,7 +200,7 @@
       "actor_id": "worker-1",
       "actor_type": "worker",
       "resource_id": "worker-1",
-      "initial_node_id": "worker-1",
+      "initial_node_id": "node-pick-station",
       "capacity": null,
       "load_state": "unknown"
     }
@@ -68,9 +212,9 @@
       "operation_id": "receipt-1",
       "event_type": "movement.started",
       "at_ms": 0,
-      "node_id": "forklift-1",
-      "x": 1,
-      "y": 0,
+      "node_id": "node-dock-in",
+      "x": 0,
+      "y": 4000,
       "load_state": "unknown",
       "related_resource_id": "forklift-1"
     },
@@ -80,37 +224,73 @@
       "operation_id": "receipt-1",
       "event_type": "movement.arrived",
       "at_ms": 100,
-      "node_id": "dock-1",
-      "x": 0,
-      "y": 0,
+      "node_id": "node-aisle-e",
+      "x": 7000,
+      "y": 4000,
       "load_state": "unknown",
       "related_resource_id": "forklift-1"
     }
   ],
   "route_segments": [
     {
-      "segment_id": "seg-forklift-1-001",
+      "segment_id": "seg-forklift-1-001-001",
       "actor_id": "forklift-1",
       "operation_id": "receipt-1",
-      "from_node_id": "forklift-1",
-      "to_node_id": "dock-1",
+      "from_node_id": "node-dock-in",
+      "to_node_id": "node-aisle-w",
       "start_ms": 0,
-      "end_ms": 100,
-      "distance_m": 1,
+      "end_ms": 35,
+      "distance_m": 2.5,
       "path_node_ids": [
-        "forklift-1",
-        "dock-1"
+        "node-dock-in",
+        "node-aisle-w"
       ],
       "edge_ids": [
-        "edge-forklift-1-dock-1"
+        "edge-dockin-aislew"
       ],
-      "travel_time_ms": 100
+      "travel_time_ms": 35
+    },
+    {
+      "segment_id": "seg-forklift-1-001-002",
+      "actor_id": "forklift-1",
+      "operation_id": "receipt-1",
+      "from_node_id": "node-aisle-w",
+      "to_node_id": "node-pick-station",
+      "start_ms": 35,
+      "end_ms": 71,
+      "distance_m": 2.5,
+      "path_node_ids": [
+        "node-aisle-w",
+        "node-pick-station"
+      ],
+      "edge_ids": [
+        "edge-aislew-pickstn"
+      ],
+      "travel_time_ms": 36
+    },
+    {
+      "segment_id": "seg-forklift-1-001-003",
+      "actor_id": "forklift-1",
+      "operation_id": "receipt-1",
+      "from_node_id": "node-pick-station",
+      "to_node_id": "node-aisle-e",
+      "start_ms": 71,
+      "end_ms": 100,
+      "distance_m": 2,
+      "path_node_ids": [
+        "node-pick-station",
+        "node-aisle-e"
+      ],
+      "edge_ids": [
+        "edge-pickstn-aislee"
+      ],
+      "travel_time_ms": 29
     }
   ],
   "provenance": {
     "movement_generator_version": "cli-r2b",
     "graph_source": "sample-small-warehouse-layout",
     "movement_enabled": true,
-    "deterministic_generation_policy": "explicit-inputs-ordered-by-id-and-time"
+    "deterministic_generation_policy": "deterministic modeled movement from layout graph shortest paths via LayoutGraphLoader and PathGraph Dijkstra; not calibrated real trajectory"
   }
 }

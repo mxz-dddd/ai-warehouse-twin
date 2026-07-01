@@ -23,6 +23,42 @@ public sealed class LayoutGraphLoaderTests
     }
 
     [Fact]
+    public void Load_WarehouseLayoutPathNodes_ReturnsPathGraphWithExpectedRoute()
+    {
+        var graph = LayoutGraphLoader.Load("""
+        {
+          "path_nodes": [
+            { "node_id": "node-dock-in", "node_type": "dock", "x": 0, "y": 0 },
+            { "node_id": "node-aisle-a", "node_type": "aisle", "x": 1000, "y": 0 },
+            { "node_id": "node-pack-out", "node_type": "pack_station", "x": 3000, "y": 0 }
+          ],
+          "path_edges": [
+            {
+              "edge_id": "edge-dock-aisle",
+              "from_node_id": "node-dock-in",
+              "to_node_id": "node-aisle-a",
+              "distance_mm": 1000,
+              "bidirectional": true
+            },
+            {
+              "edge_id": "edge-aisle-pack",
+              "from_node_id": "node-aisle-a",
+              "to_node_id": "node-pack-out",
+              "distance_mm": 2000,
+              "bidirectional": true
+            }
+          ]
+        }
+        """);
+
+        var route = graph.GetRoute("node-dock-in", "node-pack-out");
+
+        Assert.Equal(["node-dock-in", "node-aisle-a", "node-pack-out"], route.PathNodeIds);
+        Assert.Equal(["edge-dock-aisle", "edge-aisle-pack"], route.EdgeIds);
+        Assert.Equal(3000, route.TotalDistanceMm);
+    }
+
+    [Fact]
     public void Load_MissingNodes_ThrowsDiagnosticDomainRuleViolation()
     {
         const string json = """

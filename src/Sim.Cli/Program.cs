@@ -319,13 +319,19 @@ static int ExportMovementArtifact(string[] args)
     try
     {
         var scenario = WarehouseScenarioJsonLoader.Load(scenarioPath);
-        var request = MovementArtifactInputAdapter.FromScenario(
-            scenario,
-            new MovementArtifactInputAdapterOptions(
-                sourceRunArtifact,
-                graphSource,
-                generatorVersion,
-                runId));
+        var options = new MovementArtifactInputAdapterOptions(
+            sourceRunArtifact,
+            graphSource,
+            generatorVersion,
+            runId);
+        var movementLayout = TryLoadMovementLayoutBinding(scenarioPath);
+        var request = movementLayout is null
+            ? MovementArtifactInputAdapter.FromScenario(scenario, options)
+            : MovementArtifactInputAdapter.FromScenario(
+                scenario,
+                options,
+                movementLayout.Graph,
+                movementLayout.ResourceHomeNodeIds);
         var movementArtifactJson = JsonSerializer.Serialize(
             MovementArtifactGenerator.Generate(request),
             ArtifactJsonOptions());
@@ -346,6 +352,94 @@ static int ExportMovementArtifact(string[] args)
         Console.Error.WriteLine(
             $"Failed to export movement artifact: {exception.Message}");
         return 1;
+    }
+}
+
+static MovementLayoutBinding? TryLoadMovementLayoutBinding(string scenarioJsonPath)
+{
+    PathGraph? graph = null;
+    using (var document = JsonDocument.Parse(File.ReadAllText(scenarioJsonPath)))
+    {
+        var root = document.RootElement;
+        if (root.ValueKind == JsonValueKind.Object &&
+            TryGetLayoutGraphElement(root, out var layoutGraphElement))
+        {
+            graph = LayoutGraphLoader.Load(layoutGraphElement.GetRawText());
+        }
+    }
+
+    var scenarioDirectory = Path.GetDirectoryName(Path.GetFullPath(scenarioJsonPath));
+    if (graph is null && scenarioDirectory is not null)
+    {
+        var siblingLayoutPath = Path.Combine(scenarioDirectory, "layout.json");
+        if (File.Exists(siblingLayoutPath))
+        {
+            graph = LayoutGraphLoader.Load(File.ReadAllText(siblingLayoutPath));
+        }
+    }
+
+    if (graph is null)
+    {
+        return null;
+    }
+
+    var resourceHomeNodeIds = scenarioDirectory is null
+        ? new SortedDictionary<string, string>(StringComparer.Ordinal)
+        : TryLoadResourceHomeNodeIds(Path.Combine(scenarioDirectory, "resources.json"));
+
+    return new MovementLayoutBinding(graph, resourceHomeNodeIds);
+}
+
+static IReadOnlyDictionary<string, string> TryLoadResourceHomeNodeIds(
+    string resourcesJsonPath)
+{
+    var homeNodeIds = new SortedDictionary<string, string>(StringComparer.Ordinal);
+    if (!File.Exists(resourcesJsonPath))
+    {
+        return homeNodeIds;
+    }
+
+    using var document = JsonDocument.Parse(File.ReadAllText(resourcesJsonPath));
+    var root = document.RootElement;
+    if (root.ValueKind != JsonValueKind.Object)
+    {
+        return homeNodeIds;
+    }
+
+    AddHomeNodeIds(root, "resources", "resource_id", homeNodeIds);
+    AddHomeNodeIds(root, "workers", "id", homeNodeIds);
+    AddHomeNodeIds(root, "forklifts", "id", homeNodeIds);
+    return homeNodeIds;
+}
+
+static void AddHomeNodeIds(
+    JsonElement root,
+    string propertyName,
+    string idPropertyName,
+    IDictionary<string, string> homeNodeIds)
+{
+    if (!root.TryGetProperty(propertyName, out var resources) ||
+        resources.ValueKind != JsonValueKind.Array)
+    {
+        return;
+    }
+
+    foreach (var resource in resources.EnumerateArray())
+    {
+        if (resource.ValueKind != JsonValueKind.Object ||
+            !resource.TryGetProperty(idPropertyName, out var idElement) ||
+            !resource.TryGetProperty("home_node_id", out var homeNodeElement))
+        {
+            continue;
+        }
+
+        var resourceId = idElement.GetString();
+        var homeNodeId = homeNodeElement.GetString();
+        if (!string.IsNullOrWhiteSpace(resourceId) &&
+            !string.IsNullOrWhiteSpace(homeNodeId))
+        {
+            homeNodeIds[resourceId] = homeNodeId;
+        }
     }
 }
 
@@ -811,3 +905,7 @@ static bool TryParseRunnerProvenanceMode(
         $"Unknown runner mode '{value}'. Allowed values: legacy, unified, unknown.";
     return false;
 }
+
+internal sealed record MovementLayoutBinding(
+    PathGraph Graph,
+    IReadOnlyDictionary<string, string> ResourceHomeNodeIds);

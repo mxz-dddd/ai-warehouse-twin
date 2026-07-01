@@ -5,6 +5,7 @@ using Sim.Core.Processes.Inbound;
 using Sim.Core.Processes.Outbound;
 using Sim.Core.Scenarios;
 using Sim.Core.Scenarios.Samples;
+using Sim.Core.Spatial;
 using Xunit;
 
 namespace Sim.Core.Tests.Movement;
@@ -116,6 +117,44 @@ public sealed class MovementArtifactInputAdapterTests
         Assert.Equal(100, leg.EndMs);
         Assert.Equal(["forklift-1", "dock-1"], leg.PathNodeIds);
         Assert.Equal(["edge-forklift-1-dock-1"], leg.EdgeIds);
+    }
+
+    [Fact]
+    public void FromScenario_WithLayoutGraph_UsesPathGraphRouteInputs()
+    {
+        var graph = new PathGraph(
+            [
+                new PathGraphNode("node-aisle-a", "aisle", 1000, 0),
+                new PathGraphNode("node-dock-in", "dock", 0, 0),
+                new PathGraphNode("node-pack-out", "pack_station", 3000, 0),
+            ],
+            [
+                new PathGraphEdge("edge-dock-aisle", "node-dock-in", "node-aisle-a", 1000, true),
+                new PathGraphEdge("edge-aisle-pack", "node-aisle-a", "node-pack-out", 2000, true),
+            ]);
+        var request = MovementArtifactInputAdapter.FromScenario(
+            WarehouseSampleScenarioFactory.CreateSmallWarehouse(),
+            Options(),
+            graph,
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["forklift-1"] = "node-dock-in",
+                ["worker-1"] = "node-pack-out",
+            });
+
+        Assert.Equal(
+            new[] { "node-aisle-a", "node-dock-in", "node-pack-out" },
+            request.Nodes.Select(node => node.NodeId).ToArray());
+        Assert.Equal(
+            new[] { "edge-aisle-pack", "edge-dock-aisle" },
+            request.Edges.Select(edge => edge.EdgeId).ToArray());
+        var actor = Assert.Single(request.Actors.Where(actor => actor.ActorId == "forklift-1"));
+        Assert.Equal("node-dock-in", actor.InitialNodeId);
+        var leg = Assert.Single(request.MovementLegs);
+        Assert.Equal("node-dock-in", leg.FromNodeId);
+        Assert.Equal("node-aisle-a", leg.ToNodeId);
+        Assert.Equal(["node-dock-in", "node-aisle-a"], leg.PathNodeIds);
+        Assert.Equal(["edge-dock-aisle"], leg.EdgeIds);
     }
 
     [Fact]
