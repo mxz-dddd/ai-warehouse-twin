@@ -75,13 +75,15 @@ public static class MovementArtifactInputAdapter
         ArgumentNullException.ThrowIfNull(layoutGraph);
         ArgumentNullException.ThrowIfNull(resourceHomeNodeIds);
 
-        var trace = new WarehouseScenarioRunner().RunWithTrace(scenario);
+        var trace = TryRunTrace(scenario, resourceHomeNodeIds);
         var nodes = BuildNodes(layoutGraph.Nodes);
         var edges = BuildEdges(layoutGraph.Edges);
-        var actors = BuildActors(
-            trace.Layout.Resources,
-            resourceHomeNodeIds,
-            layoutGraph.Nodes);
+        var actors = trace is null
+            ? BuildActors(resourceHomeNodeIds, layoutGraph.Nodes)
+            : BuildActors(
+                trace.Layout.Resources,
+                resourceHomeNodeIds,
+                layoutGraph.Nodes);
 
         if (actors.Count == 0)
         {
@@ -91,7 +93,9 @@ public static class MovementArtifactInputAdapter
 
         var actor = actors[0];
         var route = SelectModeledRoute(layoutGraph, actor.InitialNodeId);
-        var operationId = FirstOperationId(trace.ResourceLeaseTimeline);
+        var operationId = trace is null
+            ? FirstOperationId(scenario)
+            : FirstOperationId(trace.ResourceLeaseTimeline);
         var distanceM = route.TotalDistanceMm / 1000.0;
 
         var leg = new MovementLegInput(
@@ -214,6 +218,36 @@ public static class MovementArtifactInputAdapter
             .ToArray();
     }
 
+    private static IReadOnlyList<MovementActorInput> BuildActors(
+        IReadOnlyDictionary<string, string> resourceHomeNodeIds,
+        IReadOnlyList<PathGraphNode> nodes)
+    {
+        var nodeIds = nodes
+            .Select(node => node.NodeId)
+            .ToHashSet(StringComparer.Ordinal);
+
+        return resourceHomeNodeIds
+            .Where(entry => IsMovableResource(entry.Key))
+            .OrderBy(entry => entry.Key, StringComparer.Ordinal)
+            .Select(entry =>
+            {
+                if (!nodeIds.Contains(entry.Value))
+                {
+                    throw new DomainRuleViolationException(
+                        $"MovementArtifact movable resource home node is not present in layout graph. ResourceId: {entry.Key}. NodeId: {entry.Value}.");
+                }
+
+                return new MovementActorInput(
+                    entry.Key,
+                    ResourceTypeFor(entry.Key),
+                    entry.Key,
+                    entry.Value,
+                    Capacity: null,
+                    LoadState: "unknown");
+            })
+            .ToArray();
+    }
+
     private static MovementGraphEdgeInput BuildEdge(
         MovementGraphNodeInput fromNode,
         MovementGraphNodeInput toNode)
@@ -238,6 +272,55 @@ public static class MovementArtifactInputAdapter
             .ThenBy(entry => entry.ResourceId, StringComparer.Ordinal)
             .Select(entry => entry.OperationId)
             .FirstOrDefault();
+    }
+
+    private static string? FirstOperationId(WarehouseScenario scenario)
+    {
+        var candidates = new List<(long AtMs, string OperationId)>();
+
+        if (scenario.InboundScenario is not null)
+        {
+            candidates.AddRange(scenario.InboundScenario.Receipts.Select(
+                receipt => (receipt.ArrivesAtMs, receipt.ReceiptId)));
+        }
+
+        if (scenario.OutboundScenario is not null)
+        {
+            candidates.AddRange(scenario.OutboundScenario.Orders.Select(
+                order => (order.ReleasedAtMs, order.OrderId)));
+        }
+
+        if (scenario.EachPickScenario is not null)
+        {
+            candidates.AddRange(scenario.EachPickScenario.Orders.Select(
+                order => (order.ReleasedAtMs, order.OrderId)));
+        }
+
+        return candidates
+            .OrderBy(candidate => candidate.AtMs)
+            .ThenBy(candidate => candidate.OperationId, StringComparer.Ordinal)
+            .Select(candidate => candidate.OperationId)
+            .FirstOrDefault();
+    }
+
+    private static WarehouseScenarioTraceResult? TryRunTrace(
+        WarehouseScenario scenario,
+        IReadOnlyDictionary<string, string> resourceHomeNodeIds)
+    {
+        try
+        {
+            return new WarehouseScenarioRunner().RunWithTrace(scenario);
+        }
+        catch (DomainRuleViolationException) when (HasMovableResourceHomeNode(resourceHomeNodeIds))
+        {
+            return null;
+        }
+    }
+
+    private static bool HasMovableResourceHomeNode(
+        IReadOnlyDictionary<string, string> resourceHomeNodeIds)
+    {
+        return resourceHomeNodeIds.Keys.Any(IsMovableResource);
     }
 
     private static PathRoute SelectModeledRoute(
