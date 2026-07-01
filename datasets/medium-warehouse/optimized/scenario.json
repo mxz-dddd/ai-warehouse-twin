@@ -1,0 +1,2342 @@
+{
+  "schema_version": "warehouse-scenario.v0",
+  "scenario_id": "medium-warehouse-optimized-abc-slotting",
+  "seed": 20260701,
+  "description": "R3 Phase-1 medium warehouse optimized scenario generated from the A5a ABC slotting demo config. ABC slotting is a deterministic demo heuristic for R3 Phase-1. It is not globally optimal. Results are deterministic modeled simulation artifacts, not calibrated WMS or sensor-ground-truth measurements.",
+  "layout": {
+    "warehouse_id": "medium-warehouse",
+    "units": {
+      "distance": "mm",
+      "time": "millisecond"
+    },
+    "zones": [
+      {
+        "id": "zone-inbound",
+        "name": "Inbound dock and receiving"
+      },
+      {
+        "id": "zone-outbound",
+        "name": "Outbound dock and shipping"
+      },
+      {
+        "id": "zone-merge",
+        "name": "Merge and consolidation staging"
+      },
+      {
+        "id": "zone-a-pick",
+        "name": "A zone pick faces"
+      },
+      {
+        "id": "zone-a-reserve",
+        "name": "A zone reserve storage"
+      },
+      {
+        "id": "zone-b-pick",
+        "name": "B zone pick faces"
+      },
+      {
+        "id": "zone-b-reserve",
+        "name": "B zone reserve storage"
+      }
+    ],
+    "aisles": [
+      {
+        "id": "aisle-a-main",
+        "zone_id": "zone-a-pick"
+      },
+      {
+        "id": "aisle-a-reserve",
+        "zone_id": "zone-a-reserve"
+      },
+      {
+        "id": "aisle-b-main",
+        "zone_id": "zone-b-pick"
+      },
+      {
+        "id": "aisle-b-reserve",
+        "zone_id": "zone-b-reserve"
+      }
+    ],
+    "racks": [
+      {
+        "id": "rack-a-01",
+        "aisle_id": "aisle-a-main"
+      },
+      {
+        "id": "rack-a-02",
+        "aisle_id": "aisle-a-reserve"
+      },
+      {
+        "id": "rack-b-01",
+        "aisle_id": "aisle-b-main"
+      },
+      {
+        "id": "rack-b-02",
+        "aisle_id": "aisle-b-reserve"
+      }
+    ],
+    "locations": [
+      {
+        "id": "pick-a-01",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-01",
+        "x": 4000,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-02",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-01",
+        "x": 4900,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-03",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-01",
+        "x": 5800,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-04",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-01",
+        "x": 6700,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-05",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-02",
+        "x": 7600,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-06",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-02",
+        "x": 8500,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-07",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-02",
+        "x": 9400,
+        "y": 6000
+      },
+      {
+        "id": "pick-a-08",
+        "zone_id": "zone-a-pick",
+        "rack_id": "rack-a-02",
+        "x": 10300,
+        "y": 6000
+      },
+      {
+        "id": "reserve-a-01",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-01",
+        "x": 4000,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-02",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-01",
+        "x": 4900,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-03",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-01",
+        "x": 5800,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-04",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-01",
+        "x": 6700,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-05",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-02",
+        "x": 7600,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-06",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-02",
+        "x": 8500,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-07",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-02",
+        "x": 9400,
+        "y": 9600
+      },
+      {
+        "id": "reserve-a-08",
+        "zone_id": "zone-a-reserve",
+        "rack_id": "rack-a-02",
+        "x": 10300,
+        "y": 9600
+      },
+      {
+        "id": "pick-b-01",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-01",
+        "x": 16000,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-02",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-01",
+        "x": 16900,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-03",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-01",
+        "x": 17800,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-04",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-01",
+        "x": 18700,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-05",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-02",
+        "x": 19600,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-06",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-02",
+        "x": 20500,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-07",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-02",
+        "x": 21400,
+        "y": 6000
+      },
+      {
+        "id": "pick-b-08",
+        "zone_id": "zone-b-pick",
+        "rack_id": "rack-b-02",
+        "x": 22300,
+        "y": 6000
+      },
+      {
+        "id": "reserve-b-01",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-01",
+        "x": 16000,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-02",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-01",
+        "x": 16900,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-03",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-01",
+        "x": 17800,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-04",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-01",
+        "x": 18700,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-05",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-02",
+        "x": 19600,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-06",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-02",
+        "x": 20500,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-07",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-02",
+        "x": 21400,
+        "y": 9600
+      },
+      {
+        "id": "reserve-b-08",
+        "zone_id": "zone-b-reserve",
+        "rack_id": "rack-b-02",
+        "x": 22300,
+        "y": 9600
+      }
+    ],
+    "staging_locations": [
+      {
+        "id": "stage-inbound-01",
+        "zone_id": "zone-inbound",
+        "x": 1000,
+        "y": 2000
+      },
+      {
+        "id": "stage-outbound-01",
+        "zone_id": "zone-outbound",
+        "x": 26000,
+        "y": 2000
+      },
+      {
+        "id": "stage-merge-01",
+        "zone_id": "zone-merge",
+        "x": 22000,
+        "y": 4300
+      }
+    ],
+    "docks": [
+      {
+        "id": "dock-inbound-01",
+        "type": "inbound",
+        "x": 0,
+        "y": 1000
+      },
+      {
+        "id": "dock-outbound-01",
+        "type": "outbound",
+        "x": 28000,
+        "y": 1000
+      }
+    ],
+    "stations": [
+      {
+        "id": "station-each-01",
+        "type": "each_pick",
+        "zone_id": "zone-merge",
+        "x": 21000,
+        "y": 5600
+      }
+    ],
+    "path_nodes": [
+      {
+        "node_id": "dock-inbound-01",
+        "x": 0,
+        "y": 1000,
+        "node_type": "dock"
+      },
+      {
+        "node_id": "dock-outbound-01",
+        "x": 28000,
+        "y": 1000,
+        "node_type": "dock"
+      },
+      {
+        "node_id": "stage-inbound-01",
+        "x": 1000,
+        "y": 2000,
+        "node_type": "staging"
+      },
+      {
+        "node_id": "stage-outbound-01",
+        "x": 26000,
+        "y": 2000,
+        "node_type": "staging"
+      },
+      {
+        "node_id": "stage-merge-01",
+        "x": 22000,
+        "y": 4300,
+        "node_type": "staging"
+      },
+      {
+        "node_id": "station-each-01",
+        "x": 21000,
+        "y": 5600,
+        "node_type": "station"
+      },
+      {
+        "node_id": "aisle-a-main",
+        "x": 5500,
+        "y": 4300,
+        "node_type": "aisle"
+      },
+      {
+        "node_id": "aisle-b-main",
+        "x": 17500,
+        "y": 4300,
+        "node_type": "aisle"
+      },
+      {
+        "node_id": "aisle-a-reserve",
+        "x": 5500,
+        "y": 8800,
+        "node_type": "aisle"
+      },
+      {
+        "node_id": "aisle-b-reserve",
+        "x": 17500,
+        "y": 8800,
+        "node_type": "aisle"
+      }
+    ],
+    "path_edges": [
+      {
+        "edge_id": "edge-inbound-stage",
+        "from_node_id": "dock-inbound-01",
+        "to_node_id": "stage-inbound-01",
+        "distance_mm": 2200,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-stage-a-main",
+        "from_node_id": "stage-inbound-01",
+        "to_node_id": "aisle-a-main",
+        "distance_mm": 5200,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-a-main-a-reserve",
+        "from_node_id": "aisle-a-main",
+        "to_node_id": "aisle-a-reserve",
+        "distance_mm": 4500,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-a-main-b-main",
+        "from_node_id": "aisle-a-main",
+        "to_node_id": "aisle-b-main",
+        "distance_mm": 12000,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-b-main-b-reserve",
+        "from_node_id": "aisle-b-main",
+        "to_node_id": "aisle-b-reserve",
+        "distance_mm": 4500,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-b-main-merge",
+        "from_node_id": "aisle-b-main",
+        "to_node_id": "stage-merge-01",
+        "distance_mm": 4500,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-merge-station",
+        "from_node_id": "stage-merge-01",
+        "to_node_id": "station-each-01",
+        "distance_mm": 1500,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-merge-outbound-stage",
+        "from_node_id": "stage-merge-01",
+        "to_node_id": "stage-outbound-01",
+        "distance_mm": 4200,
+        "bidirectional": true
+      },
+      {
+        "edge_id": "edge-outbound-stage-dock",
+        "from_node_id": "stage-outbound-01",
+        "to_node_id": "dock-outbound-01",
+        "distance_mm": 2400,
+        "bidirectional": true
+      }
+    ]
+  },
+  "sku_master": [
+    {
+      "sku_id": "SKU-HF-001",
+      "name": "High Velocity SKU 001",
+      "category": "beverages",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-002",
+      "name": "High Velocity SKU 002",
+      "category": "snacks",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-003",
+      "name": "High Velocity SKU 003",
+      "category": "personal-care",
+      "velocity_class": "high",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-004",
+      "name": "High Velocity SKU 004",
+      "category": "household",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-005",
+      "name": "High Velocity SKU 005",
+      "category": "pantry",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-006",
+      "name": "High Velocity SKU 006",
+      "category": "cold-chain",
+      "velocity_class": "high",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-007",
+      "name": "High Velocity SKU 007",
+      "category": "pet-care",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-008",
+      "name": "High Velocity SKU 008",
+      "category": "paper-goods",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-009",
+      "name": "High Velocity SKU 009",
+      "category": "cleaning",
+      "velocity_class": "high",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-HF-010",
+      "name": "High Velocity SKU 010",
+      "category": "health",
+      "velocity_class": "high",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-011",
+      "name": "Medium Velocity SKU 011",
+      "category": "beverages",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-012",
+      "name": "Medium Velocity SKU 012",
+      "category": "snacks",
+      "velocity_class": "medium",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-013",
+      "name": "Medium Velocity SKU 013",
+      "category": "personal-care",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-014",
+      "name": "Medium Velocity SKU 014",
+      "category": "household",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-015",
+      "name": "Medium Velocity SKU 015",
+      "category": "pantry",
+      "velocity_class": "medium",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-016",
+      "name": "Medium Velocity SKU 016",
+      "category": "cold-chain",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-017",
+      "name": "Medium Velocity SKU 017",
+      "category": "pet-care",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-018",
+      "name": "Medium Velocity SKU 018",
+      "category": "paper-goods",
+      "velocity_class": "medium",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-019",
+      "name": "Medium Velocity SKU 019",
+      "category": "cleaning",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-MF-020",
+      "name": "Medium Velocity SKU 020",
+      "category": "health",
+      "velocity_class": "medium",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_and_each"
+    },
+    {
+      "sku_id": "SKU-LF-021",
+      "name": "Low Velocity SKU 021",
+      "category": "beverages",
+      "velocity_class": "low",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-022",
+      "name": "Low Velocity SKU 022",
+      "category": "snacks",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-023",
+      "name": "Low Velocity SKU 023",
+      "category": "personal-care",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-024",
+      "name": "Low Velocity SKU 024",
+      "category": "household",
+      "velocity_class": "low",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-025",
+      "name": "Low Velocity SKU 025",
+      "category": "pantry",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-026",
+      "name": "Low Velocity SKU 026",
+      "category": "cold-chain",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-027",
+      "name": "Low Velocity SKU 027",
+      "category": "pet-care",
+      "velocity_class": "low",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-028",
+      "name": "Low Velocity SKU 028",
+      "category": "paper-goods",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-029",
+      "name": "Low Velocity SKU 029",
+      "category": "cleaning",
+      "velocity_class": "low",
+      "case_pack": 12,
+      "unit": "each",
+      "handling_type": "case_only"
+    },
+    {
+      "sku_id": "SKU-LF-030",
+      "name": "Low Velocity SKU 030",
+      "category": "health",
+      "velocity_class": "low",
+      "case_pack": 24,
+      "unit": "each",
+      "handling_type": "case_only"
+    }
+  ],
+  "resources": {
+    "forklifts": [
+      {
+        "id": "forklift-01",
+        "role": "inbound_putaway_and_case_move",
+        "capacity_kg": 1200,
+        "home_node_id": "dock-inbound-01"
+      },
+      {
+        "id": "forklift-02",
+        "role": "reserve_replenishment_and_case_move",
+        "capacity_kg": 1200,
+        "home_node_id": "aisle-b-main"
+      }
+    ],
+    "workers": [
+      {
+        "id": "worker-01",
+        "role": "case_pick_and_stage",
+        "home_node_id": "aisle-a-main"
+      },
+      {
+        "id": "worker-02",
+        "role": "each_pick_station",
+        "home_node_id": "station-each-01"
+      },
+      {
+        "id": "worker-03",
+        "role": "merge_and_outbound_stage",
+        "home_node_id": "stage-merge-01"
+      }
+    ]
+  },
+  "slotting_notes": {
+    "intent": "High velocity SKUs are intentionally not all in optimal A-zone near pick faces, leaving room for later A5 ABC slotting optimization.",
+    "non_optimal_high_velocity_skus": [
+      "SKU-HF-007",
+      "SKU-HF-008",
+      "SKU-HF-009",
+      "SKU-HF-010"
+    ],
+    "non_optimal_zone": "zone-b-pick"
+  },
+  "inbound": {
+    "scenario_id": "medium-warehouse-optimized-abc-slotting.inbound",
+    "seed": 701,
+    "dock_count": 1,
+    "forklift_count": 2,
+    "process": {
+      "unload_duration_ms": 180000,
+      "qc_duration_ms": 90000,
+      "putaway_duration_ms": 240000
+    },
+    "receipts": [
+      {
+        "receipt_id": "receipt-001",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 96,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-a-03",
+        "arrives_at_ms": 90000
+      },
+      {
+        "receipt_id": "receipt-002",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 96,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-a-01",
+        "arrives_at_ms": 180000
+      },
+      {
+        "receipt_id": "receipt-003",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 96,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-a-07",
+        "arrives_at_ms": 270000
+      },
+      {
+        "receipt_id": "receipt-004",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 96,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-b-03",
+        "arrives_at_ms": 360000
+      },
+      {
+        "receipt_id": "receipt-005",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-011",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-b-04",
+        "arrives_at_ms": 900000
+      },
+      {
+        "receipt_id": "receipt-006",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-014",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-b-06",
+        "arrives_at_ms": 1020000
+      },
+      {
+        "receipt_id": "receipt-007",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-018",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-b-02",
+        "arrives_at_ms": 1140000
+      },
+      {
+        "receipt_id": "receipt-008",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-020",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "pick-b-04",
+        "arrives_at_ms": 1260000
+      },
+      {
+        "receipt_id": "receipt-009",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-LF-021",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "reserve-a-01",
+        "arrives_at_ms": 1380000
+      },
+      {
+        "receipt_id": "receipt-010",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-LF-024",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "reserve-a-04",
+        "arrives_at_ms": 1500000
+      },
+      {
+        "receipt_id": "receipt-011",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-LF-027",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "reserve-b-02",
+        "arrives_at_ms": 1620000
+      },
+      {
+        "receipt_id": "receipt-012",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-LF-030",
+        "quantity": 48,
+        "staging_location_id": "stage-inbound-01",
+        "storage_location_id": "reserve-b-05",
+        "arrives_at_ms": 1740000
+      }
+    ]
+  },
+  "outbound": {
+    "scenario_id": "medium-warehouse-optimized-abc-slotting.outbound",
+    "seed": 702,
+    "worker_count": 3,
+    "dock_count": 1,
+    "process": {
+      "pick_duration_ms": 180000,
+      "stage_duration_ms": 90000,
+      "dock_travel_duration_ms": 60000,
+      "load_duration_ms": 120000
+    },
+    "inventory": [
+      {
+        "inventory_id": "inv-case-001",
+        "sku_id": "SKU-HF-001",
+        "quantity": 720,
+        "location_id": "pick-a-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-002",
+        "sku_id": "SKU-HF-002",
+        "quantity": 720,
+        "location_id": "pick-a-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-003",
+        "sku_id": "SKU-HF-003",
+        "quantity": 720,
+        "location_id": "pick-a-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-004",
+        "sku_id": "SKU-HF-004",
+        "quantity": 720,
+        "location_id": "pick-a-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-005",
+        "sku_id": "SKU-HF-005",
+        "quantity": 720,
+        "location_id": "pick-a-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-006",
+        "sku_id": "SKU-HF-006",
+        "quantity": 720,
+        "location_id": "pick-a-06",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-007",
+        "sku_id": "SKU-HF-007",
+        "quantity": 720,
+        "location_id": "pick-a-07",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-008",
+        "sku_id": "SKU-HF-008",
+        "quantity": 720,
+        "location_id": "pick-a-08",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-009",
+        "sku_id": "SKU-HF-009",
+        "quantity": 720,
+        "location_id": "pick-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-010",
+        "sku_id": "SKU-HF-010",
+        "quantity": 720,
+        "location_id": "pick-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-011",
+        "sku_id": "SKU-MF-011",
+        "quantity": 360,
+        "location_id": "pick-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-012",
+        "sku_id": "SKU-MF-012",
+        "quantity": 360,
+        "location_id": "pick-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-013",
+        "sku_id": "SKU-MF-013",
+        "quantity": 360,
+        "location_id": "pick-b-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-014",
+        "sku_id": "SKU-MF-014",
+        "quantity": 360,
+        "location_id": "pick-b-06",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-015",
+        "sku_id": "SKU-MF-015",
+        "quantity": 360,
+        "location_id": "pick-b-07",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-016",
+        "sku_id": "SKU-MF-016",
+        "quantity": 360,
+        "location_id": "pick-b-08",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-017",
+        "sku_id": "SKU-MF-017",
+        "quantity": 360,
+        "location_id": "pick-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-018",
+        "sku_id": "SKU-MF-018",
+        "quantity": 360,
+        "location_id": "pick-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-019",
+        "sku_id": "SKU-MF-019",
+        "quantity": 360,
+        "location_id": "pick-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-020",
+        "sku_id": "SKU-MF-020",
+        "quantity": 360,
+        "location_id": "pick-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-021",
+        "sku_id": "SKU-LF-021",
+        "quantity": 180,
+        "location_id": "reserve-a-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-022",
+        "sku_id": "SKU-LF-022",
+        "quantity": 180,
+        "location_id": "reserve-a-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-023",
+        "sku_id": "SKU-LF-023",
+        "quantity": 180,
+        "location_id": "reserve-a-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-024",
+        "sku_id": "SKU-LF-024",
+        "quantity": 180,
+        "location_id": "reserve-a-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-025",
+        "sku_id": "SKU-LF-025",
+        "quantity": 180,
+        "location_id": "reserve-a-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-026",
+        "sku_id": "SKU-LF-026",
+        "quantity": 180,
+        "location_id": "reserve-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-027",
+        "sku_id": "SKU-LF-027",
+        "quantity": 180,
+        "location_id": "reserve-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-028",
+        "sku_id": "SKU-LF-028",
+        "quantity": 180,
+        "location_id": "reserve-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-029",
+        "sku_id": "SKU-LF-029",
+        "quantity": 180,
+        "location_id": "reserve-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-case-030",
+        "sku_id": "SKU-LF-030",
+        "quantity": 180,
+        "location_id": "reserve-b-05",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "order-case-001",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 24,
+        "pick_location_id": "pick-a-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 0,
+        "order_type": "case_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-case-002",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 24,
+        "pick_location_id": "pick-a-02",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 180000,
+        "order_type": "case_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-case-003",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 24,
+        "pick_location_id": "pick-a-04",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 360000,
+        "order_type": "case_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-case-004",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 24,
+        "pick_location_id": "pick-a-01",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 540000,
+        "order_type": "case_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-case-005",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 24,
+        "pick_location_id": "pick-a-05",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 720000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-006",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 24,
+        "pick_location_id": "pick-a-06",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 810000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-007",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 24,
+        "pick_location_id": "pick-a-07",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 900000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-008",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 24,
+        "pick_location_id": "pick-a-08",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 990000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-009",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 24,
+        "pick_location_id": "pick-b-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1080000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-010",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 24,
+        "pick_location_id": "pick-b-02",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1170000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-011",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 24,
+        "pick_location_id": "pick-a-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1260000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-012",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 24,
+        "pick_location_id": "pick-a-02",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1350000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-013",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 24,
+        "pick_location_id": "pick-a-04",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1440000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-014",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 24,
+        "pick_location_id": "pick-a-01",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1530000,
+        "order_type": "case_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-case-015",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 24,
+        "pick_location_id": "pick-a-05",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1800000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-016",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 24,
+        "pick_location_id": "pick-a-06",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1815000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-017",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 24,
+        "pick_location_id": "pick-a-07",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1830000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-018",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 24,
+        "pick_location_id": "pick-a-08",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1845000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-019",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 24,
+        "pick_location_id": "pick-b-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1860000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-020",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 24,
+        "pick_location_id": "pick-b-02",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1875000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-021",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 24,
+        "pick_location_id": "pick-a-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1890000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-022",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 24,
+        "pick_location_id": "pick-a-02",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1905000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-023",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 24,
+        "pick_location_id": "pick-a-04",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1920000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-024",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 24,
+        "pick_location_id": "pick-a-01",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1935000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-025",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 24,
+        "pick_location_id": "pick-a-05",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1950000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-026",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 24,
+        "pick_location_id": "pick-a-06",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1965000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-027",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 24,
+        "pick_location_id": "pick-a-07",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1980000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-028",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 24,
+        "pick_location_id": "pick-a-08",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 1995000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-029",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 24,
+        "pick_location_id": "pick-b-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2010000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-030",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 24,
+        "pick_location_id": "pick-b-02",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2025000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-031",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-011",
+        "quantity": 12,
+        "pick_location_id": "pick-b-04",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2040000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-032",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-012",
+        "quantity": 12,
+        "pick_location_id": "pick-b-01",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2055000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-033",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-013",
+        "quantity": 12,
+        "pick_location_id": "pick-b-05",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2070000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-034",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-014",
+        "quantity": 12,
+        "pick_location_id": "pick-b-06",
+        "staging_location_id": "stage-merge-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2085000,
+        "order_type": "case_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-case-035",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-015",
+        "quantity": 12,
+        "pick_location_id": "pick-b-07",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2520000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-case-036",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-016",
+        "quantity": 12,
+        "pick_location_id": "pick-b-08",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2640000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-case-037",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-017",
+        "quantity": 12,
+        "pick_location_id": "pick-b-01",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2760000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-case-038",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-018",
+        "quantity": 12,
+        "pick_location_id": "pick-b-02",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 2880000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-case-039",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-019",
+        "quantity": 12,
+        "pick_location_id": "pick-b-03",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 3000000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-case-040",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-020",
+        "quantity": 12,
+        "pick_location_id": "pick-b-04",
+        "staging_location_id": "stage-outbound-01",
+        "dock_id": "dock-outbound-01",
+        "released_at_ms": 3120000,
+        "order_type": "case_pick",
+        "wave_id": "wave-late"
+      }
+    ]
+  },
+  "each_pick": {
+    "scenario_id": "medium-warehouse-optimized-abc-slotting.each-pick",
+    "seed": 703,
+    "station_count": 1,
+    "worker_count": 3,
+    "process": {
+      "tote_bind_duration_ms": 45000,
+      "travel_to_station_duration_ms": 90000,
+      "pick_service_duration_ms": 120000,
+      "move_to_staging_duration_ms": 90000
+    },
+    "inventory": [
+      {
+        "inventory_id": "inv-each-001",
+        "sku_id": "SKU-HF-001",
+        "quantity": 480,
+        "location_id": "pick-a-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-002",
+        "sku_id": "SKU-HF-002",
+        "quantity": 480,
+        "location_id": "pick-a-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-003",
+        "sku_id": "SKU-HF-003",
+        "quantity": 480,
+        "location_id": "pick-a-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-004",
+        "sku_id": "SKU-HF-004",
+        "quantity": 480,
+        "location_id": "pick-a-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-005",
+        "sku_id": "SKU-HF-005",
+        "quantity": 480,
+        "location_id": "pick-a-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-006",
+        "sku_id": "SKU-HF-006",
+        "quantity": 480,
+        "location_id": "pick-a-06",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-007",
+        "sku_id": "SKU-HF-007",
+        "quantity": 480,
+        "location_id": "pick-a-07",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-008",
+        "sku_id": "SKU-HF-008",
+        "quantity": 480,
+        "location_id": "pick-a-08",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-009",
+        "sku_id": "SKU-HF-009",
+        "quantity": 480,
+        "location_id": "pick-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-010",
+        "sku_id": "SKU-HF-010",
+        "quantity": 480,
+        "location_id": "pick-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-011",
+        "sku_id": "SKU-MF-011",
+        "quantity": 240,
+        "location_id": "pick-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-012",
+        "sku_id": "SKU-MF-012",
+        "quantity": 240,
+        "location_id": "pick-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-013",
+        "sku_id": "SKU-MF-013",
+        "quantity": 240,
+        "location_id": "pick-b-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-014",
+        "sku_id": "SKU-MF-014",
+        "quantity": 240,
+        "location_id": "pick-b-06",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-015",
+        "sku_id": "SKU-MF-015",
+        "quantity": 240,
+        "location_id": "pick-b-07",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-016",
+        "sku_id": "SKU-MF-016",
+        "quantity": 240,
+        "location_id": "pick-b-08",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-017",
+        "sku_id": "SKU-MF-017",
+        "quantity": 240,
+        "location_id": "pick-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-018",
+        "sku_id": "SKU-MF-018",
+        "quantity": 240,
+        "location_id": "pick-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-019",
+        "sku_id": "SKU-MF-019",
+        "quantity": 240,
+        "location_id": "pick-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-020",
+        "sku_id": "SKU-MF-020",
+        "quantity": 240,
+        "location_id": "pick-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-021",
+        "sku_id": "SKU-LF-021",
+        "quantity": 96,
+        "location_id": "pick-a-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-022",
+        "sku_id": "SKU-LF-022",
+        "quantity": 96,
+        "location_id": "pick-a-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-023",
+        "sku_id": "SKU-LF-023",
+        "quantity": 96,
+        "location_id": "pick-a-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-024",
+        "sku_id": "SKU-LF-024",
+        "quantity": 96,
+        "location_id": "pick-a-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-025",
+        "sku_id": "SKU-LF-025",
+        "quantity": 96,
+        "location_id": "pick-a-05",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-026",
+        "sku_id": "SKU-LF-026",
+        "quantity": 96,
+        "location_id": "pick-b-01",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-027",
+        "sku_id": "SKU-LF-027",
+        "quantity": 96,
+        "location_id": "pick-b-02",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-028",
+        "sku_id": "SKU-LF-028",
+        "quantity": 96,
+        "location_id": "pick-b-03",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-029",
+        "sku_id": "SKU-LF-029",
+        "quantity": 96,
+        "location_id": "pick-b-04",
+        "status": "available"
+      },
+      {
+        "inventory_id": "inv-each-030",
+        "sku_id": "SKU-LF-030",
+        "quantity": 96,
+        "location_id": "pick-b-05",
+        "status": "available"
+      }
+    ],
+    "orders": [
+      {
+        "order_id": "order-each-001",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 60000,
+        "order_type": "each_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-each-002",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 240000,
+        "order_type": "each_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-each-003",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-04",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 420000,
+        "order_type": "each_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-each-004",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-01",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 600000,
+        "order_type": "each_pick",
+        "wave_id": "wave-early"
+      },
+      {
+        "order_id": "order-each-005",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-05",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 780000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-006",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-06",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 870000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-007",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-07",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 960000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-008",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-08",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1050000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-009",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1140000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-010",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1230000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-011",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1320000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-012",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1410000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-013",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-04",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1500000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-014",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-01",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1590000,
+        "order_type": "each_pick",
+        "wave_id": "wave-midday"
+      },
+      {
+        "order_id": "order-each-015",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-05",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1800000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-016",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-06",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1815000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-017",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-07",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1830000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-018",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-08",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1845000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-019",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1860000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-020",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1875000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-021",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-001",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1890000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-022",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-002",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1905000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-023",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-003",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-04",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1920000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-024",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-004",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-01",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1935000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-025",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-005",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-05",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1950000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-026",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-006",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-06",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1965000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-027",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-007",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-07",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1980000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-028",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-008",
+        "quantity": 6,
+        "pick_face_location_id": "pick-a-08",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 1995000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-029",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-009",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2010000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-030",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-HF-010",
+        "quantity": 6,
+        "pick_face_location_id": "pick-b-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2025000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-031",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-011",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-04",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2040000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-032",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-012",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-01",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2055000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-033",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-013",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-05",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2070000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-034",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-014",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-06",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2085000,
+        "order_type": "each_pick",
+        "wave_id": "wave-peak-01"
+      },
+      {
+        "order_id": "order-each-035",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-015",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-07",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2580000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-each-036",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-016",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-08",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2700000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-each-037",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-017",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-01",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2820000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-each-038",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-018",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-02",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 2940000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-each-039",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-019",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-03",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 3060000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      },
+      {
+        "order_id": "order-each-040",
+        "warehouse_id": "medium-warehouse",
+        "sku_id": "SKU-MF-020",
+        "quantity": 4,
+        "pick_face_location_id": "pick-b-04",
+        "pick_station_id": "station-each-01",
+        "staging_location_id": "stage-merge-01",
+        "released_at_ms": 3180000,
+        "order_type": "each_pick",
+        "wave_id": "wave-late"
+      }
+    ]
+  },
+  "dataset_quality": {
+    "sku_count": 30,
+    "order_count": 80,
+    "forklift_count": 2,
+    "worker_count": 3,
+    "has_peak_window": true,
+    "peak_window_ms": {
+      "from": 1800000,
+      "to": 2100000
+    },
+    "covers": [
+      "inbound",
+      "case_pick",
+      "each_pick",
+      "merge_consolidation",
+      "A_zone",
+      "B_zone"
+    ]
+  }
+}

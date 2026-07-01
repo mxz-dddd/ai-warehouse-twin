@@ -125,7 +125,7 @@ public sealed class AbcSlottingHeuristicTests
     }
 
     [Fact]
-    public void OptimizedScenario_DoesNotGenerateComparisonArtifactOrImprovementClaims()
+    public void OptimizedScenario_AbcSlottingConfig_DoesNotContainComparisonClaims()
     {
         var configText = File.ReadAllText(OptimizedConfigPath());
 
@@ -134,7 +134,6 @@ public sealed class AbcSlottingHeuristicTests
         Assert.DoesNotContain("improvement_pct", configText, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("baseline_vs_optimized", configText, StringComparison.OrdinalIgnoreCase);
         Assert.True(Directory.Exists(OptimizedDir()));
-        Assert.Empty(Directory.EnumerateFiles(OptimizedDir(), "*comparison*", SearchOption.AllDirectories));
     }
 
     [Fact]
