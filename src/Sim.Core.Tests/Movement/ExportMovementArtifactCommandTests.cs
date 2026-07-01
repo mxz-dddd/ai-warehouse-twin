@@ -154,6 +154,89 @@ public sealed class ExportMovementArtifactCommandTests
         Assert.Equal(before, ArtifactFileSnapshot());
     }
 
+    [Fact]
+    public void ExportMovementArtifact_MediumWarehouse_ExportsContinuousRouteSegments()
+    {
+        using var temp = TempDirectory.Create();
+        var runArtifactPath = Path.Combine(temp.Path, "run-artifact.v1.json");
+        var firstMovementPath = Path.Combine(temp.Path, "movement-artifact-a.v1.json");
+        var secondMovementPath = Path.Combine(temp.Path, "movement-artifact-b.v1.json");
+
+        var runArtifact = RunCli(
+            "export-artifact",
+            MediumScenarioPath(),
+            "-o",
+            runArtifactPath);
+
+        Assert.Equal(0, runArtifact.ExitCode);
+        Assert.True(File.Exists(runArtifactPath));
+
+        var first = RunCli(
+            "export-movement-artifact",
+            MediumScenarioPath(),
+            "-o",
+            firstMovementPath,
+            "--run-id",
+            "medium-warehouse",
+            "--source-run-artifact",
+            runArtifactPath,
+            "--graph-source",
+            "medium-warehouse-layout",
+            "--generator-version",
+            "cli-a4b");
+        var second = RunCli(
+            "export-movement-artifact",
+            MediumScenarioPath(),
+            "-o",
+            secondMovementPath,
+            "--run-id",
+            "medium-warehouse",
+            "--source-run-artifact",
+            runArtifactPath,
+            "--graph-source",
+            "medium-warehouse-layout",
+            "--generator-version",
+            "cli-a4b");
+
+        Assert.Equal(0, first.ExitCode);
+        Assert.DoesNotContain("Insufficient AVAILABLE inventory", first.StandardError);
+        Assert.Equal(0, second.ExitCode);
+        Assert.True(File.Exists(firstMovementPath));
+        Assert.Equal(File.ReadAllBytes(firstMovementPath), File.ReadAllBytes(secondMovementPath));
+
+        using var document = JsonDocument.Parse(File.ReadAllText(firstMovementPath));
+        var root = document.RootElement;
+        var routeSegments = root.GetProperty("route_segments").EnumerateArray().ToArray();
+
+        Assert.NotEmpty(routeSegments);
+        Assert.True(routeSegments.Length > 1);
+        Assert.Equal("medium-warehouse", root.GetProperty("scenario_id").GetString());
+        Assert.Equal("medium-warehouse", root.GetProperty("run_id").GetString());
+        Assert.Contains(
+            "deterministic modeled movement",
+            root.GetProperty("provenance")
+                .GetProperty("deterministic_generation_policy")
+                .GetString());
+        Assert.DoesNotContain(routeSegments, segment =>
+            segment.GetProperty("from_node_id").GetString() == "forklift-01" ||
+            segment.GetProperty("to_node_id").GetString() == "dock-inbound-01");
+
+        foreach (var segment in routeSegments)
+        {
+            Assert.True(segment.GetProperty("distance_m").GetDecimal() > 0m);
+        }
+
+        for (var i = 1; i < routeSegments.Length; i++)
+        {
+            Assert.Equal(
+                routeSegments[i - 1].GetProperty("to_node_id").GetString(),
+                routeSegments[i].GetProperty("from_node_id").GetString());
+            Assert.Equal(
+                routeSegments[i - 1].GetProperty("end_ms").GetInt64(),
+                routeSegments[i].GetProperty("start_ms").GetInt64());
+        }
+    }
+
     private static CliResult RunCli(params string[] arguments)
     {
         var startInfo = new ProcessStartInfo
@@ -204,6 +287,15 @@ public sealed class ExportMovementArtifactCommandTests
             RepositoryRoot(),
             "datasets",
             "sample-small-warehouse",
+            "scenario.json");
+    }
+
+    private static string MediumScenarioPath()
+    {
+        return Path.Combine(
+            RepositoryRoot(),
+            "datasets",
+            "medium-warehouse",
             "scenario.json");
     }
 
