@@ -13,7 +13,34 @@
     "receipt_throughput_per_hour": 9000.000,
     "outbound_order_throughput_per_hour": 9000.000,
     "each_pick_order_throughput_per_hour": 9000.000,
-    "total_work_item_throughput_per_hour": 27000.000
+    "total_work_item_throughput_per_hour": 27000.000,
+    "order_cycle_p50_ms": 200,
+    "order_cycle_p90_ms": 390,
+    "order_cycle_p95_ms": 390,
+    "avg_wait_ms": 63.333,
+    "resource_utilization": {
+      "dock-1": 100,
+      "station-1": 25.00
+    },
+    "bottlenecks": [
+      {
+        "rank": 1,
+        "resource_id": "dock-1",
+        "resource_type": "unknown",
+        "avg_wait_ms": 95,
+        "total_wait_ms": 190,
+        "utilization": 100
+      },
+      {
+        "rank": 2,
+        "resource_id": "station-1",
+        "resource_type": "unknown",
+        "avg_wait_ms": 0,
+        "total_wait_ms": 0,
+        "utilization": 25.00
+      }
+    ],
+    "travel_distance_m_by_actor_type": {}
   },
   "layout": {
     "resources": [

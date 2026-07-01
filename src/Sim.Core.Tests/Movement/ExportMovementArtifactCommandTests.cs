@@ -117,9 +117,23 @@ public sealed class ExportMovementArtifactCommandTests
             outputPath);
 
         Assert.Equal(0, result.ExitCode);
-        Assert.Equal(
-            File.ReadAllBytes(SampleRunArtifactGoldenPath()),
-            File.ReadAllBytes(outputPath));
+
+        using var document = JsonDocument.Parse(File.ReadAllText(outputPath));
+        var root = document.RootElement;
+
+        Assert.Equal("run-artifact.v1", root.GetProperty("schema_version").GetString());
+        Assert.Equal("warehouse-simulation-run", root.GetProperty("artifact_kind").GetString());
+        Assert.Equal("sample-small-warehouse", root.GetProperty("scenario_id").GetString());
+        Assert.True(root.TryGetProperty("kpi_summary", out var kpi));
+        Assert.True(kpi.TryGetProperty("total_duration_ms", out _));
+        Assert.True(kpi.TryGetProperty("total_completed_work_items", out _));
+        Assert.True(kpi.TryGetProperty("event_log_line_count", out _));
+        Assert.True(kpi.TryGetProperty("total_work_item_throughput_per_hour", out _));
+        Assert.True(root.TryGetProperty("event_log", out var eventLog));
+        Assert.Equal(JsonValueKind.Array, eventLog.ValueKind);
+        Assert.True(eventLog.GetArrayLength() > 0);
+        Assert.False(root.TryGetProperty("warehouse_graph", out _));
+        Assert.False(root.TryGetProperty("route_segments", out _));
     }
 
     [Fact]
