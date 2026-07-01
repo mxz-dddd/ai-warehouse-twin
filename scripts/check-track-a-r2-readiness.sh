@@ -22,6 +22,38 @@ engine/unity/AIWarehouseTwin/Assets/Tests/EditMode/*Loader*Tests.cs)
   esac
 }
 
+is_unity_generated_path() {
+  local path="$1"
+  case "$path" in
+    engine/unity/*/Library/*|\
+engine/unity/*/Logs/*|\
+engine/unity/*/UserSettings/*|\
+engine/unity/*/Temp/*|\
+engine/unity/*/obj/*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+is_unity_b2_actor_animation_path() {
+  local path="$1"
+  case "$path" in
+    engine/unity/AIWarehouseTwin/Assets/Scripts/Rendering/Actors/*.cs|\
+engine/unity/AIWarehouseTwin/Assets/Tests/EditMode/*ActorAnimation*Tests.cs|\
+engine/unity/AIWarehouseTwin/Assets/Tests/Fixtures/*ActorAnimation*|\
+engine/unity/AIWarehouseTwin/Assets/*/Tests/EditMode/*ActorAnimation*Tests.cs|\
+engine/unity/AIWarehouseTwin/Assets/*/Fixtures/*ActorAnimation*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 is_unity_high_risk_runtime_path() {
   local path="$1"
   case "$path" in
@@ -47,6 +79,7 @@ line_references_sim_core_from_unity() {
     [[ "$line" =~ Sim\.Core\. ]] ||
     [[ "$line" =~ src/Sim\.Core ]] ||
     [[ "$line" =~ PathGraph ]] ||
+    [[ "$line" =~ LayoutGraphLoader ]] ||
     [[ "$line" =~ PathRoute ]]
 }
 
@@ -64,6 +97,14 @@ check_unity_movement_artifact_boundary() {
     path="${match%%:*}"
     line="${match#*:}"
     line="${line#*:}"
+
+    if is_unity_generated_path "$path"; then
+      continue
+    fi
+
+    if is_unity_b2_actor_animation_path "$path"; then
+      continue
+    fi
 
     if is_unity_high_risk_runtime_path "$path"; then
       echo "Unexpected MovementArtifact Unity runtime/scene implementation: $path"
@@ -97,7 +138,7 @@ check_unity_core_reference_boundary() {
       echo "Unexpected Sim.Core or PathGraph/PathRoute reference from Unity: $path"
       failed=1
     fi
-  done < <(grep -RInE "using[[:space:]]+Sim\\.Core|Sim\\.Core\\.|src/Sim\\.Core|PathGraph|PathRoute" \
+  done < <(grep -RInE "using[[:space:]]+Sim\\.Core|Sim\\.Core\\.|src/Sim\\.Core|PathGraph|LayoutGraphLoader|PathRoute" \
     engine/unity/AIWarehouseTwin/Assets/Scripts \
     engine/unity/AIWarehouseTwin/Assets/Tests 2>/dev/null || true)
 
@@ -135,6 +176,11 @@ run_self_test() {
     "engine/unity/AIWarehouseTwin/Assets/Tests/EditMode/RunArtifactLoaderTests.cs"
   )
 
+  local allowed_b2_paths=(
+    "engine/unity/AIWarehouseTwin/Assets/Scripts/Rendering/Actors/ActorTimelineBuilder.cs"
+    "engine/unity/AIWarehouseTwin/Assets/Tests/EditMode/ActorAnimationTimelineTests.cs"
+  )
+
   local blocked_runtime_paths=(
     "engine/unity/AIWarehouseTwin/Assets/Scripts/Rendering/Actors/MovementArtifactActorAnimator.cs"
     "engine/unity/AIWarehouseTwin/Assets/Scripts/Animation/MovementArtifactAnimationPlayer.cs"
@@ -157,6 +203,23 @@ run_self_test() {
     fi
   done
 
+  for path in "${allowed_b2_paths[@]}"; do
+    if ! is_unity_b2_actor_animation_path "$path"; then
+      echo "Self-test failed: expected allowed B2 actor animation path: $path"
+      exit 1
+    fi
+  done
+
+  if is_unity_b2_actor_animation_path "engine/unity/AIWarehouseTwin/Assets/Scripts/Animation/MovementArtifactAnimationPlayer.cs"; then
+    echo "Self-test failed: B2 actor animation allowlist is too broad"
+    exit 1
+  fi
+
+  if ! is_unity_generated_path "engine/unity/AIWarehouseTwin/Library/Bee/tundra.log.json"; then
+    echo "Self-test failed: expected Unity generated path to be ignored"
+    exit 1
+  fi
+
   if ! line_references_sim_core_from_unity "using Sim.Core;"; then
     echo "Self-test failed: expected using Sim.Core to be blocked"
     exit 1
@@ -164,6 +227,11 @@ run_self_test() {
 
   if ! line_references_sim_core_from_unity "var graph = Sim.Core.Spatial.PathGraph.Create();"; then
     echo "Self-test failed: expected Sim.Core.Spatial.PathGraph to be blocked"
+    exit 1
+  fi
+
+  if ! line_references_sim_core_from_unity "var graph = LayoutGraphLoader.Load(json);"; then
+    echo "Self-test failed: expected LayoutGraphLoader to be blocked"
     exit 1
   fi
 
