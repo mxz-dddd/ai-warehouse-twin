@@ -60,7 +60,7 @@ public sealed class AbcSlottingHeuristicTests
         var committed = File.ReadAllText(OptimizedConfigPath());
 
         Assert.Equal(first, second);
-        Assert.Equal(committed, first);
+        Assert.Equal(NormalizeNewlines(committed), NormalizeNewlines(first));
     }
 
     [Fact]
@@ -153,6 +153,9 @@ public sealed class AbcSlottingHeuristicTests
 
     private static string Sha256(string value)
         => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();
+
+    private static string NormalizeNewlines(string value)
+        => value.Replace("\r\n", "\n", StringComparison.Ordinal);
 
     private static string MediumScenarioPath()
         => Path.Combine(RepoRoot(), "datasets", "medium-warehouse", "scenario.json");
