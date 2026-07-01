@@ -1,0 +1,72 @@
+{
+  "schema_version": "comparison_artifact.v1.r3",
+  "baseline": {
+    "scenario_id": "mock-baseline-demo",
+    "metrics": {
+      "finished_at_ms": 120000,
+      "completed_receipts": 6,
+      "completed_outbound_orders": 8,
+      "completed_each_pick_orders": 10,
+      "total_quantity_received": 120,
+      "total_quantity_shipped": 96,
+      "total_quantity_picked": 54,
+      "inbound_receipt_throughput_per_hour": 180,
+      "outbound_order_throughput_per_hour": 240,
+      "each_pick_order_throughput_per_hour": 300,
+      "total_work_item_throughput_per_hour": 720
+    }
+  },
+  "candidate": {
+    "scenario_id": "mock-candidate-slotting-demo",
+    "metrics": {
+      "finished_at_ms": 90000,
+      "completed_receipts": 7,
+      "completed_outbound_orders": 11,
+      "completed_each_pick_orders": 13,
+      "total_quantity_received": 140,
+      "total_quantity_shipped": 126,
+      "total_quantity_picked": 75,
+      "inbound_receipt_throughput_per_hour": 210,
+      "outbound_order_throughput_per_hour": 330,
+      "each_pick_order_throughput_per_hour": 390,
+      "total_work_item_throughput_per_hour": 930
+    }
+  },
+  "deltas": [
+    {
+      "metric_name": "order_cycle_p50_ms",
+      "baseline_value": 120000,
+      "candidate_value": 90000,
+      "delta": -30000,
+      "delta_percent": -25.0,
+      "direction": "lower_is_better"
+    },
+    {
+      "metric_name": "total_work_item_throughput_per_hour",
+      "baseline_value": 720,
+      "candidate_value": 930,
+      "delta": 210,
+      "delta_percent": 29.1667,
+      "direction": "higher_is_better"
+    }
+  ],
+  "kpi_deltas": {
+    "order_cycle_p50_ms": {
+      "baseline_value": 120000,
+      "candidate_value": 90000,
+      "delta": -30000,
+      "lower_is_better": true
+    },
+    "total_work_item_throughput_per_hour": {
+      "baseline_value": 720,
+      "candidate_value": 930,
+      "delta": 210,
+      "lower_is_better": false
+    }
+  },
+  "improvement_pct": {
+    "order_cycle_p50_ms": 25.0,
+    "total_work_item_throughput_per_hour": 29.1667
+  },
+  "mock_notice": "Mock comparison fixture for B3 UI demo only. Not a real optimization result."
+}
