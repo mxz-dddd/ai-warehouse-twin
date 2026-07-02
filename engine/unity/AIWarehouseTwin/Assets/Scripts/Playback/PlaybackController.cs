@@ -6,9 +6,23 @@ namespace AIWarehouseTwin.Playback
     {
         private static readonly float[] SpeedOptions = { 1f, 5f, 10f, 999f };
 
+        private static PlaybackController instance;
         private int speedIndex;
 
-        public static PlaybackController Instance { get; private set; }
+        public static PlaybackController Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = Object.FindFirstObjectByType<PlaybackController>();
+                }
+
+                return instance;
+            }
+
+            private set => instance = value;
+        }
 
         public float simulationTime { get; private set; }
 
