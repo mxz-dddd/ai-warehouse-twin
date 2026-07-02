@@ -1,4 +1,5 @@
 using AIWarehouseTwin.Agent;
+using AIWarehouseTwin.VFX;
 using AIWarehouseTwin.World;
 using NUnit.Framework;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace AIWarehouseTwin.Tests
     public sealed class WorkerActorTests
     {
         private GameObject gameObject;
+        private GameObject vfxGameObject;
         private WarehousePalette palette;
 
         [TearDown]
@@ -21,6 +23,11 @@ namespace AIWarehouseTwin.Tests
             if (palette != null)
             {
                 Object.DestroyImmediate(palette);
+            }
+
+            if (vfxGameObject != null)
+            {
+                Object.DestroyImmediate(vfxGameObject);
             }
         }
 
@@ -93,10 +100,78 @@ namespace AIWarehouseTwin.Tests
             Assert.That(worker.BobOffset, Is.EqualTo(0f).Within(0.001f));
         }
 
+        [Test]
+        public void Picking_state_triggers_pick_complete_vfx_once()
+        {
+            var worker = CreateWorker();
+            var calls = 0;
+            worker.PickVfxFactory = position =>
+            {
+                calls++;
+                return CreateVfx();
+            };
+            worker.LoadRoute(new[]
+            {
+                new ActorRouteSegment(0f, 1f, Vector3.zero, Vector3.right, ActorState.Picking),
+            });
+
+            worker.Tick(0.25f);
+            worker.Tick(0.5f);
+
+            Assert.That(calls, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void Picking_state_can_trigger_again_after_leaving()
+        {
+            var worker = CreateWorker();
+            var calls = 0;
+            worker.PickVfxFactory = position =>
+            {
+                calls++;
+                return CreateVfx();
+            };
+            worker.LoadRoute(new[]
+            {
+                new ActorRouteSegment(0f, 1f, Vector3.zero, Vector3.right, ActorState.Picking),
+                new ActorRouteSegment(1f, 2f, Vector3.right, Vector3.right, ActorState.Moving),
+                new ActorRouteSegment(2f, 3f, Vector3.right, Vector3.right * 2f, ActorState.Picking),
+            });
+
+            worker.Tick(0.5f);
+            worker.Tick(1.5f);
+            worker.Tick(2.5f);
+
+            Assert.That(calls, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void Picking_without_vfx_binding_is_safe()
+        {
+            var worker = CreateWorker();
+            worker.LoadRoute(new[]
+            {
+                new ActorRouteSegment(0f, 1f, Vector3.zero, Vector3.right, ActorState.Picking),
+            });
+
+            Assert.DoesNotThrow(() => worker.Tick(0.5f));
+        }
+
         private WorkerActor CreateWorker()
         {
             gameObject = new GameObject("WorkerActorTests");
             return gameObject.AddComponent<WorkerActor>();
+        }
+
+        private PickCompleteVFX CreateVfx()
+        {
+            if (vfxGameObject != null)
+            {
+                Object.DestroyImmediate(vfxGameObject);
+            }
+
+            vfxGameObject = new GameObject("PickCompleteVFXTests");
+            return vfxGameObject.AddComponent<PickCompleteVFX>();
         }
     }
 }
