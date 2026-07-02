@@ -18,6 +18,8 @@ namespace AIWarehouseTwin.UI
 
         public string[] KpiRows { get; init; } = Array.Empty<string>();
 
+        public KpiSummaryRow[] KpiHudRows { get; init; } = Array.Empty<KpiSummaryRow>();
+
         public string[] EventRows { get; init; } = Array.Empty<string>();
     }
 }
