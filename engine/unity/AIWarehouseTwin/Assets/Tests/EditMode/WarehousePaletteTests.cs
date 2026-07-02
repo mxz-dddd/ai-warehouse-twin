@@ -1,5 +1,6 @@
 using AIWarehouseTwin.World;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 namespace AIWarehouseTwin.Tests
@@ -44,6 +45,17 @@ namespace AIWarehouseTwin.Tests
             var color = WarehousePalette.DefaultColorFromHex("#2C3E50", 0.75f);
 
             Assert.That(color.a, Is.EqualTo(0.75f).Within(0.001f));
+        }
+
+        [Test]
+        public void DefaultPalette_asset_exists_and_uses_world_palette_type()
+        {
+            var asset = AssetDatabase.LoadAssetAtPath<WarehousePalette>("Assets/UI/DefaultPalette.asset");
+
+            Assert.That(asset, Is.Not.Null);
+            AssertColor(asset.floor, "#F5F0E8");
+            AssertColor(asset.zoneReceive, "#7EC8E3");
+            AssertColor(asset.panelBg, "#2C3E50", 0.75f);
         }
 
         private static void AssertColor(Color actual, string expectedHex, float expectedAlpha = 1f)
