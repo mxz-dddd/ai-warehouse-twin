@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using AIWarehouseTwin.Playback;
 using Sim.Contracts.Artifacts;
 using UnityEngine;
@@ -305,6 +306,35 @@ namespace AIWarehouseTwin.UI
             PushTextsToUi();
         }
 
+        public static void RefreshUi(RunArtifactPlayerState state, VisualElement root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            root.Clear();
+            if (state == null || state.KpiHudRows == null || state.KpiHudRows.Length == 0)
+            {
+                root.Add(CreateStructuredMutedLabel("No KPI data"));
+                return;
+            }
+
+            foreach (var section in state.KpiHudRows.GroupBy(row => row.Section))
+            {
+                var sectionElement = new VisualElement();
+                sectionElement.style.marginBottom = 10;
+                sectionElement.Add(CreateStructuredSectionLabel(section.Key));
+
+                foreach (var row in section)
+                {
+                    sectionElement.Add(CreateStructuredRow(row));
+                }
+
+                root.Add(sectionElement);
+            }
+        }
+
         public static string FormatCompletionRate(float completedRate)
         {
             return FormatPercent(completedRate);
@@ -365,6 +395,41 @@ namespace AIWarehouseTwin.UI
             if (pathEfficiencyLabel != null) pathEfficiencyLabel.text = PathEfficiencyText;
             if (simulationTimeLabel != null) simulationTimeLabel.text = SimulationTimeText;
             if (speedButton != null) speedButton.text = SpeedLabelText;
+        }
+
+        private static VisualElement CreateStructuredRow(KpiSummaryRow row)
+        {
+            var container = new VisualElement();
+            container.style.flexDirection = FlexDirection.Row;
+            container.style.justifyContent = Justify.SpaceBetween;
+            container.style.marginBottom = 3;
+
+            var label = CreateStructuredMutedLabel(row.Label);
+            label.style.flexGrow = 1;
+            label.style.marginRight = 8;
+
+            var value = new Label(row.Value);
+            value.style.unityTextAlign = TextAnchor.MiddleRight;
+            value.style.flexShrink = 0;
+
+            container.Add(label);
+            container.Add(value);
+            return container;
+        }
+
+        private static Label CreateStructuredSectionLabel(string text)
+        {
+            var label = new Label(text);
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            label.style.marginBottom = 4;
+            return label;
+        }
+
+        private static Label CreateStructuredMutedLabel(string text)
+        {
+            var label = new Label(text);
+            label.style.color = new StyleColor(new Color(0.67f, 0.71f, 0.75f));
+            return label;
         }
 
         private static string FormatPercent(float ratio)

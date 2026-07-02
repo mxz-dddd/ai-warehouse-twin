@@ -1,4 +1,7 @@
 using System;
+using System.IO;
+using System.Linq;
+using AIWarehouseTwin.Artifact;
 using AIWarehouseTwin.UI;
 using NUnit.Framework;
 using Sim.Contracts.Artifacts;
@@ -181,6 +184,72 @@ namespace AIWarehouseTwin.Tests
             Assert.That(snapshot.TotalDuration, Is.EqualTo(600f).Within(0.001f));
         }
 
+        [Test]
+        public void Structured_kpi_rows_include_extended_contract_r3_fields()
+        {
+            var rows = KpiSummaryFormatter.FormatStructured(LoadContractR3RunArtifact());
+
+            AssertRow(rows, "Cycle time", "Order cycle p50", "95000 ms");
+            AssertRow(rows, "Cycle time", "Order cycle p90", "142000 ms");
+            AssertRow(rows, "Cycle time", "Average wait", "18500 ms");
+            AssertRow(rows, "Resource utilization", "forklift-1", "67.5%");
+            AssertRow(rows, "Bottlenecks", "#1 forklift-1 (forklift)", "22000 ms avg wait, 67.5% util");
+            AssertRow(rows, "Actor distance (artifact KPI)", "worker", "36.25 m");
+        }
+
+        [Test]
+        public void Structured_kpi_rows_use_na_for_missing_nullable_fields()
+        {
+            var rows = KpiSummaryFormatter.FormatStructured(LoadGoldenArtifact());
+
+            AssertRow(rows, "Cycle time", "Order cycle p50", "N/A");
+            AssertRow(rows, "Cycle time", "Order cycle p90", "N/A");
+            AssertRow(rows, "Cycle time", "Order cycle p95", "N/A");
+            AssertRow(rows, "Cycle time", "Average wait", "N/A");
+        }
+
+        [Test]
+        public void RefreshUi_replaces_existing_rows_without_accumulating_labels()
+        {
+            var rootElement = new VisualElement();
+            rootElement.Add(new Label("stale"));
+
+            KpiHudPanel.RefreshUi(
+                new RunArtifactPlayerState
+                {
+                    KpiHudRows = new[]
+                    {
+                        new KpiSummaryRow("Overview", "Scenario", "A")
+                    }
+                },
+                rootElement);
+            KpiHudPanel.RefreshUi(
+                new RunArtifactPlayerState
+                {
+                    KpiHudRows = new[]
+                    {
+                        new KpiSummaryRow("Overview", "Scenario", "B")
+                    }
+                },
+                rootElement);
+
+            var labels = RenderedLabels(rootElement);
+            Assert.That(labels, Does.Not.Contain("stale"));
+            Assert.That(labels, Does.Not.Contain("A"));
+            Assert.That(labels, Does.Contain("B"));
+        }
+
+        [Test]
+        public void Controller_state_exposes_structured_kpi_hud_rows()
+        {
+            var controller = new RunArtifactPlayerController(LoadGoldenArtifact());
+
+            Assert.That(controller.State.KpiRows, Has.Length.EqualTo(10));
+            AssertRow(controller.State.KpiHudRows, "Overview", "Scenario", "sample-small-warehouse");
+            AssertRow(controller.State.KpiHudRows, "Throughput", "Total/hour", "51428.571");
+            AssertRow(controller.State.KpiHudRows, "Cycle time", "Order cycle p95", "N/A");
+        }
+
         private KpiHudPanel CreatePanel()
         {
             root = new GameObject("KpiHudPanelTests");
@@ -211,6 +280,51 @@ namespace AIWarehouseTwin.Tests
             rootElement.Add(speedButton);
 
             return rootElement;
+        }
+
+        private static void AssertRow(KpiSummaryRow[] rows, string section, string label, string value)
+        {
+            var row = rows.FirstOrDefault(candidate =>
+                candidate.Section == section &&
+                candidate.Label == label);
+
+            Assert.That(row, Is.Not.Null, $"{section}/{label}");
+            Assert.That(row.Value, Is.EqualTo(value));
+            Assert.That(row.DisplayText, Is.EqualTo($"{label}: {value}"));
+        }
+
+        private static string[] RenderedLabels(VisualElement rootElement)
+        {
+            return rootElement.Query<Label>().ToList().Select(label => label.text).ToArray();
+        }
+
+        private static RunArtifactDto LoadGoldenArtifact()
+        {
+            var json = File.ReadAllText(Path.Combine(
+                Application.dataPath,
+                "StreamingAssets",
+                "run-artifact.v1.json"));
+            return RunArtifactLoader.LoadFromJson(json);
+        }
+
+        private static RunArtifactDto LoadContractR3RunArtifact()
+        {
+            return RunArtifactLoader.LoadFromJson(File.ReadAllText(ContractFixturePath("contract_r3_run_fixture.json")));
+        }
+
+        private static string ContractFixturePath(string fileName)
+        {
+            return Path.GetFullPath(Path.Combine(
+                Application.dataPath,
+                "..",
+                "..",
+                "..",
+                "..",
+                "packages",
+                "contracts",
+                "fixtures",
+                "contract-r3",
+                fileName));
         }
 
         private sealed class FakePlayback : KpiHudPanel.IPlaybackControls

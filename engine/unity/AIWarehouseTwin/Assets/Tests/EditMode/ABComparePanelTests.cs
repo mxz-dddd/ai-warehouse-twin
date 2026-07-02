@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using AIWarehouseTwin.UI;
 using AIWarehouseTwin.UI.Showcase;
 using NUnit.Framework;
@@ -242,6 +244,93 @@ namespace AIWarehouseTwin.Tests
             Assert.That(snapshot.HonestyNote, Is.EqualTo("not enough samples"));
         }
 
+        [Test]
+        public void RefreshUi_uses_view_model_display_fields_without_recomputing_delta()
+        {
+            var rootElement = new VisualElement();
+            var model = new AbShowcaseViewModel(
+                isAvailable: true,
+                unavailableReason: string.Empty,
+                isMock: false,
+                sourceLabel: "source-label",
+                evidenceLabel: "evidence-label",
+                baseline: new AbShowcaseScenarioSummary("Baseline", "baseline", "baseline-scenario"),
+                candidate: new AbShowcaseScenarioSummary("Optimized", "candidate", "candidate-scenario"),
+                kpiRows: new[]
+                {
+                    new AbShowcaseKpiRow(
+                        metricName: "total_work_item_throughput_per_hour",
+                        baselineValue: 100d,
+                        candidateValue: 200d,
+                        delta: 999d,
+                        improvementPct: 100d,
+                        lowerIsBetter: false,
+                        direction: "higher_is_better",
+                        baselineDisplay: "baseline-display-from-model",
+                        candidateDisplay: "candidate-display-from-model",
+                        deltaDisplay: "delta-display-from-model",
+                        improvementDisplay: "improvement-display-from-model",
+                        directionLabel: "direction-display-from-model",
+                        trendLabel: "trend-display-from-model",
+                        sourceLabel: "row-source")
+                },
+                deltaCount: 1);
+
+            ABComparePanel.RefreshUi(model, rootElement);
+
+            var labels = RenderedLabels(rootElement);
+            Assert.That(labels, Does.Contain("baseline-display-from-model"));
+            Assert.That(labels, Does.Contain("candidate-display-from-model"));
+            Assert.That(labels, Does.Contain("delta-display-from-model"));
+            Assert.That(labels, Does.Contain("improvement-display-from-model"));
+            Assert.That(labels, Does.Contain("direction-display-from-model | trend-display-from-model"));
+            Assert.That(labels, Does.Not.Contain("999"));
+            Assert.That(labels, Does.Not.Contain("+100.0%"));
+        }
+
+        [Test]
+        public void RefreshUi_unavailable_model_renders_reason_and_evidence()
+        {
+            var rootElement = new VisualElement();
+            var model = new AbShowcaseViewModel(
+                isAvailable: false,
+                unavailableReason: "fixture missing",
+                isMock: true,
+                sourceLabel: "source-label",
+                evidenceLabel: "evidence-label",
+                baseline: new AbShowcaseScenarioSummary("Baseline", "baseline", string.Empty),
+                candidate: new AbShowcaseScenarioSummary("Optimized", "candidate", string.Empty),
+                kpiRows: Array.Empty<AbShowcaseKpiRow>(),
+                deltaCount: 0);
+
+            ABComparePanel.RefreshUi(model, rootElement);
+
+            var labels = RenderedLabels(rootElement);
+            Assert.That(labels, Does.Contain("source-label"));
+            Assert.That(labels, Does.Contain("evidence-label"));
+            Assert.That(labels, Does.Contain("fixture missing"));
+        }
+
+        [Test]
+        public void RefreshUi_empty_available_model_renders_empty_delta_fallback()
+        {
+            var rootElement = new VisualElement();
+            var model = new AbShowcaseViewModel(
+                isAvailable: true,
+                unavailableReason: string.Empty,
+                isMock: false,
+                sourceLabel: "source-label",
+                evidenceLabel: "evidence-label",
+                baseline: new AbShowcaseScenarioSummary("Baseline", "baseline", "baseline"),
+                candidate: new AbShowcaseScenarioSummary("Optimized", "candidate", "candidate"),
+                kpiRows: Array.Empty<AbShowcaseKpiRow>(),
+                deltaCount: 0);
+
+            ABComparePanel.RefreshUi(model, rootElement);
+
+            Assert.That(RenderedLabels(rootElement), Does.Contain("No KPI deltas available."));
+        }
+
         private ABComparePanel CreatePanel()
         {
             root = new GameObject("ABComparePanelTests");
@@ -296,6 +385,11 @@ namespace AIWarehouseTwin.Tests
             rootElement.Add(optimizedButton);
             rootElement.Add(sideBySideButton);
             return rootElement;
+        }
+
+        private static string[] RenderedLabels(VisualElement rootElement)
+        {
+            return rootElement.Query<Label>().ToList().Select(label => label.text).ToArray();
         }
     }
 }
