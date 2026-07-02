@@ -1,3 +1,4 @@
+using System.Reflection;
 using AIWarehouseTwin.Playback;
 using NUnit.Framework;
 using UnityEngine;
@@ -13,6 +14,12 @@ namespace AIWarehouseTwin.Tests
         {
             if (gameObject != null)
             {
+                var controller = gameObject.GetComponent<PlaybackController>();
+                if (controller != null)
+                {
+                    InvokeOnDestroy(controller);
+                }
+
                 Object.DestroyImmediate(gameObject);
             }
         }
@@ -91,6 +98,7 @@ namespace AIWarehouseTwin.Tests
 
             Assert.That(PlaybackController.Instance, Is.SameAs(controller));
 
+            InvokeOnDestroy(controller);
             Object.DestroyImmediate(gameObject);
             gameObject = null;
 
@@ -100,7 +108,23 @@ namespace AIWarehouseTwin.Tests
         private PlaybackController CreateController()
         {
             gameObject = new GameObject("PlaybackControllerTests");
-            return gameObject.AddComponent<PlaybackController>();
+            var controller = gameObject.AddComponent<PlaybackController>();
+            InvokeAwake(controller);
+            return controller;
+        }
+
+        private static void InvokeAwake(PlaybackController controller)
+        {
+            typeof(PlaybackController)
+                .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.Invoke(controller, null);
+        }
+
+        private static void InvokeOnDestroy(PlaybackController controller)
+        {
+            typeof(PlaybackController)
+                .GetMethod("OnDestroy", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.Invoke(controller, null);
         }
     }
 }

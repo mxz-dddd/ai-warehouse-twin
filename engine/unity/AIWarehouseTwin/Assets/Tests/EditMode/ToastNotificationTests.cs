@@ -1,5 +1,7 @@
+using System.Reflection;
 using AIWarehouseTwin.UI;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 
 namespace AIWarehouseTwin.Tests
@@ -13,6 +15,12 @@ namespace AIWarehouseTwin.Tests
         {
             if (root != null)
             {
+                var toast = root.GetComponent<ToastNotification>();
+                if (toast != null)
+                {
+                    InvokeOnDestroy(toast);
+                }
+
                 Object.DestroyImmediate(root);
             }
         }
@@ -98,6 +106,16 @@ namespace AIWarehouseTwin.Tests
             AssertColor(label.color, Color.yellow);
         }
 
+        [Test]
+        public void ToastNotification_prefab_exists_with_toast_and_canvas_group()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/UI/ToastNotification.prefab");
+
+            Assert.That(prefab, Is.Not.Null);
+            Assert.That(prefab.GetComponent<ToastNotification>(), Is.Not.Null);
+            Assert.That(prefab.GetComponent<CanvasGroup>(), Is.Not.Null);
+        }
+
         private ToastNotification CreateToast(out TestToastLabel label, out CanvasGroup canvasGroup)
         {
             var toast = CreateToastWithoutBindings();
@@ -110,7 +128,23 @@ namespace AIWarehouseTwin.Tests
         private ToastNotification CreateToastWithoutBindings()
         {
             root = new GameObject("ToastNotificationTests");
-            return root.AddComponent<ToastNotification>();
+            var toast = root.AddComponent<ToastNotification>();
+            InvokeAwake(toast);
+            return toast;
+        }
+
+        private static void InvokeAwake(ToastNotification toast)
+        {
+            typeof(ToastNotification)
+                .GetMethod("Awake", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.Invoke(toast, null);
+        }
+
+        private static void InvokeOnDestroy(ToastNotification toast)
+        {
+            typeof(ToastNotification)
+                .GetMethod("OnDestroy", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.Invoke(toast, null);
         }
 
         private static void AssertColor(Color actual, Color expected)
