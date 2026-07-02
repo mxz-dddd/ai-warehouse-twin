@@ -3,7 +3,10 @@
 
         <!-- Delta row -->
         <ui:VisualElement name="delta-row" style="flex-direction: row; align-items: center; padding-top: 6px; padding-bottom: 6px; padding-left: 16px; padding-right: 16px; background-color: rgb(18, 21, 25); border-bottom-color: rgb(48, 54, 64); border-bottom-width: 1px;">
-            <ui:Label name="delta-label" text="Delta: —" style="font-size: 13px; -unity-font-style: bold;" />
+            <ui:VisualElement style="flex-direction: column;">
+                <ui:Label name="delta-label" text="Delta: —" style="font-size: 13px; -unity-font-style: bold;" />
+                <ui:Label name="delta-disclaimer-label" text="(Demo placeholder - not a calibrated comparison)" style="font-size: 10px; color: rgb(140, 148, 158); margin-top: 2px;" />
+            </ui:VisualElement>
         </ui:VisualElement>
 
         <!-- Split panels -->

@@ -18,6 +18,7 @@ namespace AIWarehouseTwin.UI
         private RunArtifactDto _artifactB;
 
         private Label _deltaLabel;
+        private Label _deltaDisclaimerLabel;
 
         private Label _scenarioA;
         private Label _seedA;
@@ -90,6 +91,7 @@ namespace AIWarehouseTwin.UI
         private void BindElements(VisualElement root)
         {
             _deltaLabel = root.Q<Label>("delta-label");
+            _deltaDisclaimerLabel = root.Q<Label>("delta-disclaimer-label");
 
             _scenarioA  = root.Q<Label>("scenario-label-a");
             _seedA      = root.Q<Label>("seed-label-a");
@@ -175,6 +177,11 @@ namespace AIWarehouseTwin.UI
             _deltaLabel.text = FormatDelta(
                 _artifactA.kpi_summary.total_work_item_throughput_per_hour,
                 _artifactB.kpi_summary.total_work_item_throughput_per_hour);
+
+            if (_deltaDisclaimerLabel != null)
+            {
+                _deltaDisclaimerLabel.text = "(Demo placeholder - not a calibrated comparison)";
+            }
         }
 
         /// <summary>
