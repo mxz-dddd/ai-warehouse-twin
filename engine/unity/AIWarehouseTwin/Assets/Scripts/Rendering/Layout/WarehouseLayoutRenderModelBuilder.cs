@@ -11,14 +11,16 @@ namespace AIWarehouseTwin.Rendering.Layout
 
         public static WarehouseLayoutRenderModel Build(
             RunArtifactDto artifact,
-            WarehouseLayoutCoordinateMapper mapper = null)
+            WarehouseLayoutCoordinateMapper mapper = null,
+            WarehousePalette palette = null)
         {
-            return Build(artifact?.warehouse_graph, mapper);
+            return Build(artifact?.warehouse_graph, mapper, palette);
         }
 
         public static WarehouseLayoutRenderModel Build(
             WarehouseGraphDto graph,
-            WarehouseLayoutCoordinateMapper mapper = null)
+            WarehouseLayoutCoordinateMapper mapper = null,
+            WarehousePalette palette = null)
         {
             if (graph?.nodes == null || graph.nodes.Length == 0)
             {
@@ -27,9 +29,9 @@ namespace AIWarehouseTwin.Rendering.Layout
 
             mapper ??= new WarehouseLayoutCoordinateMapper(Vector2.one, Vector2.zero);
 
-            var nodes = BuildNodes(graph.nodes, mapper, out var positions);
-            var zones = BuildZones(nodes);
-            var edges = BuildEdges(graph.edges, positions, out var skippedEdgeCount);
+            var nodes = BuildNodes(graph.nodes, mapper, palette, out var positions);
+            var zones = BuildZones(nodes, palette);
+            var edges = BuildEdges(graph.edges, positions, palette, out var skippedEdgeCount);
             return new WarehouseLayoutRenderModel(nodes, edges, zones, skippedEdgeCount);
         }
 
@@ -46,6 +48,7 @@ namespace AIWarehouseTwin.Rendering.Layout
         private static IReadOnlyList<WarehouseLayoutNodeRenderModel> BuildNodes(
             WarehouseGraphNodeDto[] sourceNodes,
             WarehouseLayoutCoordinateMapper mapper,
+            WarehousePalette palette,
             out Dictionary<string, Vector2> positions)
         {
             var validNodes = new List<WarehouseGraphNodeDto>();
@@ -73,7 +76,7 @@ namespace AIWarehouseTwin.Rendering.Layout
                     (float)node.x,
                     (float)node.y,
                     localPosition,
-                    ColorForCategory(category),
+                    NodeColorForCategory(category, palette),
                     SizeForCategory(category)));
                 positions[node.node_id] = localPosition;
             }
@@ -84,6 +87,7 @@ namespace AIWarehouseTwin.Rendering.Layout
         private static IReadOnlyList<WarehouseLayoutEdgeRenderModel> BuildEdges(
             WarehouseGraphEdgeDto[] sourceEdges,
             IReadOnlyDictionary<string, Vector2> positions,
+            WarehousePalette palette,
             out int skippedEdgeCount)
         {
             var edges = new List<WarehouseGraphEdgeDto>();
@@ -120,14 +124,15 @@ namespace AIWarehouseTwin.Rendering.Layout
                     edge.bidirectional,
                     from,
                     to,
-                    new Color(0.35f, 0.35f, 0.35f, 1f)));
+                    palette != null ? palette.EdgeColor : WarehousePalette.DefaultEdgeColor));
             }
 
             return result;
         }
 
         private static IReadOnlyList<WarehouseLayoutZoneRenderModel> BuildZones(
-            IReadOnlyList<WarehouseLayoutNodeRenderModel> nodes)
+            IReadOnlyList<WarehouseLayoutNodeRenderModel> nodes,
+            WarehousePalette palette)
         {
             var zones = new List<WarehouseLayoutZoneRenderModel>();
             foreach (var node in nodes)
@@ -142,8 +147,8 @@ namespace AIWarehouseTwin.Rendering.Layout
                     node.NodeType,
                     node.LocalPosition,
                     new Vector2(0.18f, 0.18f),
-                    new Color(0.78f, 0.78f, 0.78f, 0.2f),
-                    new Color(0.55f, 0.55f, 0.55f, 1f)));
+                    palette != null ? palette.ZoneFillColor : WarehousePalette.DefaultZoneFillColor,
+                    palette != null ? palette.ZoneBorderColor : WarehousePalette.DefaultZoneBorderColor));
             }
 
             return zones;
@@ -169,16 +174,13 @@ namespace AIWarehouseTwin.Rendering.Layout
             return new WarehouseLayoutBounds(minX, minY, maxX - minX, maxY - minY);
         }
 
-        private static Color ColorForCategory(WarehouseLayoutNodeCategory category)
+        private static Color NodeColorForCategory(
+            WarehouseLayoutNodeCategory category,
+            WarehousePalette palette)
         {
-            return category switch
-            {
-                WarehouseLayoutNodeCategory.Dock => new Color(0.15f, 0.15f, 0.15f, 1f),
-                WarehouseLayoutNodeCategory.Aisle => new Color(0.45f, 0.45f, 0.45f, 1f),
-                WarehouseLayoutNodeCategory.Shelf => new Color(0.65f, 0.65f, 0.65f, 1f),
-                WarehouseLayoutNodeCategory.Zone => new Color(0.75f, 0.75f, 0.75f, 1f),
-                _ => new Color(0.3f, 0.3f, 0.3f, 1f)
-            };
+            return palette != null
+                ? palette.NodeColorFor(category)
+                : WarehousePalette.DefaultNodeColorFor(category);
         }
 
         private static float SizeForCategory(WarehouseLayoutNodeCategory category)

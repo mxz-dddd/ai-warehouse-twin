@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 279473678d1963e4591e6541717f791b, type: 3}
+  m_Name: DefaultPalette
+  m_EditorClassIdentifier: AIWarehouseTwin::AIWarehouseTwin.Rendering.Layout.WarehousePalette
+  _genericNodeColor: {r: 0.3, g: 0.3, b: 0.3, a: 1}
+  _dockNodeColor: {r: 0.15, g: 0.15, b: 0.15, a: 1}
+  _aisleNodeColor: {r: 0.45, g: 0.45, b: 0.45, a: 1}
+  _shelfNodeColor: {r: 0.65, g: 0.65, b: 0.65, a: 1}
+  _zoneNodeColor: {r: 0.75, g: 0.75, b: 0.75, a: 1}
+  _edgeColor: {r: 0.35, g: 0.35, b: 0.35, a: 1}
+  _zoneFillColor: {r: 0.78, g: 0.78, b: 0.78, a: 0.2}
+  _zoneBorderColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  _toastInfoBackgroundColor: {r: 0.12, g: 0.22, b: 0.34, a: 0.96}
+  _toastSuccessBackgroundColor: {r: 0.1, g: 0.3, b: 0.2, a: 0.96}
+  _toastWarningBackgroundColor: {r: 0.36, g: 0.25, b: 0.08, a: 0.96}
+  _toastErrorBackgroundColor: {r: 0.36, g: 0.12, b: 0.12, a: 0.96}
+  _toastTextColor: {r: 0.94, g: 0.96, b: 0.98, a: 1}
