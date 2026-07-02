@@ -253,6 +253,42 @@ namespace AIWarehouseTwin.UI
             PushStateToUi();
         }
 
+        public static void RefreshUi(AbShowcaseViewModel model, VisualElement root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            root.Clear();
+            if (model == null)
+            {
+                root.Add(CreateModelMutedLabel("ComparisonArtifact unavailable: model is missing."));
+                return;
+            }
+
+            root.Add(CreateModelHeader(model));
+            root.Add(CreateModelMutedLabel(model.SourceLabel));
+            root.Add(CreateModelMutedLabel(model.EvidenceLabel));
+
+            if (!model.IsAvailable)
+            {
+                root.Add(CreateModelMutedLabel(model.UnavailableReason));
+                return;
+            }
+
+            if (model.KpiRows.Count == 0)
+            {
+                root.Add(CreateModelMutedLabel("No KPI deltas available."));
+                return;
+            }
+
+            foreach (var row in model.KpiRows)
+            {
+                root.Add(CreateModelKpiRow(row));
+            }
+        }
+
         public void ShowBaseline()
         {
             SetMode(ABCompareMode.A);
@@ -322,6 +358,73 @@ namespace AIWarehouseTwin.UI
             if (baselineButton != null) baselineButton.clicked -= ShowBaseline;
             if (optimizedButton != null) optimizedButton.clicked -= ShowOptimized;
             if (sideBySideButton != null) sideBySideButton.clicked -= ShowSideBySide;
+        }
+
+        private static VisualElement CreateModelHeader(AbShowcaseViewModel model)
+        {
+            var container = new VisualElement();
+            container.style.flexDirection = FlexDirection.Row;
+            container.style.justifyContent = Justify.SpaceBetween;
+            container.style.marginBottom = 4;
+
+            var baseline = CreateModelTitleLabel($"{model.Baseline.DisplayLabel}: {model.Baseline.ScenarioId}");
+            var candidate = CreateModelTitleLabel($"{model.Candidate.DisplayLabel}: {model.Candidate.ScenarioId}");
+            candidate.style.unityTextAlign = TextAnchor.MiddleRight;
+
+            container.Add(baseline);
+            container.Add(candidate);
+            return container;
+        }
+
+        private static VisualElement CreateModelKpiRow(AbShowcaseKpiRow row)
+        {
+            var container = new VisualElement();
+            container.style.marginTop = 8;
+            container.style.paddingTop = 6;
+            container.style.borderTopColor = new Color(0.19f, 0.22f, 0.26f);
+            container.style.borderTopWidth = 1;
+
+            container.Add(CreateModelTitleLabel(row.MetricName));
+            container.Add(CreateModelValueLine("Baseline", row.BaselineDisplay));
+            container.Add(CreateModelValueLine("Candidate", row.CandidateDisplay));
+            container.Add(CreateModelValueLine("Delta", row.DeltaDisplay));
+            container.Add(CreateModelValueLine("Improvement", row.ImprovementDisplay));
+            container.Add(CreateModelMutedLabel($"{row.DirectionLabel} | {row.TrendLabel}"));
+            return container;
+        }
+
+        private static VisualElement CreateModelValueLine(string labelText, string valueText)
+        {
+            var container = new VisualElement();
+            container.style.flexDirection = FlexDirection.Row;
+            container.style.justifyContent = Justify.SpaceBetween;
+            container.style.marginBottom = 2;
+
+            var label = CreateModelMutedLabel(labelText);
+            label.style.flexGrow = 1;
+            label.style.marginRight = 8;
+
+            var value = new Label(valueText);
+            value.style.unityTextAlign = TextAnchor.MiddleRight;
+            value.style.flexShrink = 0;
+
+            container.Add(label);
+            container.Add(value);
+            return container;
+        }
+
+        private static Label CreateModelTitleLabel(string text)
+        {
+            var label = new Label(text);
+            label.style.unityFontStyleAndWeight = FontStyle.Bold;
+            return label;
+        }
+
+        private static Label CreateModelMutedLabel(string text)
+        {
+            var label = new Label(text);
+            label.style.color = new StyleColor(new Color(0.67f, 0.71f, 0.75f));
+            return label;
         }
 
         private static string ResolveHonestyNote(ABCompareSnapshot snapshot)

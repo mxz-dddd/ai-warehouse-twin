@@ -1,5 +1,8 @@
+using System;
 using System.Globalization;
+using System.IO;
 using AIWarehouseTwin.Artifact;
+using AIWarehouseTwin.UI.Showcase;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -7,6 +10,8 @@ namespace AIWarehouseTwin.UI
 {
     public sealed class ShowcaseView : MonoBehaviour
     {
+        private const string ComparisonSourceLabel = "A5b deterministic comparison artifact";
+
         // H2: swap these to drive each panel from a different artifact source.
         // H1: unused — both panels load from StreamingAssetsArtifactSource.
         [SerializeField] private UIDocument _documentA;
@@ -16,8 +21,10 @@ namespace AIWarehouseTwin.UI
         private RunArtifactPlayerController _controllerB;
         private RunArtifactDto _artifactA;
         private RunArtifactDto _artifactB;
+        private AbShowcaseViewModel _comparisonModel;
 
         private Label _deltaLabel;
+        private ScrollView _abComparePanel;
 
         private Label _scenarioA;
         private Label _seedA;
@@ -25,7 +32,7 @@ namespace AIWarehouseTwin.UI
         private Button _playPauseA;
         private Button _resetA;
         private SliderInt _sliderA;
-        private ScrollView _kpiA;
+        private ScrollView _kpiHudA;
         private ScrollView _evtA;
 
         private Label _scenarioB;
@@ -34,7 +41,7 @@ namespace AIWarehouseTwin.UI
         private Button _playPauseB;
         private Button _resetB;
         private SliderInt _sliderB;
-        private ScrollView _kpiB;
+        private ScrollView _kpiHudB;
         private ScrollView _evtB;
 
         private bool _suppressSliderA;
@@ -60,6 +67,7 @@ namespace AIWarehouseTwin.UI
 
             _controllerA = new RunArtifactPlayerController(_artifactA);
             _controllerB = new RunArtifactPlayerController(_artifactB);
+            _comparisonModel = LoadComparisonModel();
 
             InitSlider(_controllerA, _sliderA);
             InitSlider(_controllerB, _sliderB);
@@ -72,6 +80,7 @@ namespace AIWarehouseTwin.UI
             _resetB.clicked += ResetB;
 
             RefreshAll();
+            ABComparePanel.RefreshUi(_comparisonModel, _abComparePanel);
         }
 
         private void Update()
@@ -90,6 +99,7 @@ namespace AIWarehouseTwin.UI
         private void BindElements(VisualElement root)
         {
             _deltaLabel = root.Q<Label>("delta-label");
+            _abComparePanel = root.Q<ScrollView>("ab-compare-panel");
 
             _scenarioA  = root.Q<Label>("scenario-label-a");
             _seedA      = root.Q<Label>("seed-label-a");
@@ -97,7 +107,7 @@ namespace AIWarehouseTwin.UI
             _playPauseA = root.Q<Button>("play-pause-button-a");
             _resetA     = root.Q<Button>("reset-button-a");
             _sliderA    = root.Q<SliderInt>("timeline-slider-a");
-            _kpiA       = root.Q<ScrollView>("kpi-list-a");
+            _kpiHudA    = root.Q<ScrollView>("kpi-hud-a");
             _evtA       = root.Q<ScrollView>("event-list-a");
 
             _scenarioB  = root.Q<Label>("scenario-label-b");
@@ -106,7 +116,7 @@ namespace AIWarehouseTwin.UI
             _playPauseB = root.Q<Button>("play-pause-button-b");
             _resetB     = root.Q<Button>("reset-button-b");
             _sliderB    = root.Q<SliderInt>("timeline-slider-b");
-            _kpiB       = root.Q<ScrollView>("kpi-list-b");
+            _kpiHudB    = root.Q<ScrollView>("kpi-hud-b");
             _evtB       = root.Q<ScrollView>("event-list-b");
         }
 
@@ -165,16 +175,92 @@ namespace AIWarehouseTwin.UI
             var stateB = _controllerB.State;
 
             _suppressSliderA = true;
-            RunArtifactPlayerView.RefreshUi(stateA, _scenarioA, _seedA, _timeA, _playPauseA, _sliderA, _kpiA, _evtA);
+            RefreshPlaybackUi(stateA, _scenarioA, _seedA, _timeA, _playPauseA, _sliderA, _evtA);
+            KpiHudPanel.RefreshUi(stateA, _kpiHudA);
             _suppressSliderA = false;
 
             _suppressSliderB = true;
-            RunArtifactPlayerView.RefreshUi(stateB, _scenarioB, _seedB, _timeB, _playPauseB, _sliderB, _kpiB, _evtB);
+            RefreshPlaybackUi(stateB, _scenarioB, _seedB, _timeB, _playPauseB, _sliderB, _evtB);
+            KpiHudPanel.RefreshUi(stateB, _kpiHudB);
             _suppressSliderB = false;
 
             _deltaLabel.text = FormatDelta(
                 _artifactA.kpi_summary.total_work_item_throughput_per_hour,
                 _artifactB.kpi_summary.total_work_item_throughput_per_hour);
+        }
+
+        private static void RefreshPlaybackUi(
+            RunArtifactPlayerState state,
+            Label scenarioLabel,
+            Label seedLabel,
+            Label timeLabel,
+            Button playPauseButton,
+            SliderInt timelineSlider,
+            ScrollView eventList)
+        {
+            scenarioLabel.text = state.ScenarioId;
+            seedLabel.text = $"Seed {state.Seed}";
+            timeLabel.text = $"{state.CurrentTimeMs} ms";
+            playPauseButton.text = state.IsPlaying ? "Pause" : "Play";
+            timelineSlider.value = (int)state.CurrentTimeMs;
+            ReplaceRows(eventList, state.EventRows);
+        }
+
+        private static void ReplaceRows(ScrollView list, string[] rows)
+        {
+            if (list == null)
+            {
+                return;
+            }
+
+            list.Clear();
+            foreach (var row in rows ?? Array.Empty<string>())
+            {
+                list.Add(new Label(row));
+            }
+        }
+
+        private static AbShowcaseViewModel LoadComparisonModel()
+        {
+            var path = Path.GetFullPath(Path.Combine(
+                Application.dataPath,
+                "..",
+                "..",
+                "..",
+                "..",
+                "datasets",
+                "medium-warehouse",
+                "optimized",
+                "artifacts",
+                "comparison-artifact.v1.json"));
+
+            try
+            {
+                return AbShowcasePresenter.FromComparisonArtifact(
+                    ComparisonArtifactLoader.LoadFromFile(path),
+                    ComparisonSourceLabel);
+            }
+            catch (Exception ex) when (
+                ex is ArgumentException ||
+                ex is FileNotFoundException ||
+                ex is InvalidOperationException)
+            {
+                return UnavailableComparison($"ComparisonArtifact unavailable: {ex.Message}");
+            }
+        }
+
+        private static AbShowcaseViewModel UnavailableComparison(string reason)
+        {
+            return new AbShowcaseViewModel(
+                false,
+                reason,
+                true,
+                ComparisonSourceLabel,
+                AbShowcasePresenter.MockEvidenceLabel,
+                new AbShowcaseScenarioSummary(AbShowcasePresenter.BaselineDisplayLabel, "baseline", string.Empty),
+                new AbShowcaseScenarioSummary(AbShowcasePresenter.CandidateDisplayLabel, "candidate", string.Empty),
+                Array.Empty<AbShowcaseKpiRow>(),
+                0);
         }
 
         /// <summary>
