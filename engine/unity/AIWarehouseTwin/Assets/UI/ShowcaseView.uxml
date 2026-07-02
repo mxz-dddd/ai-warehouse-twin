@@ -6,6 +6,8 @@
             <ui:Label name="delta-label" text="Delta: —" style="font-size: 13px; -unity-font-style: bold;" />
         </ui:VisualElement>
 
+        <ui:ScrollView name="ab-compare-panel" mode="Vertical" style="height: 156px; flex-shrink: 0; background-color: rgb(31, 36, 42); padding-left: 16px; padding-right: 16px; padding-top: 10px; padding-bottom: 10px; border-bottom-color: rgb(48, 54, 64); border-bottom-width: 1px;" />
+
         <!-- Split panels -->
         <ui:VisualElement name="panels-row" style="flex-direction: row; flex-grow: 1;">
 
@@ -26,7 +28,7 @@
                 <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
                     <ui:VisualElement style="flex-grow: 1; margin-right: 12px;">
                         <ui:Label text="KPIs" style="font-size: 14px; -unity-font-style: bold; margin-bottom: 6px;" />
-                        <ui:ScrollView name="kpi-list-a" mode="Vertical" style="flex-grow: 1; background-color: rgb(31, 36, 42); padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px;" />
+                        <ui:ScrollView name="kpi-hud-a" mode="Vertical" style="flex-grow: 1; background-color: rgb(31, 36, 42); padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px;" />
                     </ui:VisualElement>
                     <ui:VisualElement style="flex-grow: 2;">
                         <ui:Label text="Events" style="font-size: 14px; -unity-font-style: bold; margin-bottom: 6px;" />
@@ -55,7 +57,7 @@
                 <ui:VisualElement style="flex-direction: row; flex-grow: 1;">
                     <ui:VisualElement style="flex-grow: 1; margin-right: 12px;">
                         <ui:Label text="KPIs" style="font-size: 14px; -unity-font-style: bold; margin-bottom: 6px;" />
-                        <ui:ScrollView name="kpi-list-b" mode="Vertical" style="flex-grow: 1; background-color: rgb(31, 36, 42); padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px;" />
+                        <ui:ScrollView name="kpi-hud-b" mode="Vertical" style="flex-grow: 1; background-color: rgb(31, 36, 42); padding-left: 10px; padding-right: 10px; padding-top: 8px; padding-bottom: 8px;" />
                     </ui:VisualElement>
                     <ui:VisualElement style="flex-grow: 2;">
                         <ui:Label text="Events" style="font-size: 14px; -unity-font-style: bold; margin-bottom: 6px;" />

@@ -25,6 +25,7 @@ namespace AIWarehouseTwin.UI
                 EndTimeMs = timeline.EndMs,
                 IsPlaying = playback.IsPlaying,
                 KpiRows = KpiSummaryFormatter.Format(artifact),
+                KpiHudRows = KpiSummaryFormatter.FormatStructured(artifact),
                 EventRows = EventListFormatter.Format(playback.VisibleEvents)
             };
         }
