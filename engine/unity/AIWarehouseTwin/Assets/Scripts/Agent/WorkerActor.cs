@@ -1,4 +1,6 @@
+using System;
 using AIWarehouseTwin.World;
+using AIWarehouseTwin.VFX;
 using UnityEngine;
 
 namespace AIWarehouseTwin.Agent
@@ -16,16 +18,26 @@ namespace AIWarehouseTwin.Agent
         [SerializeField]
         private float bobFrequency = 8f;
 
+        [SerializeField]
+        private PickCompleteVFX pickCompleteVfxPrefab;
+
         private Transform visualRoot;
         private GameObject body;
         private GameObject head;
         private ActorState state = ActorState.Idle;
+
+        public Func<Vector3, PickCompleteVFX> PickVfxFactory { get; set; }
 
         public float BobOffset { get; private set; }
 
         public GameObject Body => body;
 
         public GameObject Head => head;
+
+        public void SetPickCompleteVfxPrefab(PickCompleteVFX prefab)
+        {
+            pickCompleteVfxPrefab = prefab;
+        }
 
         public void SetPalette(WarehousePalette nextPalette)
         {
@@ -66,6 +78,11 @@ namespace AIWarehouseTwin.Agent
         protected override void OnStateChanged(ActorState next)
         {
             state = next;
+            if (state == ActorState.Picking)
+            {
+                TriggerPickCompleteVfx();
+            }
+
             if (state != ActorState.Moving)
             {
                 SetBobOffset(0f);
@@ -91,6 +108,21 @@ namespace AIWarehouseTwin.Agent
             if (visualRoot != null)
             {
                 visualRoot.localPosition = new Vector3(0f, BobOffset, 0f);
+            }
+        }
+
+        private void TriggerPickCompleteVfx()
+        {
+            var position = transform.position;
+            var effect = PickVfxFactory?.Invoke(position);
+            if (effect == null && pickCompleteVfxPrefab != null)
+            {
+                effect = Instantiate(pickCompleteVfxPrefab, position, Quaternion.identity);
+            }
+
+            if (effect != null)
+            {
+                effect.PlayAt(position);
             }
         }
 
