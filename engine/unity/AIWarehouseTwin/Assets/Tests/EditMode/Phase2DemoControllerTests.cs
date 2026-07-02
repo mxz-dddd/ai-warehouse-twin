@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using AIWarehouseTwin.Agent;
 using AIWarehouseTwin.Artifact;
 using AIWarehouseTwin.Demo;
 using NUnit.Framework;
@@ -22,6 +23,7 @@ namespace AIWarehouseTwin.Tests
             }
 
             DestroyWarehouseRoots();
+            DestroyActorRoots();
         }
 
         [Test]
@@ -59,6 +61,14 @@ namespace AIWarehouseTwin.Tests
         }
 
         [Test]
+        public void FormatActorsSpawnedMessage_uses_required_console_format()
+        {
+            var message = Phase2DemoController.FormatActorsSpawnedMessage(new Phase2ActorDirectorSummary(1, 1, 2));
+
+            Assert.That(message, Is.EqualTo("Actors spawned. Workers: 1, Forklifts: 1, Routes: 2"));
+        }
+
+        [Test]
         public void BuildSummary_falls_back_to_layout_resources_when_timeline_is_empty()
         {
             var artifact = new RunArtifactDto
@@ -88,9 +98,11 @@ namespace AIWarehouseTwin.Tests
         public void LoadArtifactAndGenerateWarehouse_reads_medium_artifact_and_builds_structure()
         {
             var controller = CreateController();
+            ExpectFallbackMovementWarning();
 
             var loaded = controller.LoadArtifactAndGenerateWarehouse(MediumArtifactDirectory());
             var warehouse = GameObject.Find(Phase2DemoController.WarehouseRootName);
+            var actorsRoot = GameObject.Find(Phase2DemoController.ActorsRootName);
 
             Assert.That(loaded, Is.True);
             Assert.That(warehouse, Is.Not.Null);
@@ -101,6 +113,8 @@ namespace AIWarehouseTwin.Tests
             Assert.That(warehouse.transform.Find("Zones/ShippingZone"), Is.Not.Null);
             Assert.That(warehouse.transform.Find("Shelves"), Is.Not.Null);
             Assert.That(warehouse.transform.Find("Docks"), Is.Not.Null);
+            Assert.That(actorsRoot, Is.Not.Null);
+            Assert.That(actorsRoot.transform.childCount, Is.GreaterThanOrEqualTo(1));
         }
 
         [Test]
@@ -128,6 +142,68 @@ namespace AIWarehouseTwin.Tests
             var rootCount = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None)
                 .Count(go => go.name == Phase2DemoController.WarehouseRootName);
             Assert.That(rootCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void GenerateActors_spawns_worker_and_forklift_under_stable_root()
+        {
+            var controller = CreateController();
+            var artifact = RunArtifactLoader.LoadFromFile(MediumArtifactPath());
+            ExpectFallbackMovementWarning();
+
+            var summary = controller.GenerateActors(artifact);
+            var director = UnityEngine.Object.FindFirstObjectByType<ActorDirector>();
+            var actorsRoot = GameObject.Find(Phase2DemoController.ActorsRootName);
+
+            Assert.That(summary.WorkerCount, Is.EqualTo(1));
+            Assert.That(summary.ForkliftCount, Is.EqualTo(1));
+            Assert.That(summary.RouteCount, Is.EqualTo(2));
+            Assert.That(director, Is.Not.Null);
+            Assert.That(director.TickFromPlayback, Is.True);
+            Assert.That(director.Actors.Any(actor => actor is WorkerActor), Is.True);
+            Assert.That(director.Actors.Any(actor => actor is ForkliftActor), Is.True);
+            Assert.That(actorsRoot, Is.Not.Null);
+            Assert.That(actorsRoot.transform.childCount, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void GenerateActors_reuses_actor_root_without_stacking()
+        {
+            var controller = CreateController();
+            var artifact = RunArtifactLoader.LoadFromFile(MediumArtifactPath());
+            ExpectFallbackMovementWarning();
+            ExpectFallbackMovementWarning();
+
+            controller.GenerateActors(artifact);
+            controller.GenerateActors(artifact);
+
+            var rootCount = UnityEngine.Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None)
+                .Count(go => go.name == Phase2DemoController.ActorsRootName);
+            var director = UnityEngine.Object.FindFirstObjectByType<ActorDirector>();
+
+            Assert.That(rootCount, Is.EqualTo(1));
+            Assert.That(director.Actors, Has.Count.EqualTo(2));
+            Assert.That(director.Spawner.ActorsRoot.childCount, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void TickActors_advances_fallback_actor_position()
+        {
+            var controller = CreateController();
+            var artifact = RunArtifactLoader.LoadFromFile(MediumArtifactPath());
+            ExpectFallbackMovementWarning();
+
+            controller.GenerateActors(artifact);
+            var director = UnityEngine.Object.FindFirstObjectByType<ActorDirector>();
+            var movingActor = director.Actors.First(actor =>
+                actor.Route.Any(route => Vector3.Distance(route.from, route.to) > 0.001f));
+
+            controller.TickActors(0f);
+            var startPosition = movingActor.transform.position;
+            controller.TickActors(artifact.final_world_time_ms * 0.001f);
+            var endPosition = movingActor.transform.position;
+
+            Assert.That(Vector3.Distance(startPosition, endPosition), Is.GreaterThan(0.001f));
         }
 
         [Test]
@@ -185,6 +261,22 @@ namespace AIWarehouseTwin.Tests
             {
                 UnityEngine.Object.DestroyImmediate(existing);
             }
+        }
+
+        private static void DestroyActorRoots()
+        {
+            GameObject existing;
+            while ((existing = GameObject.Find(Phase2DemoController.ActorsRootName)) != null)
+            {
+                UnityEngine.Object.DestroyImmediate(existing);
+            }
+        }
+
+        private static void ExpectFallbackMovementWarning()
+        {
+            LogAssert.Expect(
+                LogType.Warning,
+                new System.Text.RegularExpressions.Regex("Movement artifact unavailable; using deterministic run artifact actor fallback"));
         }
     }
 }
