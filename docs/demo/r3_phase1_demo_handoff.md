@@ -5,10 +5,10 @@
 本文档基于 `origin/main` 提交：
 
 ```text
-29a77513d9a5631d3bf264c9163dcc06b59e6d51
+1e2399acfa8f0ec3d95c2ed7d2c473e34e166932
 ```
 
-本文档只用于演示交接说明。它不新增或重新生成 artifact，不修改 contracts，不修改 Unity 功能，也不改变任何运行逻辑。
+该提交已经包含 PR #100 Final Unity integration smoke 之后的状态。本文档只用于演示交接说明。它不新增或重新生成 artifact，不修改 contracts，不修改 Unity 功能，也不改变任何运行逻辑。
 
 ## 演示状态与范围
 
@@ -33,6 +33,7 @@ R3 演示面向以下内容：
 - A3b KPI 写入 RunArtifact。
 - A4b medium baseline golden artifacts。
 - A5b medium A/B comparison artifacts。
+- Final Unity integration smoke 已验证 Unity 侧 artifact loader 以及 B1 / B2 / B3 view-model integration path。
 
 ## Artifact 清单
 
@@ -157,7 +158,7 @@ dotnet run --project src/Sim.Cli -- \
 
 ## Unity 加载交接
 
-Unity 侧已经具备 loader 和 view-model 接缝，但具体运行时加载路径取决于当前演示 scene 或 runner 的 wiring。除非在独立任务中确认了当前 demo scene，不要宣称所有 scene 都已经完成接入。
+Unity 侧已经具备 loader 和 view-model 接缝，且 Final Unity integration smoke 已验证 Unity 侧 artifact loader 以及 B1 / B2 / B3 view-model integration path。B3 仍是 demo UI skeleton / fixture Showcase；final integration smoke 只验证它可以消费 A5b real ComparisonArtifact DTO path，不代表已经完成全部真实客户 UI wiring。除非在独立任务中确认了当前 demo scene，不要宣称所有 scene 都已经完成接入。
 
 artifact 与 Unity 展示的对应关系如下：
 
@@ -249,4 +250,4 @@ artifact 与 Unity 展示的对应关系如下：
 - A/B comparison smoke：
   `bash scripts/smoke-medium-warehouse-ab-comparison.sh`
 
-本文档是叙述和操作交接说明。任何 Unity 接入、artifact 再生成或最终 Unity 集成 smoke 验证都应作为独立任务处理，并使用干净 worktree。
+本文档是叙述和操作交接说明。任何新的 Unity 接入、artifact 再生成或额外 Unity 验证都应作为独立任务处理，并使用干净 worktree。
