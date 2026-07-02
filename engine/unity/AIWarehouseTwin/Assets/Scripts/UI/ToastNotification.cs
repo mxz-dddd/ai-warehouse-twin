@@ -30,8 +30,22 @@ namespace AIWarehouseTwin.UI
         private ToastType currentType = ToastType.Info;
         private Color currentColor = Color.white;
         private float currentAlpha;
+        private static ToastNotification instance;
 
-        public static ToastNotification Instance { get; private set; }
+        public static ToastNotification Instance
+        {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = Object.FindFirstObjectByType<ToastNotification>();
+                }
+
+                return instance;
+            }
+
+            private set => instance = value;
+        }
 
         public string CurrentMessage => currentMessage;
 
