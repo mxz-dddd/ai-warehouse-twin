@@ -20,6 +20,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Validation", "src\Sim.V
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sim.Validation.Tests", "src\Sim.Validation.Tests\Sim.Validation.Tests.csproj", "{3CC9C457-DC06-4185-9547-CA081449409D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIWarehouseTwin.UnityBridge.Tests", "src\AIWarehouseTwin.UnityBridge.Tests\AIWarehouseTwin.UnityBridge.Tests.csproj", "{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{3CC9C457-DC06-4185-9547-CA081449409D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CC9C457-DC06-4185-9547-CA081449409D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CC9C457-DC06-4185-9547-CA081449409D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,5 +75,6 @@ Global
 		{04EEBC46-672E-4E11-9544-6BCAE5E3BFED} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 		{7C8E1FCE-97FF-4F6D-A7C1-2BE89E21E436} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 		{3CC9C457-DC06-4185-9547-CA081449409D} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
+		{53D5FE32-AACE-40ED-BB18-A7780BDC5C7E} = {92E33C9F-923B-4BDF-86C6-7888F5E78120}
 	EndGlobalSection
 EndGlobal
